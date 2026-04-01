@@ -1,0 +1,26 @@
+{
+  "version": "s25",
+  "title": "多层压缩策略演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 25 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.25.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "搜索项目中所有 TODO 并整理", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 grep({pattern: \"TODO\", path: \"src/\"})\n", "color": "gray" },
+    { "type": "output", "text": "找到 45 个 TODO 注释...\n", "color": "white" },
+    { "type": "output", "text": "\n(... 经过 10 轮对话 ...)\n", "color": "gray" },
+    { "type": "output", "text": "\n📦 Layer 1 微压缩: 清理 3 个旧工具结果", "color": "green" },
+    { "type": "output", "text": "\n   释放 ~15,000 tokens (免费!)\n", "color": "green" },
+    { "type": "output", "text": "\n(... 继续对话到第 22 轮 ...)\n", "color": "gray" },
+    { "type": "output", "text": "\n⚠  上下文接近上限 (~175,000 tokens)", "color": "yellow" },
+    { "type": "output", "text": "\n📦 Layer 1: 微压缩释放 ~8,000 tokens → 仍超阈值", "color": "yellow" },
+    { "type": "output", "text": "\n📝 Layer 2: 自动压缩中...", "color": "yellow" },
+    { "type": "output", "text": "\n✓ 压缩完成: 175,000 → 6,200 tokens (节省 96%)", "color": "green" },
+    { "type": "output", "text": "\n\n(... 继续对话到第 35 轮 ...)\n", "color": "gray" },
+    { "type": "output", "text": "\n🚨 Layer 3: API 返回 prompt-too-long", "color": "red" },
+    { "type": "output", "text": "\n   Reactive compact: 微压缩 + API 摘要 → 重试", "color": "yellow" },
+    { "type": "output", "text": "\n✓ 重试成功，对话继续\n", "color": "green" },
+    { "type": "output", "text": "\n💡 三层策略确保对话永不中断\n", "color": "cyan" }
+  ]
+}

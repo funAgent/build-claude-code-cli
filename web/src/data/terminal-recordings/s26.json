@@ -1,0 +1,24 @@
+{
+  "version": "s26",
+  "title": "大输出处理演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 25 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.26.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "读取 src/generated/schema.ts", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 file_read({path: \"src/generated/schema.ts\"})\n", "color": "gray" },
+    { "type": "output", "text": "\n📦 file_read: 输出过大 (500,000 字符)，已持久化到磁盘", "color": "yellow" },
+    { "type": "output", "text": "\n   路径: .agent-sessions/lx3f/tool-results/toolu_001.txt", "color": "gray" },
+    { "type": "output", "text": "\n   messages 中保留前 2,000 字符预览\n", "color": "gray" },
+    { "type": "output", "text": "\n这是一个大型 GraphQL 类型定义文件。我看到了 User、Post、Comment 等主要接口...\n", "color": "white" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "再读取 resolvers.ts 并对比", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 file_read({path: \"src/generated/resolvers.ts\"})\n", "color": "gray" },
+    { "type": "output", "text": "\n📦 file_read: 输出过大 (300,000 字符)，已持久化到磁盘", "color": "yellow" },
+    { "type": "output", "text": "\n⚠  预算控制: 消息组总量超过 200K 预算", "color": "yellow" },
+    { "type": "output", "text": "\n   最大优先替换: 1 个工具结果被替换为磁盘预览\n", "color": "yellow" },
+    { "type": "output", "text": "\n结合 schema 和 resolvers 的预览，我注意到以下模式...\n", "color": "white" },
+    { "type": "output", "text": "\n💡 完整内容保存在磁盘，需要细节时可以重新读取特定部分\n", "color": "cyan" }
+  ]
+}

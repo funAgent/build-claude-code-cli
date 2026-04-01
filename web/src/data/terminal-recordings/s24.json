@@ -1,0 +1,23 @@
+{
+  "version": "s24",
+  "title": "自动压缩演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 25 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.24.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "帮我重构 src/utils.ts", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 file_read({path: \"src/utils.ts\"})\n", "color": "gray" },
+    { "type": "output", "text": "读取到 2000 行代码，开始逐个重构函数...\n", "color": "white" },
+    { "type": "output", "text": "\n(... 经过 28 轮对话 ...)\n", "color": "gray" },
+    { "type": "output", "text": "\n⚠  上下文接近上限 (~172,000 tokens)，正在压缩...", "color": "yellow" },
+    { "type": "output", "text": "\n📝 上下文压缩中... (当前 ~172000 tokens)", "color": "yellow" },
+    { "type": "output", "text": "\n────────────────────────────────────────", "color": "gray" },
+    { "type": "output", "text": "\n  摘要生成中...", "color": "white" },
+    { "type": "output", "text": "\n  ✓ 摘要完成 (856 tokens)", "color": "green" },
+    { "type": "output", "text": "\n────────────────────────────────────────", "color": "gray" },
+    { "type": "output", "text": "\n✓ 压缩完成: 172,000 → 8,500 tokens (节省 95%)", "color": "green" },
+    { "type": "output", "text": "\n\n已完成 12 个函数重构，继续处理 transformData...\n", "color": "white" },
+    { "type": "output", "text": "\n💡 对话无缝继续——模型记得之前做了什么\n", "color": "cyan" }
+  ]
+}

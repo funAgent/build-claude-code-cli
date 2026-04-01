@@ -1,0 +1,58 @@
+{
+  "version": "s25",
+  "description": "多层压缩策略：microcompact → autocompact → reactive → circuit breaker",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "搜索项目中所有 TODO 注释并整理成清单"
+    },
+    {
+      "type": "tool_call",
+      "content": "grep({ pattern: \"TODO\", path: \"src/\" })"
+    },
+    {
+      "type": "tool_result",
+      "content": "找到 45 个匹配...\nsrc/auth.ts:23: // TODO: 添加 OAuth 支持\nsrc/db.ts:67: // TODO: 连接池优化\n..."
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({ path: \"src/auth.ts\" })"
+    },
+    {
+      "type": "tool_result",
+      "content": "// 文件内容 (500 行)..."
+    },
+    {
+      "type": "system_event",
+      "content": "【第 10 轮 · Layer 1】microcompact: 清理 3 个旧工具结果，释放 ~15,000 tokens"
+    },
+    {
+      "type": "assistant_text",
+      "content": "已整理前 20 个 TODO 项。继续检查剩余文件..."
+    },
+    {
+      "type": "system_event",
+      "content": "【第 22 轮 · Layer 2】estimateTokenCount = 175,000 > 阈值 171,000"
+    },
+    {
+      "type": "system_event",
+      "content": "【Layer 1 先行】microcompact: 释放 ~8,000 tokens → 仍超阈值"
+    },
+    {
+      "type": "system_event",
+      "content": "【Layer 2 升级】autocompact: API 摘要压缩 175,000 → 6,200 tokens"
+    },
+    {
+      "type": "assistant_text",
+      "content": "上下文已压缩。继续处理剩余 TODO 项..."
+    },
+    {
+      "type": "system_event",
+      "content": "【第 35 轮 · Layer 3】API 返回 prompt-too-long → reactive compact 触发"
+    },
+    {
+      "type": "system_event",
+      "content": "【reactive】microcompact + API 摘要 → 重试成功"
+    }
+  ]
+}

@@ -309,9 +309,9 @@
 >
 > Claude Code 源码参考：`src/services/compact/` + `src/utils/toolResultStorage.ts`
 
-- [ ] **F-s24** s24 自动压缩 — 参考 `autoCompact.ts` + `compact.ts`
-- [ ] **F-s25** s25 多层压缩 — 参考 `microCompact.ts` + `query.ts`（reactive）
-- [ ] **F-s26** s26 大输出处理 — 参考 `toolResultStorage.ts`
+- [x] **F-s24** s24 自动压缩 — 参考 `autoCompact.ts` + `compact.ts`
+- [x] **F-s25** s25 多层压缩 — 参考 `microCompact.ts` + `query.ts`（reactive）
+- [x] **F-s26** s26 大输出处理 — 参考 `toolResultStorage.ts`
 
 > 每课均包含：Agent 源码 + 教学文档 + scenarios + annotations + terminal-recordings
 

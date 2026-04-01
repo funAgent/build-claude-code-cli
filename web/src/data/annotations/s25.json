@@ -1,0 +1,32 @@
+{
+  "version": "s25",
+  "architecture": {
+    "title": "多层压缩架构",
+    "description": "s25 实现三层递进压缩策略：Layer 1 微压缩（零成本清理旧工具结果）→ Layer 2 自动压缩（API 摘要，同 s24）→ Layer 3 响应式压缩（prompt-too-long 错误兜底）。每层失败或不够时自动升级到下一层。连续 3 次失败触发 circuit breaker 熔断保护。",
+    "mermaid": "graph TD\n  START[\"每轮对话\"] --> MC[\"Layer 1: microcompact\"]\n  MC --> MC_OK{\"空间足够?\"}\n  MC_OK -->|Yes| API_CALL[\"API 调用\"]\n  MC_OK -->|No| AC[\"Layer 2: autocompact\"]\n  AC --> API_CALL\n\n  API_CALL --> PTL{\"prompt-too-long?\"}\n  PTL -->|No| CONTINUE[\"继续对话\"]\n  PTL -->|Yes| RC[\"Layer 3: reactive compact\"]\n\n  RC --> RC_OK{\"压缩成功?\"}\n  RC_OK -->|Yes| RETRY[\"重试 API\"]\n  RC_OK -->|No| CB{\"连续失败 >= 3?\"}\n  CB -->|Yes| BREAK[\"🔴 熔断: 停止压缩\"]\n  CB -->|No| RC\n\n  RETRY --> CONTINUE\n\n  subgraph micro[\"微压缩 (免费)\"]\n    M1[\"遍历 tool_result\"]\n    M2[\"跳过最近 5 个\"]\n    M3[\"替换为占位符\"]\n  end\n\n  MC --> M1\n  M1 --> M2\n  M2 --> M3\n\n  style MC fill:#dcfce7,stroke:#86efac\n  style AC fill:#eff6ff,stroke:#93c5fd\n  style RC fill:#fef3c7,stroke:#fcd34d\n  style BREAK fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "压缩层级设计",
+      "question": "为什么需要三层压缩而不是只有一层？",
+      "options": [
+        { "name": "单层 autocompact", "pros": "实现简单", "cons": "每次都需要 API 调用（有成本），短对话也可能触发" },
+        { "name": "两层: micro + auto", "pros": "免费操作优先，节省 API 成本", "cons": "没有错误兜底" },
+        { "name": "三层: micro + auto + reactive", "pros": "完整覆盖：免费 → 收费 → 紧急", "cons": "实现复杂度更高" }
+      ],
+      "chosen": "三层 + circuit breaker",
+      "reason": "与 Claude Code 架构一致。microcompact 免费延迟 autocompact 触发时间；reactive 处理估算误差导致的边界情况；circuit breaker 防止无限重试。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "多层压缩",
+      "ourFile": "src/micro-compact.ts + src/compact.ts + src/agent.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "services/compact/microCompact.ts + autoCompact.ts + compact.ts + query.ts",
+      "claudeCodeConcept": "microcompactMessages (time-based + cached MC) + autoCompactIfNeeded + compactConversation + reactive compact in query loop",
+      "difference": "教学版微压缩为固定清理旧结果；生产版有 time-based 触发（距上次活跃 N 分钟）和 cached microcompact（API 层 cache_edits），消息本地不变",
+      "whyProduction": "cached microcompact 利用 API 层的 cache 机制，避免修改本地消息破坏 prompt cache 命中率。time-based 在用户不活跃时自动清理。"
+    }
+  ]
+}

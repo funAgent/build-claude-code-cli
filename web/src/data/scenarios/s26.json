@@ -1,0 +1,54 @@
+{
+  "version": "s26",
+  "description": "大输出处理：单结果持久化 + per-message 预算控制 + ContentReplacementState",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "读取 src/generated/schema.ts 并分析类型定义"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({ path: \"src/generated/schema.ts\" })"
+    },
+    {
+      "type": "tool_result",
+      "content": "// 自动生成的 GraphQL 类型定义\nexport interface User { id: string; ... }\n// (10,000 行，500K 字符)"
+    },
+    {
+      "type": "system_event",
+      "content": "【processToolResult】输出 500,000 字符 > 阈值 50,000 → 持久化到磁盘"
+    },
+    {
+      "type": "system_event",
+      "content": "【persistToolResult】写入 .agent-sessions/abc/tool-results/toolu_001.txt"
+    },
+    {
+      "type": "system_event",
+      "content": "【替换】messages 中仅保留前 2,000 字符预览 + 磁盘路径"
+    },
+    {
+      "type": "assistant_text",
+      "content": "文件很大（500K 字符），我看到了主要的类型定义。分析如下..."
+    },
+    {
+      "type": "user_message",
+      "content": "再读取 src/generated/resolvers.ts"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({ path: \"src/generated/resolvers.ts\" })"
+    },
+    {
+      "type": "system_event",
+      "content": "【processToolResult】输出 300,000 字符 > 阈值 → 持久化到磁盘"
+    },
+    {
+      "type": "system_event",
+      "content": "【applyToolResultBudget】消息组总量 300K > 预算 200K → 最大优先替换"
+    },
+    {
+      "type": "assistant_text",
+      "content": "已读取 resolvers 文件。结合之前的 schema 分析..."
+    }
+  ]
+}

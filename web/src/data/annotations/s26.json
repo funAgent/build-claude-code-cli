@@ -1,0 +1,42 @@
+{
+  "version": "s26",
+  "architecture": {
+    "title": "大输出处理架构",
+    "description": "s26 实现工具结果的两道防线：(1) 单结果大小限制——超过 50K 字符的工具结果持久化到磁盘，messages 中只保留前 2000 字符预览；(2) 消息组预算控制——每条 user 消息的工具结果总量不超过 200K 字符，超预算时按最大优先替换。ContentReplacementState 确保替换后的内容在 API 重试时保持稳定（cache-stable replay）。",
+    "mermaid": "graph TD\n  TR[\"工具返回结果\"] --> SIZE{\"size > 50K?\"}\n  SIZE -->|No| KEEP[\"直接放入 messages\"]\n  SIZE -->|Yes| PERSIST[\"持久化到磁盘\"]\n  PERSIST --> PREVIEW[\"生成预览替换\"]\n  PREVIEW --> KEEP\n\n  KEEP --> BUDGET{\"消息组总量 > 200K?\"}\n  BUDGET -->|No| SEND[\"发送 API 调用\"]\n  BUDGET -->|Yes| REPLACE[\"最大优先替换\"]\n  REPLACE --> SEND\n\n  subgraph storage[\"磁盘存储\"]\n    DIR[\".agent-sessions/xxx/tool-results/\"]\n    FILE[\"toolu_id.txt\"]\n  end\n\n  PERSIST --> DIR\n  DIR --> FILE\n\n  subgraph replacement[\"替换内容\"]\n    TAG[\"<persisted_tool_result>\"]\n    PATH[\"路径: xxx/toolu_id.txt\"]\n    PRE[\"预览 (前 2000 字符)\"]\n  end\n\n  PREVIEW --> TAG\n  TAG --> PATH\n  PATH --> PRE\n\n  subgraph state[\"ContentReplacementState\"]\n    SEEN[\"seenIds: Set\"]\n    MAP[\"replacements: Map\"]\n  end\n\n  REPLACE --> MAP\n  SEND --> SEEN\n\n  style storage fill:#fef3c7,stroke:#fcd34d\n  style replacement fill:#eff6ff,stroke:#93c5fd\n  style state fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "大结果处理策略",
+      "question": "工具结果过大时如何处理？",
+      "options": [
+        { "name": "直接截断", "pros": "简单", "cons": "丢失信息，截断位置可能砍断关键内容" },
+        { "name": "持久化到磁盘 + 预览", "pros": "完整保存，模型看到预览，可按需重读", "cons": "增加磁盘 I/O" },
+        { "name": "压缩（gzip）", "pros": "减少大小", "cons": "仍然留在 messages 中，API 不接受压缩数据" }
+      ],
+      "chosen": "持久化到磁盘 + 预览",
+      "reason": "Claude Code 的策略。完整内容保存在磁盘，messages 中只有 2K 预览。模型能理解文件结构，需要细节时可以重新读取特定部分。"
+    },
+    {
+      "title": "预算控制算法",
+      "question": "消息组超预算时如何选择替换哪些结果？",
+      "options": [
+        { "name": "先进先出 (FIFO)", "pros": "简单", "cons": "可能替换掉最近用到的小结果" },
+        { "name": "最大优先 (Largest-first)", "pros": "最少替换次数回到预算内", "cons": "可能保留很多小但过时的结果" }
+      ],
+      "chosen": "最大优先",
+      "reason": "与 Claude Code 的 selectFreshToReplace 一致。一个 500K 的结果替换后就能释放大量空间，而替换 10 个 50K 的结果效果可能更差且副作用更多。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "工具结果存储与预算",
+      "ourFile": "src/tool-result-storage.ts + src/agent.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/toolResultStorage.ts + constants/toolLimits.ts",
+      "claudeCodeConcept": "processToolResultBlock + persistToolResult + buildLargeToolResultMessage + applyToolResultBudget + enforceToolResultBudget + ContentReplacementState",
+      "difference": "教学版简化为基础的大小检查 + 持久化 + 预算控制；生产版有 per-tool 阈值覆盖（GrowthBook）、API-level message group 分组、mustReapply/frozen/fresh 三分类、skipToolNames",
+      "whyProduction": "per-tool 阈值让 file_read 等工具可以用 Infinity 阈值跳过持久化（这些结果可能很快被再次引用）；三分类确保 cache-stable replay 在 API 重试时的一致性"
+    }
+  ]
+}

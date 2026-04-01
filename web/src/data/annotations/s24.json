@@ -1,0 +1,42 @@
+{
+  "version": "s24",
+  "architecture": {
+    "title": "自动压缩架构",
+    "description": "s24 实现上下文自动压缩：当 messages 的 token 数超过阈值（~171K）时，调用 Claude API 生成对话摘要，用摘要替换旧消息。核心组件：estimateTokenCount 估算 token → shouldAutoCompact 阈值判断 → compactConversation 执行压缩 → 消息重建（compact boundary + 最后一轮对话）。",
+    "mermaid": "graph TD\n  LOOP[\"Agent Loop 每轮结束\"] --> CHECK{\"shouldAutoCompact?\"}\n  CHECK -->|No| CONTINUE[\"继续对话\"]\n  CHECK -->|Yes| COMPACT[\"compactConversation()\"]\n\n  subgraph compact_flow[\"压缩流程\"]\n    EST[\"estimateTokenCount(messages)\"]\n    PROMPT[\"构建压缩 prompt\"]\n    API[\"Claude API 生成摘要\"]\n    REBUILD[\"重建 messages 数组\"]\n  end\n\n  COMPACT --> EST\n  EST --> PROMPT\n  PROMPT --> API\n  API --> REBUILD\n\n  subgraph new_messages[\"压缩后消息\"]\n    CB[\"compact_boundary (摘要)\"]\n    ACK[\"assistant 确认\"]\n    LAST[\"最后一轮对话\"]\n  end\n\n  REBUILD --> CB\n  CB --> ACK\n  ACK --> LAST\n  LAST --> CONTINUE\n\n  subgraph threshold[\"阈值计算\"]\n    CW[\"context_window: 200K\"]\n    OUT[\"output_reserve: 16K\"]\n    BUF[\"buffer: 13K\"]\n    TH[\"threshold: 171K\"]\n  end\n\n  CW --> TH\n  OUT --> TH\n  BUF --> TH\n\n  style compact_flow fill:#eff6ff,stroke:#93c5fd\n  style new_messages fill:#dcfce7,stroke:#86efac\n  style threshold fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "压缩策略选择",
+      "question": "如何在 context window 用尽时保持对话？",
+      "options": [
+        { "name": "滑动窗口（删除旧消息）", "pros": "简单，无 API 成本", "cons": "丢失关键决策信息，可能砍断工具调用/结果对" },
+        { "name": "摘要压缩（API 生成摘要）", "pros": "保留关键信息骨架，模型理解之前做了什么", "cons": "需要额外 API 调用，有成本" },
+        { "name": "分段对话（开新会话）", "pros": "最简单", "cons": "完全失去上下文，用户需要重复说明" }
+      ],
+      "chosen": "摘要压缩",
+      "reason": "Claude Code 使用 API 摘要压缩。虽然有额外 API 成本，但保留了记忆骨架，用户体验远好于突然失忆。阈值控制确保不会频繁触发。"
+    },
+    {
+      "title": "Token 估算方式",
+      "question": "如何计算 messages 的 token 数？",
+      "options": [
+        { "name": "精确 tokenizer (tiktoken)", "pros": "精确", "cons": "加载 tokenizer 需 50ms+，增加依赖" },
+        { "name": "字符数估算 (chars/4 * 4/3)", "pros": "零依赖，极快", "cons": "±20% 误差" }
+      ],
+      "chosen": "字符数估算",
+      "reason": "阈值判断允许误差。13K 的缓冲区完全覆盖了估算误差。Claude Code 也用估算（tokenCountWithEstimation）。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "自动压缩",
+      "ourFile": "src/compact.ts + src/agent.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "services/compact/autoCompact.ts + compact.ts",
+      "claudeCodeConcept": "shouldAutoCompact + autoCompactIfNeeded + compactConversation + streamCompactSummary + buildPostCompactMessages",
+      "difference": "教学版单次 API 调用做摘要；生产版用 forked agent 复用 prompt cache，支持 PTL 重试循环、session memory compaction、post-compact 文件附件恢复",
+      "whyProduction": "forked agent 复用 prompt cache 大幅降低压缩成本；PTL 重试处理摘要请求本身就可能超长的边界情况；post-compact 恢复确保模型不会忘记正在编辑的文件"
+    }
+  ]
+}
