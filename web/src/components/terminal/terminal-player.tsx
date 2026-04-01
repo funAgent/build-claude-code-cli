@@ -33,6 +33,11 @@ const recordingModules: Record<string, () => Promise<{ default: TerminalRecordin
   s00: () => import("@/data/terminal-recordings/s00.json") as Promise<{ default: TerminalRecording }>,
   s01: () => import("@/data/terminal-recordings/s01.json") as Promise<{ default: TerminalRecording }>,
   s02: () => import("@/data/terminal-recordings/s02.json") as Promise<{ default: TerminalRecording }>,
+  s03: () => import("@/data/terminal-recordings/s03.json") as Promise<{ default: TerminalRecording }>,
+  s04: () => import("@/data/terminal-recordings/s04.json") as Promise<{ default: TerminalRecording }>,
+  s05: () => import("@/data/terminal-recordings/s05.json") as Promise<{ default: TerminalRecording }>,
+  s06: () => import("@/data/terminal-recordings/s06.json") as Promise<{ default: TerminalRecording }>,
+  s07: () => import("@/data/terminal-recordings/s07.json") as Promise<{ default: TerminalRecording }>,
 };
 
 interface RenderedChunk {
@@ -244,7 +249,7 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
       {/* Terminal body */}
       <div
         ref={termRef}
-        className="max-h-[300px] min-h-[120px] overflow-y-auto bg-zinc-950 p-4 font-mono text-sm leading-relaxed"
+        className="max-h-[300px] min-h-[120px] overflow-y-auto bg-zinc-950 p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap"
       >
         {chunks.length === 0 && !isPlaying && (
           <span className="text-zinc-600">点击 ▶ 播放终端演示</span>

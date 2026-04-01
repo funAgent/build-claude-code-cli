@@ -3,7 +3,7 @@
 import { Tabs } from "@/components/ui/tabs";
 import { DocRenderer } from "@/components/docs/doc-renderer";
 import { SourceViewer } from "@/components/code/source-viewer";
-import { AgentLoopSimulator } from "@/components/simulator/agent-loop-simulator";
+import { TerminalPlayer } from "@/components/terminal/terminal-player";
 import { AnnotationViewer } from "@/components/deep-dive/annotation-viewer";
 import { useTranslations } from "@/lib/i18n";
 import { useProgress } from "@/hooks/useProgress";
@@ -31,7 +31,7 @@ export function VersionDetailClient({ version }: VersionDetailClientProps) {
           <>
             {activeTab === "learn" && <DocRenderer version={version} />}
             {activeTab === "simulate" && (
-              <AgentLoopSimulator version={version} />
+              <TerminalPlayer version={version} />
             )}
             {activeTab === "code" && <SourceViewer version={version} />}
             {activeTab === "deep-dive" && (
