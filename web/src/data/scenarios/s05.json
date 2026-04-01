@@ -1,0 +1,46 @@
+{
+  "version": "s05",
+  "description": "错误处理：API 指数退避重试 + 工具错误作为 tool_result 返回让模型自修正",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "帮我查看 /tmp/nonexistent.txt 的内容"
+    },
+    {
+      "type": "assistant_text",
+      "content": "好的，让我读取这个文件。"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"cat /tmp/nonexistent.txt\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "stderr: cat: /tmp/nonexistent.txt: No such file or directory\nexit: 1"
+    },
+    {
+      "type": "system_event",
+      "content": "is_error: true — 工具结果标记为错误，送回模型让它自修正"
+    },
+    {
+      "type": "assistant_text",
+      "content": "文件不存在。让我先看看 /tmp 目录下有什么文件。"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"ls /tmp/ | head -10\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "com.apple.launchd\ntest.log\ndata.json"
+    },
+    {
+      "type": "assistant_text",
+      "content": "/tmp 目录下没有 nonexistent.txt，但有 test.log 和 data.json。请问你要查看哪个文件？"
+    },
+    {
+      "type": "system_event",
+      "content": "模型成功自修正：从「直接读」变为「先查看有什么」→「引导用户」"
+    }
+  ]
+}

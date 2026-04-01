@@ -1,0 +1,20 @@
+{
+  "version": "s07",
+  "title": "成本追踪运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli \"帮我看看当前目录结构\"", "typeDelay": 40 },
+    { "type": "output", "text": "\nyou> 帮我看看当前目录结构\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 好的，让我看看目录内容。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"ls -la\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] total 32\n-rw-r--r-- package.json\ndrwxr-xr-x src/\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 这是一个 Node.js 项目，包含 package.json 和 src 目录。\n", "color": "cyan" },
+    { "type": "output", "text": "  [1780↓ 205↑ $0.0084]\n\n", "color": "green" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli", "typeDelay": 40 },
+    { "type": "output", "text": "mycli v0.7.0  [Cost Tracking]\n命令: /cost 查看成本 | /exit 退出\n\n", "color": "green" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "/cost", "typeDelay": 30 },
+    { "type": "output", "text": "\n--- 成本统计 ---\n模型: claude-sonnet-4-20250514\nAPI 调用次数: 0\n输入 tokens: 0\n输出 tokens: 0\n总成本: $0.000000\n\n", "color": "cyan" }
+  ]
+}

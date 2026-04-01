@@ -1,0 +1,50 @@
+{
+  "version": "s05",
+  "architecture": {
+    "title": "错误处理架构",
+    "description": "s05 引入两层错误处理：API 层的指数退避重试和工具层的错误作为 tool_result 返回。错误不是终点，是模型自修正的起点。",
+    "mermaid": "graph TD\n  api_call[\"API 调用\"] --> api_ok{\"成功?\"}\n  api_ok -->|yes| process[\"处理响应\"]\n  api_ok -->|no| retryable{\"可重试?\"}\n  retryable -->|yes| backoff[\"指数退避等待\"]\n  backoff --> api_call\n  retryable -->|no| fatal[\"终止并报错\"]\n\n  process --> tool{\"tool_use?\"}\n  tool -->|no| done[\"输出结果\"]\n  tool -->|yes| exec[\"执行工具\"]\n  exec --> tool_ok{\"成功?\"}\n  tool_ok -->|yes| result[\"tool_result\"]\n  tool_ok -->|no| error_result[\"tool_result\\nis_error: true\"]\n  result --> api_call\n  error_result --> api_call\n\n  style api_call fill:#eff6ff,stroke:#93c5fd\n  style backoff fill:#fef3c7,stroke:#fcd34d\n  style fatal fill:#fee2e2,stroke:#fca5a5\n  style error_result fill:#fce7f3,stroke:#f9a8d4\n  style done fill:#d1fae5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "重试 vs 直接失败",
+      "question": "API 错误应该重试还是直接报错退出？",
+      "options": [
+        { "name": "直接失败", "pros": "简单", "cons": "大量暂时性错误导致体验差" },
+        { "name": "指数退避重试", "pros": "自动恢复暂时性错误", "cons": "用户需要等待" }
+      ],
+      "chosen": "指数退避重试（3次）",
+      "reason": "429 和 5xx 是暂时性的，等一等通常就好。Claude Code 也用相同的策略，但增加了降级到备用模型的能力。"
+    },
+    {
+      "title": "工具错误：crash vs 送回模型",
+      "question": "工具执行失败时，是终止循环还是把错误告诉模型？",
+      "options": [
+        { "name": "catch + break 循环", "pros": "简单，快速退出", "cons": "浪费了模型的自修正能力" },
+        { "name": "包装为 is_error tool_result", "pros": "模型可以分析错误并换种方式", "cons": "多消耗一轮 token" }
+      ],
+      "chosen": "is_error tool_result",
+      "reason": "这是 AI Agent 最核心的能力之一——自我修正。把错误告诉模型，它通常能分析原因并尝试不同的方法。这比让用户手动重试强得多。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "指数退避重试",
+      "ourFile": "src/retry.ts",
+      "ourLines": "37-60",
+      "claudeCodeFile": "query.ts + services/api/claude.ts",
+      "claudeCodeConcept": "重试 + FallbackTriggeredError → 切换备用模型 → continue 循环",
+      "difference": "我们只重试 3 次然后放弃；生产版在重试失败后还可以切换 fallbackModel（如从 Sonnet 降级到 Haiku）",
+      "whyProduction": "某些错误不是暂时性的（如 prompt-too-long），重试没用，需要不同策略（压缩/降级）"
+    },
+    {
+      "concept": "工具错误作为 tool_result",
+      "ourFile": "src/agent.ts",
+      "ourLines": "86-100",
+      "claudeCodeFile": "query.ts",
+      "claudeCodeConcept": "yieldMissingToolResultBlocks — 确保每个 tool_use 都有配对的 tool_result",
+      "difference": "我们在 try/catch 中包装错误；生产版还处理中断/超时/abort 等场景",
+      "whyProduction": "API 严格要求 tool_use / tool_result 配对。任何漏掉配对的情况都会导致下一轮 API 调用失败"
+    }
+  ]
+}

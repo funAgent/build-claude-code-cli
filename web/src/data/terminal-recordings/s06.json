@@ -1,0 +1,14 @@
+{
+  "version": "s06",
+  "title": "配置管理运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli --model claude-haiku-4-20250514", "typeDelay": 40 },
+    { "type": "output", "text": "mycli v0.6.0  [Configuration]  model=claude-haiku-4-20250514\n命令: /config 查看配置 | /exit 退出\n\n", "color": "green" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "/config", "typeDelay": 30 },
+    { "type": "output", "text": "\n--- 当前配置 ---\n模型: claude-haiku-4-20250514\n最大轮次: 10\n超时: 30000ms\n最大输出: 1048576 bytes\n\n", "color": "cyan" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "/exit", "typeDelay": 30 }
+  ]
+}

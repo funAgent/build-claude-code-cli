@@ -38,6 +38,11 @@ const annotationModules: Record<string, () => Promise<{ default: AnnotationData 
   s00: () => import("@/data/annotations/s00.json") as Promise<{ default: AnnotationData }>,
   s01: () => import("@/data/annotations/s01.json") as Promise<{ default: AnnotationData }>,
   s02: () => import("@/data/annotations/s02.json") as Promise<{ default: AnnotationData }>,
+  s03: () => import("@/data/annotations/s03.json") as Promise<{ default: AnnotationData }>,
+  s04: () => import("@/data/annotations/s04.json") as Promise<{ default: AnnotationData }>,
+  s05: () => import("@/data/annotations/s05.json") as Promise<{ default: AnnotationData }>,
+  s06: () => import("@/data/annotations/s06.json") as Promise<{ default: AnnotationData }>,
+  s07: () => import("@/data/annotations/s07.json") as Promise<{ default: AnnotationData }>,
 };
 
 function MermaidDiagram({ chart, id }: { chart: string; id: string }) {

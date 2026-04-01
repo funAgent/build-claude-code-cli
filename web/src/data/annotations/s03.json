@@ -1,0 +1,79 @@
+{
+  "version": "s03",
+  "architecture": {
+    "title": "Agent Loop 架构",
+    "description": "s03 引入了 AI Agent 的核心模式——while 循环。模型通过 tool_use 请求执行工具，工具结果作为 tool_result 送回，形成 user→assistant→tool→assistant 的循环。",
+    "mermaid": "graph TD\n  user[\"用户输入\"] --> messages[\"messages 数组\"]\n  messages --> api[\"messages.create()\"]\n  api --> response[\"模型响应\"]\n  response --> check{\"stop_reason?\"}\n  check -->|end_turn| done[\"输出结果，退出循环\"]\n  check -->|tool_use| extract[\"提取 tool_use blocks\"]\n  extract --> exec[\"执行 BashTool\"]\n  exec --> result[\"构建 tool_result\"]\n  result --> messages\n\n  style user fill:#eff6ff,stroke:#93c5fd\n  style messages fill:#faf5ff,stroke:#c4b5fd\n  style api fill:#f4f4f5,stroke:#a1a1aa\n  style response fill:#ecfdf5,stroke:#6ee7b7\n  style check fill:#fef3c7,stroke:#fcd34d\n  style extract fill:#fce7f3,stroke:#f9a8d4\n  style exec fill:#fee2e2,stroke:#fca5a5\n  style result fill:#e0e7ff,stroke:#a5b4fc\n  style done fill:#d1fae5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "stop_reason 判断 vs content 检测",
+      "question": "用什么条件判断是否继续循环？",
+      "options": [
+        { "name": "stop_reason === 'tool_use'", "pros": "API 设计的本意，代码直观", "cons": "Claude Code 发现偶尔不可靠" },
+        { "name": "while(true) + content 中检测 tool_use block", "pros": "100% 可靠，不依赖 stop_reason 字段", "cons": "代码稍复杂" }
+      ],
+      "chosen": "stop_reason（教学版）",
+      "reason": "教学阶段优先可读性。Claude Code 生产版选择 content 检测，因为 stop_reason 在某些边界条件（如模型同时返回 text 和 tool_use）下不总为 'tool_use'。生产版的注释明确写道：'stop_reason === tool_use is unreliable'。"
+    },
+    {
+      "title": "串行执行 vs 并行执行工具",
+      "question": "当模型一次返回多个 tool_use 时，串行还是并行执行？",
+      "options": [
+        { "name": "串行 for 循环", "pros": "简单，无并发问题", "cons": "多工具时慢" },
+        { "name": "Promise.all 并行", "pros": "快", "cons": "写操作可能冲突" },
+        { "name": "按安全标记分组", "pros": "读并行 + 写串行，最优", "cons": "需要每个工具标记 isConcurrencySafe" }
+      ],
+      "chosen": "串行 for 循环",
+      "reason": "s03 只有一个 BashTool，串行足够。Claude Code 使用 StreamingToolExecutor 实现第三种方案：每个工具标记 isConcurrencySafe，读工具并行执行，写工具串行。这在 s22 课实现。"
+    },
+    {
+      "title": "固定轮次 vs Token 预算",
+      "question": "如何防止 Agent 无限循环？",
+      "options": [
+        { "name": "MAX_TURNS 固定上限", "pros": "简单直接", "cons": "无法精确控制成本" },
+        { "name": "Token 预算", "pros": "精确控制成本", "cons": "需要累加 usage" }
+      ],
+      "chosen": "MAX_TURNS=10",
+      "reason": "教学阶段用固定轮次最直观。Claude Code 使用 token 预算 + 自动压缩（到上限时压缩上下文继续，而不是停止），s07 和 s24 课会逐步实现。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Agent 循环",
+      "ourFile": "src/agent.ts",
+      "ourLines": "61-97",
+      "claudeCodeFile": "query.ts",
+      "claudeCodeConcept": "queryLoop — while(true) + needsFollowUp 标记",
+      "difference": "我们用 stop_reason 判断；生产版检测 content 中的 tool_use blocks 并设置 needsFollowUp 标记",
+      "whyProduction": "stop_reason 在边界条件下不可靠；content 检测是事实来源，不依赖元数据字段"
+    },
+    {
+      "concept": "工具定义",
+      "ourFile": "src/agent.ts",
+      "ourLines": "17-33",
+      "claudeCodeFile": "Tool.ts + tools.ts",
+      "claudeCodeConcept": "Tool 类型 + assembleToolPool() 动态注册",
+      "difference": "我们硬编码工具数组；生产版用 Tool 类型接口 + 工厂函数 + 注册表模式",
+      "whyProduction": "工具数量从 1 个增长到 25+ 时，硬编码不可维护；注册表支持按条件加载、排序稳定性（prompt cache 依赖）"
+    },
+    {
+      "concept": "工具执行",
+      "ourFile": "src/agent.ts",
+      "ourLines": "78-108",
+      "claudeCodeFile": "services/tools/StreamingToolExecutor.ts",
+      "claudeCodeConcept": "StreamingToolExecutor — 流式 + 并行 + 生命周期管理",
+      "difference": "我们串行 for 循环执行；生产版在流式响应过程中就开始执行工具（不等响应完成）",
+      "whyProduction": "流式执行让工具结果更快返回——模型还在生成后续 text 时，前面的工具已经在跑了"
+    },
+    {
+      "concept": "错误作为 tool_result",
+      "ourFile": "src/agent.ts",
+      "ourLines": "92-95",
+      "claudeCodeFile": "query.ts",
+      "claudeCodeConcept": "yieldMissingToolResultBlocks — 每个 tool_use 必须有对应 tool_result",
+      "difference": "我们对执行失败传 is_error: true；生产版更进一步：中断/超时/异常都会生成 synthetic tool_result",
+      "whyProduction": "API 要求每个 tool_use 必须有配对的 tool_result，否则下一次 API 调用会失败。生产版确保即使 crash 也能生成 error tool_result"
+    }
+  ]
+}

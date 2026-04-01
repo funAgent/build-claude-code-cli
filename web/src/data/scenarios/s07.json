@@ -1,0 +1,42 @@
+{
+  "version": "s07",
+  "description": "成本追踪：每次 API 调用累加 usage，实时显示 token 消耗和美元成本",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "帮我看看当前目录结构"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"ls -la\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "API 调用 #1: usage = {input_tokens: 580, output_tokens: 120}"
+    },
+    {
+      "type": "tool_result",
+      "content": "total 32\n-rw-r--r-- package.json\n-rw-r--r-- tsconfig.json\ndrwxr-xr-x src/"
+    },
+    {
+      "type": "system_event",
+      "content": "CostTracker.addUsage() → 累计: 580↓ 120↑"
+    },
+    {
+      "type": "assistant_text",
+      "content": "当前目录是一个 TypeScript 项目，包含 package.json 和 src 目录。"
+    },
+    {
+      "type": "system_event",
+      "content": "API 调用 #2: usage = {input_tokens: 1200, output_tokens: 85}"
+    },
+    {
+      "type": "system_event",
+      "content": "CostTracker 累计: 1780↓ 205↑ → 总成本: $0.008"
+    },
+    {
+      "type": "system_event",
+      "content": "行内显示: [1780↓ 205↑ $0.0084]"
+    }
+  ]
+}

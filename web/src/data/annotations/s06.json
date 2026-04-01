@@ -1,0 +1,32 @@
+{
+  "version": "s06",
+  "architecture": {
+    "title": "配置管理架构",
+    "description": "s06 实现多层配置优先级链，用对象扩展运算符合并。每一层可以覆盖下一层的部分值，优先级从低到高：默认值 → 全局 → 项目 → 环境变量 → CLI 参数。",
+    "mermaid": "graph LR\n  defaults[\"默认值\"] --> merge[\"Object.assign()\"]\n  global[\"~/.mycli/config.json\"] --> merge\n  project[\".mycli.json\\n向上查找\"] --> merge\n  env[\"环境变量\\nMYCLI_MODEL\"] --> merge\n  cli[\"CLI 参数\\n--model\"] --> merge\n  merge --> config[\"最终 AppConfig\"]\n  config --> agent[\"Agent\"]\n\n  style defaults fill:#f4f4f5,stroke:#a1a1aa\n  style global fill:#eff6ff,stroke:#93c5fd\n  style project fill:#faf5ff,stroke:#c4b5fd\n  style env fill:#fef3c7,stroke:#fcd34d\n  style cli fill:#fee2e2,stroke:#fca5a5\n  style config fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "JSON vs YAML vs TOML",
+      "question": "配置文件用什么格式？",
+      "options": [
+        { "name": "JSON", "pros": "零依赖解析，类型安全", "cons": "不支持注释" },
+        { "name": "YAML", "pros": "人类可读，支持注释", "cons": "需要额外依赖" },
+        { "name": "Markdown (CLAUDE.md)", "pros": "用户最友好", "cons": "解析逻辑复杂" }
+      ],
+      "chosen": "JSON（.mycli.json）",
+      "reason": "零依赖、类型安全。Claude Code 同时使用两种：settings.json 给程序用、CLAUDE.md 给人写。我们在 s18 课实现 CLAUDE.md 支持。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "多层配置",
+      "ourFile": "src/config.ts",
+      "ourLines": "55-65",
+      "claudeCodeFile": "utils/config.ts",
+      "claudeCodeConcept": "多层配置 + JSON Schema 验证 + 运行时类型检查",
+      "difference": "我们用简单的对象合并；生产版有 Schema 验证、类型转换、迁移策略",
+      "whyProduction": "用户输入不可信——错误的配置值（如 maxTurns=-1）可能导致 Agent 异常行为"
+    }
+  ]
+}

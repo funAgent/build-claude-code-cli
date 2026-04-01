@@ -1,0 +1,19 @@
+{
+  "version": "s04",
+  "title": "消息管理运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli", "typeDelay": 40 },
+    { "type": "output", "text": "mycli v0.4.0  [Message Management]\n命令: /stats 查看统计 | /exit 退出\n\n", "color": "green" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "帮我看看 package.json", "typeDelay": 50 },
+    { "type": "output", "text": "\n[10:30:15] you> 帮我看看 package.json\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 好的，让我读取 package.json 的内容。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"cat package.json\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] {\n  \"name\": \"s04-message-management\",\n  \"version\": \"0.4.0\",\n  ...\n}\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 这是一个 v0.4.0 的 Node.js 项目，使用 Anthropic SDK 和 Commander。\n  [1200 in / 280 out]\n\n", "color": "cyan" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "/stats", "typeDelay": 30 },
+    { "type": "output", "text": "\n--- 对话统计 ---\n总消息数: 3\n用户消息: 2\n助手消息: 1\n总输入 tokens: 1200\n总输出 tokens: 280\n历史长度: 2456 字符\n\n", "color": "green" }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "version": "s03",
+  "title": "Agent Loop 运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli \"帮我看看当前目录有什么文件\"", "typeDelay": 40 },
+    { "type": "output", "text": "\nyou> 帮我看看当前目录有什么文件\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 好的，让我看看当前目录的内容。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"ls -la\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] total 32\ndrwxr-xr-x  5 user  staff  160 Mar 31 10:00 .\n-rw-r--r--  1 user  staff  420 Mar 31 10:00 package.json\n-rw-r--r--  1 user  staff  150 Mar 31 10:00 tsconfig.json\ndrwxr-xr-x  3 user  staff   96 Mar 31 10:00 src\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 当前目录包含一个 Node.js/TypeScript 项目：\n- package.json — 项目配置\n- tsconfig.json — TypeScript 配置\n- src/ — 源代码目录\n\n", "color": "cyan" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli", "typeDelay": 40 },
+    { "type": "output", "text": "mycli v0.3.0  [Agent Loop]\n输入你的问题，Agent 会自动调用工具完成任务\n输入 /exit 退出\n\n", "color": "green" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "创建一个 hello.txt 并写入 Hello World", "typeDelay": 50 },
+    { "type": "output", "text": "\nyou> 创建一个 hello.txt 并写入 Hello World\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 好的，我来创建文件。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"echo 'Hello World' > hello.txt\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] (no output)\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 让我确认一下文件是否创建成功。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"cat hello.txt\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] Hello World\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 文件已创建成功！hello.txt 的内容是 \"Hello World\"。\n\n", "color": "cyan" }
+  ]
+}

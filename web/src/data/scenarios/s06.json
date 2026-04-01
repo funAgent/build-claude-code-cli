@@ -1,0 +1,38 @@
+{
+  "version": "s06",
+  "description": "配置管理：多层配置优先级合并 — CLI > 环境变量 > 项目配置 > 全局配置 > 默认值",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "加载默认配置: model=claude-sonnet-4-20250514, maxTurns=10"
+    },
+    {
+      "type": "system_event",
+      "content": "加载全局配置 ~/.mycli/config.json: (不存在，跳过)"
+    },
+    {
+      "type": "system_event",
+      "content": "向上查找 .mycli.json: ./project/.mycli.json → {\"maxTurns\": 5}"
+    },
+    {
+      "type": "system_event",
+      "content": "读取环境变量: MYCLI_MODEL=claude-haiku-4-20250514"
+    },
+    {
+      "type": "system_event",
+      "content": "CLI 参数: (无覆盖)"
+    },
+    {
+      "type": "system_event",
+      "content": "最终配置: model=claude-haiku-4-20250514, maxTurns=5, timeout=30000"
+    },
+    {
+      "type": "user_message",
+      "content": "/config"
+    },
+    {
+      "type": "assistant_text",
+      "content": "--- 当前配置 ---\n模型: claude-haiku-4-20250514\n最大轮次: 5\n超时: 30000ms"
+    }
+  ]
+}

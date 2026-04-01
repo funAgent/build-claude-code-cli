@@ -1,0 +1,62 @@
+{
+  "version": "s03",
+  "description": "Agent Loop：用户请求 → 模型决定调用工具 → 执行工具 → 模型理解结果 → 继续或结束",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "帮我看看当前目录有什么文件，然后告诉我项目用的什么语言"
+    },
+    {
+      "type": "system_event",
+      "content": "发送 messages 给模型，tools 数组包含 bash 工具定义"
+    },
+    {
+      "type": "assistant_text",
+      "content": "好的，让我先看看当前目录的文件。"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"ls -la\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "stop_reason: tool_use — 模型请求执行工具，Agent 循环继续"
+    },
+    {
+      "type": "tool_result",
+      "content": "total 32\ndrwxr-xr-x  5 user  staff  160 Mar 31 10:00 .\n-rw-r--r--  1 user  staff  420 Mar 31 10:00 package.json\n-rw-r--r--  1 user  staff  150 Mar 31 10:00 tsconfig.json\ndrwxr-xr-x  3 user  staff   96 Mar 31 10:00 src"
+    },
+    {
+      "type": "system_event",
+      "content": "工具结果作为 tool_result（user message）送回模型 → 循环第 2 轮"
+    },
+    {
+      "type": "assistant_text",
+      "content": "看到了 package.json 和 tsconfig.json，这是一个 TypeScript 项目。让我确认一下 package.json 的内容。"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"cat package.json\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "stop_reason: tool_use — 模型需要更多信息，再次调用工具"
+    },
+    {
+      "type": "tool_result",
+      "content": "{\n  \"name\": \"my-project\",\n  \"dependencies\": {\n    \"@anthropic-ai/sdk\": \"^0.39.0\",\n    \"commander\": \"^13.1.0\"\n  }\n}"
+    },
+    {
+      "type": "system_event",
+      "content": "工具结果送回模型 → 循环第 3 轮"
+    },
+    {
+      "type": "assistant_text",
+      "content": "这是一个 TypeScript 项目，使用了 Anthropic AI SDK 和 Commander.js。它是一个 AI CLI 工具，基于 Claude API 构建。"
+    },
+    {
+      "type": "system_event",
+      "content": "stop_reason: end_turn — 模型认为任务完成，Agent 循环结束"
+    }
+  ]
+}

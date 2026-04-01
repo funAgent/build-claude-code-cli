@@ -1,0 +1,59 @@
+{
+  "version": "s04",
+  "architecture": {
+    "title": "消息管理架构",
+    "description": "s04 在 Agent Loop 之上加入类型系统和消息管理。AgentMessage 包装 SDK 类型，添加时间戳和 token 统计；messages.ts 提供格式化、截断、API 转换。",
+    "mermaid": "graph TD\n  input[\"用户输入\"] --> factory[\"createUserMessage()\"]\n  factory --> history[\"history: AgentMessage[]\"]\n  history --> convert[\"toApiMessages()\"]\n  convert --> api[\"messages.create()\"]\n  api --> wrap[\"createAssistantMessage()\"]\n  wrap --> history\n  api --> check{\"tool_use?\"}\n  check -->|yes| exec[\"执行工具\"]\n  exec --> truncate[\"truncateContent()\"]\n  truncate --> result[\"createToolResultMessage()\"]\n  result --> history\n  check -->|no| format[\"formatMessage()\"]\n  format --> display[\"终端输出\"]\n  history --> stats[\"getConversationStats()\"]\n\n  style input fill:#eff6ff,stroke:#93c5fd\n  style factory fill:#faf5ff,stroke:#c4b5fd\n  style history fill:#fef3c7,stroke:#fcd34d\n  style convert fill:#e0e7ff,stroke:#a5b4fc\n  style truncate fill:#fee2e2,stroke:#fca5a5\n  style stats fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "自定义类型 vs SDK 类型",
+      "question": "是直接用 Anthropic SDK 的 MessageParam 还是自己包装一层？",
+      "options": [
+        { "name": "直接用 SDK 类型", "pros": "零额外代码，与 API 1:1 对应", "cons": "无法添加时间戳、UUID、token 统计等元数据" },
+        { "name": "自定义 AgentMessage", "pros": "可扩展，支持 UI 渲染和统计", "cons": "需要 toApiMessages() 转换" }
+      ],
+      "chosen": "自定义 AgentMessage",
+      "reason": "Agent 需要的元数据比 API 多——时间戳用于显示、token 用于成本统计、UUID 用于消息追踪。Claude Code 的 Message 类型在 SDK 之上加了 20+ 个字段。"
+    },
+    {
+      "title": "函数式 vs 类式 Agent",
+      "question": "Agent 应该是函数还是类？",
+      "options": [
+        { "name": "函数 runAgent()", "pros": "简单，无状态管理", "cons": "无法在多轮对话中保持历史" },
+        { "name": "class Agent", "pros": "封装状态，多方法协作", "cons": "稍复杂" }
+      ],
+      "chosen": "class Agent",
+      "reason": "对话历史是有状态的，需要在多次 run() 调用之间持久。Claude Code 用 QueryEngine 类管理这种状态。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "消息类型层级",
+      "ourFile": "src/types.ts",
+      "ourLines": "18-25",
+      "claudeCodeFile": "types/message.ts",
+      "claudeCodeConcept": "MessageType union: user | assistant | system | attachment | progress | grouped_tool_use | collapsed_read_search",
+      "difference": "我们只有 user/assistant 两种；生产版有 7 种，每种有不同的 UI 渲染和 API 序列化逻辑",
+      "whyProduction": "产品化后消息类型自然增长——系统状态、文件附件、进度条都需要独立的消息类型"
+    },
+    {
+      "concept": "消息工厂函数",
+      "ourFile": "src/types.ts",
+      "ourLines": "27-50",
+      "claudeCodeFile": "utils/messages.ts",
+      "claudeCodeConcept": "createUserMessage / createAssistantMessage / createSystemMessage / 20+ 工厂",
+      "difference": "我们有 3 个工厂；生产版有 20+ 个，包括 createSystemCompactBoundaryMessage、createProgressMessage 等",
+      "whyProduction": "每种消息类型有不同的初始化逻辑和必填字段"
+    },
+    {
+      "concept": "API 转换",
+      "ourFile": "src/messages.ts",
+      "ourLines": "52-60",
+      "claudeCodeFile": "utils/messages.ts",
+      "claudeCodeConcept": "normalizeMessagesForAPI() — 合并连续同 role 消息、去重 API 错误、验证图片等",
+      "difference": "我们的 toApiMessages() 只做基本转换；生产版做合并、去重、重排序、图片验证等重量级处理",
+      "whyProduction": "真实场景中消息流远比教学复杂——中断、重试、附件都会导致消息结构异常，需要归一化"
+    }
+  ]
+}

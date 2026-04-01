@@ -1,0 +1,16 @@
+{
+  "version": "s05",
+  "title": "错误处理运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli \"查看 /tmp/nonexistent.txt\"", "typeDelay": 40 },
+    { "type": "output", "text": "\nyou> 查看 /tmp/nonexistent.txt\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 好的，让我读取这个文件。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"cat /tmp/nonexistent.txt\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [error] 命令失败 (exit 1)，将错误送回模型自修正\n\n", "color": "red" },
+    { "type": "output", "text": "assistant> 文件不存在。让我看看 /tmp 目录下有什么。\n\n", "color": "cyan" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"ls /tmp/ | head -10\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] com.apple.launchd\ntest.log\ndata.json\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> /tmp 下没有 nonexistent.txt。有 test.log 和 data.json，需要查看哪个？\n\n", "color": "cyan" }
+  ]
+}

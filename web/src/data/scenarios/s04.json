@@ -1,0 +1,50 @@
+{
+  "version": "s04",
+  "description": "消息管理：类型化消息 + 格式化输出 + 工具结果截断 + 对话统计",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "帮我看看这个目录下所有的 .ts 文件内容"
+    },
+    {
+      "type": "system_event",
+      "content": "createUserMessage() — 包装为 AgentMessage，添加 timestamp"
+    },
+    {
+      "type": "assistant_text",
+      "content": "好的，让我先看看有哪些 TypeScript 文件。"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"find . -name '*.ts' -type f\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "./src/cli.ts\n./src/agent.ts\n./src/types.ts\n./src/messages.ts\n./src/tools/bash.ts"
+    },
+    {
+      "type": "system_event",
+      "content": "truncateContent() — 输出 120 字符，未超过 10,000 上限"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"cat src/agent.ts\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "// agent.ts 内容（约 80 行）...\n[完整内容送回模型]"
+    },
+    {
+      "type": "system_event",
+      "content": "createAssistantMessage() — 记录 usage: {input: 1200, output: 350}"
+    },
+    {
+      "type": "assistant_text",
+      "content": "这个目录有 5 个 TypeScript 文件。agent.ts 是核心，定义了 Agent 类和循环逻辑..."
+    },
+    {
+      "type": "system_event",
+      "content": "stop_reason: end_turn — 对话统计: 5 条消息, 1200 in / 350 out tokens"
+    }
+  ]
+}

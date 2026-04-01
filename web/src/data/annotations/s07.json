@@ -1,0 +1,40 @@
+{
+  "version": "s07",
+  "architecture": {
+    "title": "成本追踪架构",
+    "description": "s07 在 Agent 循环中加入 CostTracker，每次 API 调用后累加 usage 字段。按模型定价表计算美元成本，支持行内显示和 /cost 详细统计。",
+    "mermaid": "graph LR\n  api[\"messages.create()\"] --> response[\"response.usage\"]\n  response --> tracker[\"CostTracker\"]\n  tracker --> inline[\"行内显示\\n[1200↓ 280↑ $0.008]\"]\n  tracker --> cost[\"\\n/cost 命令\\n详细统计\"]\n\n  subgraph 定价表\n    sonnet[\"Sonnet: $3/$15\"]\n    haiku[\"Haiku: $0.25/$1.25\"]\n    opus[\"Opus: $15/$75\"]\n  end\n\n  tracker --> 定价表\n\n  style api fill:#eff6ff,stroke:#93c5fd\n  style tracker fill:#fef3c7,stroke:#fcd34d\n  style inline fill:#ecfdf5,stroke:#6ee7b7\n  style cost fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "实时显示 vs 按需查询",
+      "question": "成本信息应该每轮都显示还是只在用户查询时显示？",
+      "options": [
+        { "name": "每轮行内显示", "pros": "用户时刻知道成本", "cons": "输出较嘈杂" },
+        { "name": "仅 /cost 命令", "pros": "输出简洁", "cons": "用户可能不知道在烧钱" }
+      ],
+      "chosen": "两者兼有",
+      "reason": "行内显示一行简要信息（tokens + 成本），/cost 显示完整统计。Claude Code 在状态栏持续显示累计成本，类似我们的行内方案。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Token 计数",
+      "ourFile": "src/cost-tracker.ts",
+      "ourLines": "34-38",
+      "claudeCodeFile": "bootstrap/state.ts",
+      "claudeCodeConcept": "全局状态中的 token 计数器，按模型分别累加",
+      "difference": "我们用独立的 CostTracker 类；生产版集成在全局状态管理中",
+      "whyProduction": "全局状态让任何组件都能读取成本信息——状态栏、日志、遥测都需要"
+    },
+    {
+      "concept": "成本计算",
+      "ourFile": "src/cost-tracker.ts",
+      "ourLines": "40-47",
+      "claudeCodeFile": "services/api/claude.ts",
+      "claudeCodeConcept": "动态获取模型定价 + cache token 独立计费",
+      "difference": "我们硬编码定价表；生产版通过 API 获取最新定价，还区分 cache 读/写 token",
+      "whyProduction": "模型定价会更新，硬编码会过时。Cache token 的定价只有普通 token 的 10%，不区分计费会不准确"
+    }
+  ]
+}
