@@ -1,0 +1,27 @@
+{
+  "name": "s16-repl-screen",
+  "version": "0.16.0",
+  "description": "AI Agent CLI — s16: REPL Screen",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "mycli": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "dev": "npx tsx src/cli.tsx",
+    "build": "npx esbuild src/cli.tsx --bundle --platform=node --format=esm --outfile=dist/cli.mjs --external:@anthropic-ai/sdk --external:ink --external:react",
+    "start": "node dist/cli.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "commander": "^13.1.0",
+    "ink": "^5.1.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.0",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.0"
+  }
+}
