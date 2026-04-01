@@ -1,0 +1,34 @@
+{
+  "version": "s15",
+  "description": "输入框：PromptInput 组件 + 输入历史 + Spinner 动画 + StatusBar",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【PromptInput】独立组件：onSubmit 回调 + disabled 禁用态"
+    },
+    {
+      "type": "user_message",
+      "content": "查找所有 .ts 文件"
+    },
+    {
+      "type": "system_event",
+      "content": "【Spinner】setInterval 80ms 帧动画 ⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    },
+    {
+      "type": "tool_call",
+      "content": "glob({\"pattern\":\"**/*.ts\"})"
+    },
+    {
+      "type": "assistant_text",
+      "content": "找到 12 个 TypeScript 文件。"
+    },
+    {
+      "type": "system_event",
+      "content": "【输入历史】按 ↑ 恢复上一条输入「查找所有 .ts 文件」"
+    },
+    {
+      "type": "system_event",
+      "content": "【StatusBar】claude-sonnet-4 │ 3 msgs │ ↑↓ history │ Enter send │ ESC quit"
+    }
+  ]
+}

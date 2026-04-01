@@ -1,0 +1,34 @@
+{
+  "version": "s13",
+  "description": "Ink 入门：render() 替代 console.log，Box/Text 渲染终端 UI",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【Ink render】React 组件树挂载到终端 stdout"
+    },
+    {
+      "type": "system_event",
+      "content": "【App 组件】Box(flexDirection=column) + Text 渲染标题栏"
+    },
+    {
+      "type": "user_message",
+      "content": "列出当前目录的文件"
+    },
+    {
+      "type": "system_event",
+      "content": "【onOutput 回调】Agent 不再 console.log，通过回调推送结构化输出"
+    },
+    {
+      "type": "tool_call",
+      "content": "ls({\"path\":\".\"}) → 9 个文件"
+    },
+    {
+      "type": "assistant_text",
+      "content": "当前目录包含 src/、package.json 等文件。"
+    },
+    {
+      "type": "system_event",
+      "content": "【React 重渲染】setLines 触发 → Ink 增量更新终端输出"
+    }
+  ]
+}

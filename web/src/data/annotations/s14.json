@@ -1,0 +1,43 @@
+{
+  "version": "s14",
+  "architecture": {
+    "title": "消息类型分发渲染",
+    "description": "s14 将消息渲染拆分为独立组件：UserMessage、AssistantMessage、ToolCallMessage、ToolResultMessage。MessageList 组件按 type 分发到对应渲染器，实现类型→视觉的映射。AssistantMessage 内置代码块解析（正则匹配 ```），ToolResultMessage 自动截断长输出。",
+    "mermaid": "graph TD\n  ML[\"MessageList\"] --> MR[\"MessageRow\"]\n  MR -->|\"user\"| UM[\"UserMessage\\n绿色 ❯ 粗体\"]\n  MR -->|\"assistant\"| AM[\"AssistantMessage\\n代码块检测\"]\n  MR -->|\"tool_call\"| TC[\"ToolCallMessage\\n黄色 ⚡\"]\n  MR -->|\"tool_result\"| TR[\"ToolResultMessage\\n灰色 ← 截断\"]\n  AM --> PCB[\"parseCodeBlocks\"]\n  PCB --> CODE[\"Box border=single\\n代码高亮\"]\n  PCB --> PROSE[\"Text wrap\\n普通文本\"]\n\n  style ML fill:#fef3c7,stroke:#fcd34d\n  style AM fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "类型分发策略",
+      "question": "如何渲染不同类型的消息？",
+      "options": [
+        { "name": "if/else 条件渲染", "pros": "简单", "cons": "单文件膨胀" },
+        { "name": "switch + 独立组件", "pros": "职责分离，易扩展", "cons": "文件数多" },
+        { "name": "组件注册表", "pros": "运行时可扩展", "cons": "过度抽象" }
+      ],
+      "chosen": "switch + 独立组件",
+      "reason": "Claude Code 的 MessageRow 也是按类型分发到子组件。平衡了清晰度和可扩展性。"
+    },
+    {
+      "title": "代码块渲染",
+      "question": "如何在终端渲染代码块？",
+      "options": [
+        { "name": "不处理，原样输出", "pros": "零成本", "cons": "代码混在文本中" },
+        { "name": "正则检测 + border Box", "pros": "视觉区分明显", "cons": "不是真正的语法高亮" },
+        { "name": "完整 Markdown AST", "pros": "精确解析", "cons": "依赖重" }
+      ],
+      "chosen": "正则检测 + border Box",
+      "reason": "教学版优先「能区分」；生产版再引入 AST 和语法高亮库。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "消息组件",
+      "ourFile": "src/components/message-list.tsx",
+      "ourLines": "1-130",
+      "claudeCodeFile": "components/Messages.tsx + MessageRow.js",
+      "claudeCodeConcept": "按消息类型分发到专属组件 + VirtualMessageList",
+      "difference": "教学版全量渲染；生产版虚拟滚动",
+      "whyProduction": "对话可达数百条，全量渲染会导致帧率下降"
+    }
+  ]
+}

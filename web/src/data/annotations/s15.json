@@ -1,0 +1,51 @@
+{
+  "version": "s15",
+  "architecture": {
+    "title": "输入框与交互组件",
+    "description": "s15 将输入框拆为独立的 PromptInput 组件，内置输入历史（↑↓ 浏览）和禁用态。新增 Spinner 帧动画组件（80ms 间隔循环 Braille 字符）和 StatusBar 底部状态栏。三个组件各自职责单一，通过 props 与 App 通信。",
+    "mermaid": "graph TD\n  APP[\"App\"] --> PI[\"PromptInput\"]\n  APP --> SP[\"Spinner\"]\n  APP --> SB[\"StatusBar\"]\n  APP --> ML[\"MessageList\"]\n\n  PI -->|\"onSubmit\"| APP\n  APP -->|\"disabled\"| PI\n  APP -->|\"isRunning\"| SB\n  APP -->|\"messageCount\"| SB\n\n  PI --> HIST[\"输入历史\\n↑↓ 浏览\"]\n  SP --> FRAME[\"帧动画\\n⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏\"]\n\n  style PI fill:#fef3c7,stroke:#fcd34d\n  style SP fill:#dbeafe,stroke:#93c5fd\n  style SB fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "输入组件独立化",
+      "question": "输入逻辑放在 App 还是独立组件？",
+      "options": [
+        { "name": "内联在 App", "pros": "代码少", "cons": "App 职责膨胀" },
+        { "name": "独立 PromptInput", "pros": "可复用、可测试、职责单一", "cons": "Props 传递" }
+      ],
+      "chosen": "独立 PromptInput 组件",
+      "reason": "Claude Code 的 PromptInput 是一个包含 39 文件的子模块，说明输入复杂度值得独立管理。"
+    },
+    {
+      "title": "Spinner 实现",
+      "question": "加载动画用什么方案？",
+      "options": [
+        { "name": "静态文本 ⏳", "pros": "零成本", "cons": "没有动感" },
+        { "name": "useEffect + setInterval", "pros": "简洁的帧动画", "cons": "80ms 定时器" },
+        { "name": "useAnimationFrame", "pros": "更流畅", "cons": "API 更复杂" }
+      ],
+      "chosen": "useEffect + setInterval (80ms)",
+      "reason": "终端刷新率有限，setInterval 足够流畅；80ms 是终端动画的最佳实践间隔。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "输入框",
+      "ourFile": "src/components/prompt-input.tsx",
+      "ourLines": "1-95",
+      "claudeCodeFile": "components/PromptInput/PromptInput.tsx",
+      "claudeCodeConcept": "输入模式栈 + Vim 模式 + 命令队列 + 粘贴处理",
+      "difference": "教学版只有基础输入和历史；生产版是微型应用",
+      "whyProduction": "专业 CLI 需要 Tab 补全、多行编辑、快捷键系统"
+    },
+    {
+      "concept": "Spinner",
+      "ourFile": "src/components/spinner.tsx",
+      "ourLines": "1-35",
+      "claudeCodeFile": "components/Spinner.tsx",
+      "claudeCodeConcept": "SpinnerWithVerb + token 计数 + shimmer 动画",
+      "difference": "教学版纯帧动画；生产版集成进度信息",
+      "whyProduction": "用户想知道「还要多久」而不只是「在转」"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "version": "s16",
+  "description": "REPL 主屏：组装 Welcome + MessageList + PromptInput + StatusBar",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【Welcome】启动 → 显示品牌框 + 工作目录 + 模型信息 + 快捷键"
+    },
+    {
+      "type": "user_message",
+      "content": "/help"
+    },
+    {
+      "type": "system_event",
+      "content": "【命令路由】/ 前缀 → handleCommand 拦截，不发送给 Agent"
+    },
+    {
+      "type": "assistant_text",
+      "content": "命令: /help 帮助 │ /clear 清屏 │ /tools 工具列表 │ /exit 退出"
+    },
+    {
+      "type": "user_message",
+      "content": "读取 package.json 的内容"
+    },
+    {
+      "type": "system_event",
+      "content": "【状态切换】showWelcome → false，Welcome 消失，MessageList 显示"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({\"path\":\"package.json\"})"
+    },
+    {
+      "type": "assistant_text",
+      "content": "这是一个 Node.js 项目，使用了 ink 和 react 依赖。"
+    },
+    {
+      "type": "system_event",
+      "content": "【Composition Root】ReplScreen 组装所有子组件，管理全局状态"
+    }
+  ]
+}

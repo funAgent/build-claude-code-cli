@@ -1,0 +1,12 @@
+{
+  "version": "s14",
+  "title": "消息列表渲染演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\nmycli v0.14.0 [Message List] ESC 退出\n\n输入问题开始对话…\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "用 ts 写 hello world", "typeDelay": 35 },
+    { "type": "output", "text": "\n❯ 用 ts 写 hello world\n\n  ⚡ file_write({\"path\":\"hello.ts\",\"content\":\"...\"})\n  ← 已创建 hello.ts\n\n  这是一个简单的 TypeScript Hello World：\n  ┌──────────────────────────┐\n  │ console.log(\"Hello!\")    │\n  └──────────────────────────┘\n  已将代码写入 hello.ts。\n", "color": "white" }
+  ]
+}

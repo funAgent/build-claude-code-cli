@@ -1,0 +1,15 @@
+{
+  "version": "s16",
+  "title": "REPL 主屏完整演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.16.0  (REPL)       │\n╰─────────────────────────────────╯\n\n📁 my-project/ — /Users/me/my-project\n🤖 claude-sonnet-4 │ 9 tools\n\nEnter 发送 │ ↑↓ 历史 │ /help 帮助 │ ESC 退出\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "/help", "typeDelay": 40 },
+    { "type": "output", "text": "\nassistant> 命令: /help 帮助 │ /clear 清屏 │ /tools 工具列表 │ /exit 退出\n", "color": "white" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "读取 package.json", "typeDelay": 35 },
+    { "type": "output", "text": "\n(Welcome 消失，切换到对话视图)\n\n❯ 读取 package.json\n\n  ⠹ thinking…\n\n  ⚡ file_read({\"path\":\"package.json\"})\n  ← {\"name\":\"s16-repl-screen\",\"version\":\"0.16.0\"...}\n\nassistant> 这是 s16 REPL 项目，使用 ink 和 react。\n\n───────────────────────────────────────\nclaude-sonnet-4 │ 3 msgs │ ↑↓ history │ Enter send │ ESC quit\n", "color": "white" }
+  ]
+}

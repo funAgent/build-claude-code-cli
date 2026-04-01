@@ -1,0 +1,16 @@
+{
+  "version": "s15",
+  "title": "输入框与 Spinner 演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\nmycli v0.15.0 [Input Box]\n\n输入问题开始对话…\n\n───────────────────────────────────────\nclaude-sonnet-4 │ 0 msgs │ ↑↓ history │ Enter send │ ESC quit\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "查找所有 .ts 文件", "typeDelay": 35 },
+    { "type": "output", "text": "\n  ⠙ thinking…\n", "color": "yellow" },
+    { "type": "output", "text": "\n  ⚡ glob({\"pattern\":\"**/*.ts\"})\n  ← 找到 12 个文件\n  src/cli.tsx, src/agent.ts, src/tool.ts …\n\nassistant> 共找到 12 个 TypeScript 文件。\n\n───────────────────────────────────────\nclaude-sonnet-4 │ 4 msgs │ ↑↓ history │ Enter send │ ESC quit\n", "color": "white" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "[↑] 查找所有 .ts 文件", "typeDelay": 0 },
+    { "type": "output", "text": "\n(输入历史恢复上一条命令)\n", "color": "gray" }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": "s16",
+  "architecture": {
+    "title": "REPL 主屏组装",
+    "description": "s16 的 ReplScreen 是 Composition Root——将 Welcome、MessageList、Spinner、PromptInput、StatusBar 组装为完整 REPL 体验。内置命令路由（/help /clear /tools /exit）拦截 / 前缀输入。Welcome 在首次提交后消失，切换到对话视图。useStdout 获取终端尺寸用于自适应。",
+    "mermaid": "graph TD\n  RS[\"ReplScreen\\nComposition Root\"] --> W[\"Welcome\\n品牌+目录+快捷键\"]\n  RS --> ML[\"MessageList\"]\n  RS --> SP[\"Spinner\"]\n  RS --> PI[\"PromptInput\"]\n  RS --> SB[\"StatusBar\"]\n\n  PI -->|\"onSubmit\"| CMD{\"/ 前缀?\"}\n  CMD -->|\"是\"| HC[\"handleCommand\\n/help /clear /tools\"]\n  CMD -->|\"否\"| AG[\"Agent.run\"]\n  AG -->|\"onOutput\"| ML\n\n  RS -->|\"showWelcome\"| TOGGLE{\"首次输入?\"}\n  TOGGLE -->|\"true\"| W\n  TOGGLE -->|\"false\"| ML\n\n  style RS fill:#fef3c7,stroke:#fcd34d\n  style CMD fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "组合根模式",
+      "question": "REPL 主屏如何管理子组件？",
+      "options": [
+        { "name": "单一大组件", "pros": "代码集中", "cons": "3000+ 行不可维护" },
+        { "name": "Composition Root + 子组件", "pros": "职责分离，可测试", "cons": "Props 传递层数多" },
+        { "name": "Context 全局状态", "pros": "避免 Props drilling", "cons": "隐式依赖" }
+      ],
+      "chosen": "Composition Root + 子组件",
+      "reason": "教学版组件少，Props 传递足够。生产版演进到 Context（Claude Code 的 useAppState）。"
+    },
+    {
+      "title": "内置命令系统",
+      "question": "CLI 命令如何处理？",
+      "options": [
+        { "name": "全部发给 Agent", "pros": "统一入口", "cons": "/clear 不需要 AI" },
+        { "name": "/ 前缀路由", "pros": "本地命令秒响应", "cons": "需维护命令表" },
+        { "name": "命令解析器框架", "pros": "可扩展", "cons": "过度设计" }
+      ],
+      "chosen": "/ 前缀路由（switch 硬编码）",
+      "reason": "教学版命令少（4 个），switch 清晰直接。生产版用可扩展的命令注册系统。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "REPL 屏幕",
+      "ourFile": "src/components/repl-screen.tsx",
+      "ourLines": "1-120",
+      "claudeCodeFile": "screens/REPL.tsx",
+      "claudeCodeConcept": "5000+ 行的产品主界面：权限、MCP、团队、沙盒、全屏",
+      "difference": "教学版 ~120 行纯组装；生产版集成了整个产品体验",
+      "whyProduction": "企业级 CLI 远不止「对话+工具」——权限确认流、团队协作、诊断工具都在 REPL 层处理"
+    },
+    {
+      "concept": "欢迎页",
+      "ourFile": "src/components/welcome.tsx",
+      "ourLines": "1-45",
+      "claudeCodeFile": "components/LogoV2 + StatusNotices",
+      "claudeCodeConcept": "品牌 Logo + 登录状态 + 模型信息 + 更新检查",
+      "difference": "教学版静态展示；生产版动态检测登录和更新",
+      "whyProduction": "SaaS 产品需要展示账户状态和版本更新"
+    }
+  ]
+}

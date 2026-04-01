@@ -1,0 +1,15 @@
+{
+  "version": "s13",
+  "title": "Ink 基础渲染演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\nmycli v0.13.0 [Ink Basics] ESC 退出\n\n", "color": "cyan" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "列出当前目录", "typeDelay": 40 },
+    { "type": "output", "text": "\n  ⚡ ls({\"path\":\".\"})  \n  ← 📁 src 📁 dist 📄 package.json 📄 tsconfig.json\n\nassistant> 当前目录包含 src/、dist/ 目录和配置文件。\n", "color": "white" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "", "typeDelay": 0 },
+    { "type": "output", "text": "\n[ESC pressed — 退出 Ink 应用]\n", "color": "gray" }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "version": "s13",
+  "architecture": {
+    "title": "Ink 渲染架构",
+    "description": "s13 用 Ink 的 render() 替代 console.log，将 React 组件挂载到终端 stdout。Agent 通过 onOutput 回调推送结构化输出，UI 层通过 useState 驱动重渲染。Box = div（Flexbox），Text = span（样式），心智模型与 Web React 完全一致。",
+    "mermaid": "graph TD\n  CLI[\"cli.tsx\"] -->|\"render()\"| INK[\"Ink Runtime\"]\n  INK --> APP[\"App 组件\"]\n  APP --> BOX[\"Box 布局\"]\n  APP --> TEXT[\"Text 样式\"]\n  APP -->|\"useState\"| STATE[\"lines 状态\"]\n  STATE -->|\"重渲染\"| APP\n  AGENT[\"Agent\"] -->|\"onOutput 回调\"| STATE\n\n  subgraph ui[\"终端 UI\"]\n    BOX\n    TEXT\n  end\n\n  style INK fill:#fef3c7,stroke:#fcd34d\n  style AGENT fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "Ink vs console.log",
+      "question": "如何渲染终端 UI？",
+      "options": [
+        { "name": "console.log + ANSI", "pros": "零依赖", "cons": "手动管理光标/清屏/布局" },
+        { "name": "blessed/terminal-kit", "pros": "功能丰富", "cons": "API 与 Web 完全不同" },
+        { "name": "Ink (React)", "pros": "前端零学习曲线，组件化", "cons": "多一个依赖" }
+      ],
+      "chosen": "Ink (React for Terminal)",
+      "reason": "Claude Code 使用 Ink；前端开发者已经会 React，Box/Text 即 div/span。"
+    },
+    {
+      "title": "Agent 输出解耦",
+      "question": "Agent 如何把输出传给 UI？",
+      "options": [
+        { "name": "直接 console.log", "pros": "简单", "cons": "与 UI 强耦合" },
+        { "name": "onOutput 回调", "pros": "解耦，可接任意 UI", "cons": "需定义输出类型" },
+        { "name": "EventEmitter", "pros": "更灵活", "cons": "过度设计" }
+      ],
+      "chosen": "onOutput 回调",
+      "reason": "最小可用解耦方案。同一个 Agent 可接 Ink UI、Web UI 或测试断言。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Ink render",
+      "ourFile": "src/cli.tsx",
+      "ourLines": "1-14",
+      "claudeCodeFile": "ink.ts",
+      "claudeCodeConcept": "render() + createRoot() + ThemeProvider 包装",
+      "difference": "教学版直接调 ink render；生产版注入主题提供者",
+      "whyProduction": "统一所有组件的颜色方案需要 ThemeProvider"
+    },
+    {
+      "concept": "Agent 输出",
+      "ourFile": "src/agent.ts",
+      "ourLines": "40-90",
+      "claudeCodeFile": "query.ts 状态管理",
+      "claudeCodeConcept": "输出通过 React state/context 而非直写 stdout",
+      "difference": "教学版用回调；生产版用 React 全局状态",
+      "whyProduction": "多组件多层级需要共享状态，Context 更合适"
+    }
+  ]
+}

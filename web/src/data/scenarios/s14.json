@@ -1,0 +1,38 @@
+{
+  "version": "s14",
+  "description": "消息列表：按类型分发渲染 + 代码块检测 + 结果截断",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【MessageList】空状态 → 显示「输入问题开始对话…」"
+    },
+    {
+      "type": "user_message",
+      "content": "用 TypeScript 写一个 fibonacci 函数"
+    },
+    {
+      "type": "system_event",
+      "content": "【UserMessage】绿色粗体 + ❯ 前缀"
+    },
+    {
+      "type": "assistant_text",
+      "content": "```typescript\nfunction fibonacci(n: number): number {\n  if (n <= 1) return n;\n  return fibonacci(n - 1) + fibonacci(n - 2);\n}\n```"
+    },
+    {
+      "type": "system_event",
+      "content": "【parseCodeBlocks】检测到 ``` 代码块 → 用 border=single Box 包裹渲染"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_write({\"path\":\"fib.ts\",\"content\":\"...\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "【ToolCallMessage】黄色 ⚡ 前缀显示工具名"
+    },
+    {
+      "type": "system_event",
+      "content": "【ToolResultMessage】灰色 ← 前缀，超过 5 行自动截断"
+    }
+  ]
+}

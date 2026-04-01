@@ -194,25 +194,25 @@
 >
 > 重点研究：Ink 的 render 封装、Box/Text 基础组件
 
-- [ ] **E-s13.1** 编写 Agent 源码 `agents/s13-ink-basics/`
-- [ ] **E-s13.2** 编写教学文档 `docs/zh/s13-ink-basics.md`
-- [ ] **E-s13.3** 创建配套数据
+- [x] **E-s13.1** 编写 Agent 源码 `agents/s13-ink-basics/`
+- [x] **E-s13.2** 编写教学文档 `docs/zh/s13-ink-basics.md`
+- [x] **E-s13.3** 创建配套数据
 
 ### s14 — 消息列表
 
 > **Claude Code 参考**: `src/components/Messages.tsx` + `MessageRow.tsx`
 
-- [ ] **E-s14.1** 编写 Agent 源码 `agents/s14-message-list/`
-- [ ] **E-s14.2** 编写教学文档 `docs/zh/s14-message-list.md`
-- [ ] **E-s14.3** 创建配套数据
+- [x] **E-s14.1** 编写 Agent 源码 `agents/s14-message-list/`
+- [x] **E-s14.2** 编写教学文档 `docs/zh/s14-message-list.md`
+- [x] **E-s14.3** 创建配套数据
 
 ### s15 — 输入框
 
 > **Claude Code 参考**: `src/components/PromptInput/`
 
-- [ ] **E-s15.1** 编写 Agent 源码 `agents/s15-input-box/`
-- [ ] **E-s15.2** 编写教学文档 `docs/zh/s15-input-box.md`
-- [ ] **E-s15.3** 创建配套数据
+- [x] **E-s15.1** 编写 Agent 源码 `agents/s15-input-box/`
+- [x] **E-s15.2** 编写教学文档 `docs/zh/s15-input-box.md`
+- [x] **E-s15.3** 创建配套数据
 
 ### s16 — REPL 主屏
 
@@ -220,9 +220,9 @@
 >
 > 重点研究：消息列表 + 输入框 + 工具权限 + 状态栏的组装方式
 
-- [ ] **E-s16.1** 编写 Agent 源码 `agents/s16-repl-screen/`
-- [ ] **E-s16.2** 编写教学文档 `docs/zh/s16-repl-screen.md`
-- [ ] **E-s16.3** 创建配套数据
+- [x] **E-s16.1** 编写 Agent 源码 `agents/s16-repl-screen/`
+- [x] **E-s16.2** 编写教学文档 `docs/zh/s16-repl-screen.md`
+- [x] **E-s16.3** 创建配套数据
 
 ---
 
