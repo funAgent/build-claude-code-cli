@@ -1,0 +1,15 @@
+{
+  "version": "s18",
+  "title": "RULES.md 加载演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "echo '- Always use TypeScript strict mode' > RULES.md", "typeDelay": 25 },
+    { "type": "output", "text": "", "color": "white" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.18.0  (REPL)       │\n╰─────────────────────────────────╯\n\n📁 s18-claude-md/\n🤖 claude-sonnet-4 │ 9 tools\n📜 RULES.md loaded (project)\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "写一个 hello world", "typeDelay": 35 },
+    { "type": "output", "text": "\nassistant> 遵循 RULES.md 规则，使用 TypeScript strict mode：\n\n  ┌───────────────────────────────────┐\n  │ const msg: string = \"Hello!\"      │\n  │ console.log(msg)                  │\n  └───────────────────────────────────┘\n", "color": "white" }
+  ]
+}

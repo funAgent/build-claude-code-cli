@@ -238,9 +238,9 @@
 >
 > 重点研究：分层组装的 system prompt 结构
 
-- [ ] **E-s17.1** 编写 Agent 源码 `agents/s17-system-prompt/`
-- [ ] **E-s17.2** 编写教学文档 `docs/zh/s17-system-prompt.md`
-- [ ] **E-s17.3** 创建配套数据
+- [x] **E-s17.1** 编写 Agent 源码 `agents/s17-system-prompt/`
+- [x] **E-s17.2** 编写教学文档 `docs/zh/s17-system-prompt.md`
+- [x] **E-s17.3** 创建配套数据
 
 ### s18 — CLAUDE.md 项目规则
 
@@ -248,9 +248,9 @@
 >
 > 重点研究：三级加载（全局 → 项目根 → 子目录）、getUserContext()
 
-- [ ] **E-s18.1** 编写 Agent 源码 `agents/s18-claude-md/`
-- [ ] **E-s18.2** 编写教学文档 `docs/zh/s18-claude-md.md`
-- [ ] **E-s18.3** 创建配套数据
+- [x] **E-s18.1** 编写 Agent 源码 `agents/s18-claude-md/`
+- [x] **E-s18.2** 编写教学文档 `docs/zh/s18-claude-md.md`
+- [x] **E-s18.3** 创建配套数据
 
 ### s19 — Prompt Cache
 
@@ -258,9 +258,9 @@
 >
 > 重点研究：DYNAMIC_BOUNDARY 标记、cache_control: {type:"ephemeral"} 注入
 
-- [ ] **E-s19.1** 编写 Agent 源码 `agents/s19-prompt-cache/`
-- [ ] **E-s19.2** 编写教学文档 `docs/zh/s19-prompt-cache.md`
-- [ ] **E-s19.3** 创建配套数据
+- [x] **E-s19.1** 编写 Agent 源码 `agents/s19-prompt-cache/`
+- [x] **E-s19.2** 编写教学文档 `docs/zh/s19-prompt-cache.md`
+- [x] **E-s19.3** 创建配套数据
 
 ---
 

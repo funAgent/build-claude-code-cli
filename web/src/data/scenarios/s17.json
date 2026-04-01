@@ -1,0 +1,34 @@
+{
+  "version": "s17",
+  "description": "分层 System Prompt：identity → tool-guide → environment → style",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【buildSystemPrompt】按层组装 4 个 PromptSection"
+    },
+    {
+      "type": "system_event",
+      "content": "【identity】你是 CLI 助手，擅长编码任务"
+    },
+    {
+      "type": "system_event",
+      "content": "【tool-guide】从 ToolRegistry 自动生成 9 个工具列表和使用指南"
+    },
+    {
+      "type": "system_event",
+      "content": "【environment】注入 OS=darwin arm64 | cwd=/project | date=2025-06-01"
+    },
+    {
+      "type": "system_event",
+      "content": "【style】输出风格约束：简洁、代码块、不道歉"
+    },
+    {
+      "type": "user_message",
+      "content": "你知道哪些工具？"
+    },
+    {
+      "type": "assistant_text",
+      "content": "工具列表与 prompt 中 tool-guide section 自动同步。"
+    }
+  ]
+}

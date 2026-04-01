@@ -1,0 +1,31 @@
+{
+  "version": "s17",
+  "architecture": {
+    "title": "分层 System Prompt 组装",
+    "description": "s17 用 buildSystemPrompt() 将 system prompt 拆分为 4 个独立 section：identity（身份）、tool-guide（工具指南，从 registry 自动生成）、environment（运行时环境信息）、style（输出风格约束）。返回 PromptSection[] 而非 string，为后续 prompt cache 做准备。",
+    "mermaid": "graph TD\n  BP[\"buildSystemPrompt\"] --> ID[\"identity\\n你是谁\"]\n  BP --> TG[\"tool-guide\\n自动生成工具列表\"]\n  BP --> ENV[\"environment\\nOS/cwd/date\"]\n  BP --> STY[\"style\\n输出约束\"]\n  TG --> REG[\"ToolRegistry\\ngetAll()\"]\n  BP --> STR[\"sectionsToString\\n拼接为完整 prompt\"]\n\n  style BP fill:#fef3c7,stroke:#fcd34d\n  style TG fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "分层 vs 单一模板",
+      "question": "System prompt 用一个大字符串还是分段组装？",
+      "options": [
+        { "name": "单一字符串模板", "pros": "简单直观", "cons": "难维护、难缓存、难扩展" },
+        { "name": "分段组装 (Section[])", "pros": "可扩展、可缓存、可调试", "cons": "需定义结构" }
+      ],
+      "chosen": "分段组装",
+      "reason": "Claude Code 的 prompt 有 20+ section，分段是唯一可维护的方式。返回结构化数据也为 cache 标记做准备。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Prompt 组装",
+      "ourFile": "src/prompt.ts",
+      "ourLines": "1-110",
+      "claudeCodeFile": "constants/prompts.ts getSystemPrompt()",
+      "claudeCodeConcept": "异步 section registry + memoize + 20+ section",
+      "difference": "教学版 4 个同步 section；生产版 20+ 异步 section + registry",
+      "whyProduction": "生产环境的 section 含 MCP/git/worktree 等动态内容，需异步获取"
+    }
+  ]
+}

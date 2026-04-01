@@ -1,0 +1,34 @@
+{
+  "version": "s18",
+  "description": "RULES.md 三级加载：global → project → local 规则合并",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【loadRules】扫描三级路径：~/.mycli/RULES.md → {root}/RULES.md → {cwd}/RULES.md"
+    },
+    {
+      "type": "system_event",
+      "content": "【findProjectRoot】从 cwd 向上查找 package.json 或 .git"
+    },
+    {
+      "type": "system_event",
+      "content": "【合并策略】全部加载并合并（非覆盖），子目录规则补充项目规则"
+    },
+    {
+      "type": "system_event",
+      "content": "【注入 prompt】rules section 插在 environment 和 style 之间"
+    },
+    {
+      "type": "user_message",
+      "content": "/init"
+    },
+    {
+      "type": "system_event",
+      "content": "【initRulesFile】在 cwd 创建 RULES.md 模板"
+    },
+    {
+      "type": "assistant_text",
+      "content": "Agent 自动遵循 RULES.md 中的项目约定。"
+    }
+  ]
+}

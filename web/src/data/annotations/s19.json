@@ -1,0 +1,32 @@
+{
+  "version": "s19",
+  "architecture": {
+    "title": "Prompt Cache 机制",
+    "description": "s19 为 system prompt 引入缓存支持：每个 PromptSection 标记 cacheable 属性，splitPromptForCache() 将 sections 拆分为静态前缀块（加 cache_control: ephemeral）和动态块（不加）。API 请求以 TextBlockParam[] 形式传入 system 参数，Anthropic 服务端缓存不变的静态前缀，后续请求以 cache read 计费（省 90%）。",
+    "mermaid": "graph TD\n  SEC[\"PromptSection[]\"] --> SPLIT[\"splitPromptForCache\"]\n  SPLIT --> STATIC[\"静态前缀\\nidentity + tool-guide\\ncache_control: ephemeral\"]\n  SPLIT --> DYN[\"动态部分\\nenvironment + rules\\n无 cache_control\"]\n  STATIC --> API[\"API 请求\"]\n  DYN --> API\n\n  API --> R1[\"请求 #1\\ncache_creation: 1200 tok\"]\n  API --> R2[\"请求 #2\\ncache_read: 1200 tok\\n省 90%\"]\n\n  subgraph key[\"关键前提\"]\n    K1[\"工具列表稳定排序\"]\n    K2[\"静态前缀不变\"]\n  end\n\n  style SPLIT fill:#fef3c7,stroke:#fcd34d\n  style STATIC fill:#ecfdf5,stroke:#6ee7b7\n  style R2 fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "缓存粒度",
+      "question": "按什么粒度标记可缓存？",
+      "options": [
+        { "name": "整个 system prompt", "pros": "最大复用", "cons": "任何动态变化都破坏缓存" },
+        { "name": "按 section 标记", "pros": "静态 section 可缓存", "cons": "需拆分逻辑" },
+        { "name": "按字符串前缀", "pros": "灵活", "cons": "需精确的边界标记" }
+      ],
+      "chosen": "按 section 标记 cacheable 属性",
+      "reason": "教学版的 section 粒度清晰。Claude Code 用 DYNAMIC_BOUNDARY 字符串做边界，本质相同。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Prompt Cache",
+      "ourFile": "src/prompt.ts + src/agent.ts",
+      "ourLines": "1-50",
+      "claudeCodeFile": "utils/api.ts splitSysPromptPrefix() + claude.ts buildSystemPromptBlocks()",
+      "claudeCodeConcept": "DYNAMIC_BOUNDARY 分隔 + cacheScope: global/ephemeral + TTL",
+      "difference": "教学版只有 ephemeral；生产版还有 global scope 和 TTL 延长",
+      "whyProduction": "global scope 可跨组织/会话复用，大幅提高命中率"
+    }
+  ]
+}

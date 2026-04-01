@@ -1,0 +1,32 @@
+{
+  "version": "s18",
+  "architecture": {
+    "title": "RULES.md 三级规则加载",
+    "description": "s18 实现三级规则文件加载：全局 ~/.mycli/RULES.md → 项目根 {root}/RULES.md → 子目录 {cwd}/RULES.md。findProjectRoot() 向上查找 package.json/.git 定位项目根。所有层级规则合并注入 prompt，不覆盖。/init 命令创建模板。",
+    "mermaid": "graph TD\n  LR[\"loadRules\"] --> G[\"全局\\n~/.mycli/RULES.md\"]\n  LR --> P[\"项目根\\n{root}/RULES.md\"]\n  LR --> L[\"子目录\\n{cwd}/RULES.md\"]\n  FPR[\"findProjectRoot\\n向上查找 .git\"]\n  FPR --> P\n  G --> MERGE[\"合并（非覆盖）\"]\n  P --> MERGE\n  L --> MERGE\n  MERGE --> SEC[\"rules PromptSection\"]\n  SEC --> PROMPT[\"注入 system prompt\"]\n\n  style LR fill:#fef3c7,stroke:#fcd34d\n  style MERGE fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "合并 vs 覆盖",
+      "question": "多级规则文件如何处理？",
+      "options": [
+        { "name": "下级覆盖上级", "pros": "简单", "cons": "丢失全局偏好" },
+        { "name": "全部合并", "pros": "所有规则生效", "cons": "可能冲突" },
+        { "name": "合并 + 冲突检测", "pros": "安全", "cons": "实现复杂" }
+      ],
+      "chosen": "全部合并",
+      "reason": "Claude Code 同样合并所有层级。全局=个人偏好，项目=团队约定，通常不冲突。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "规则加载",
+      "ourFile": "src/rules.ts",
+      "ourLines": "1-100",
+      "claudeCodeFile": "utils/claudemd.ts getMemoryFiles()",
+      "claudeCodeConcept": "5+ 级加载：Managed→User→Project→Local→AutoMem→Team",
+      "difference": "教学版 3 级单文件；生产版多文件 + frontmatter + @include",
+      "whyProduction": "企业环境需要团队规则、条件规则、递归包含"
+    }
+  ]
+}

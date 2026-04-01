@@ -1,0 +1,38 @@
+{
+  "version": "s19",
+  "description": "Prompt Cache：DYNAMIC_BOUNDARY 划分 + cache_control 注入",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【splitPromptForCache】按 cacheable 标记拆分 sections 为 static/dynamic"
+    },
+    {
+      "type": "system_event",
+      "content": "【静态前缀】identity + tool-guide → cache_control: {type:\"ephemeral\"}"
+    },
+    {
+      "type": "system_event",
+      "content": "【动态部分】environment + rules → 无 cache_control"
+    },
+    {
+      "type": "user_message",
+      "content": "你好"
+    },
+    {
+      "type": "system_event",
+      "content": "【API 请求 #1】cache_creation_input_tokens: 1200（首次写入缓存）"
+    },
+    {
+      "type": "user_message",
+      "content": "列出文件"
+    },
+    {
+      "type": "system_event",
+      "content": "【API 请求 #2】cache_read_input_tokens: 1200（命中缓存，省 90% 费用）"
+    },
+    {
+      "type": "assistant_text",
+      "content": "工具列表稳定排序是 cache 命中率的前提。"
+    }
+  ]
+}

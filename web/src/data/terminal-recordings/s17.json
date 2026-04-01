@@ -1,0 +1,12 @@
+{
+  "version": "s17",
+  "title": "分层 System Prompt 演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.17.0  (REPL)       │\n╰─────────────────────────────────╯\n\n📁 s17-system-prompt/\n🤖 claude-sonnet-4 │ 9 tools\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "你知道当前是什么系统吗？", "typeDelay": 35 },
+    { "type": "output", "text": "\nassistant> 当前环境：darwin arm64，Node v22.0.0，\n工作目录：/Users/me/agents/s17-system-prompt\n日期：2025-06-01\n\n(环境信息来自 getEnvironmentSection 自动注入)\n", "color": "white" }
+  ]
+}

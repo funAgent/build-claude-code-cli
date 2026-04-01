@@ -1,0 +1,15 @@
+{
+  "version": "s19",
+  "title": "Prompt Cache 效果演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.19.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "你好", "typeDelay": 40 },
+    { "type": "output", "text": "\nassistant> 你好！有什么可以帮你的？\n\n  usage: input=1847 cache_creation=1203 cache_read=0\n  (首次请求：静态前缀写入缓存)\n", "color": "white" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "列出当前文件", "typeDelay": 35 },
+    { "type": "output", "text": "\n  ⚡ ls({\"path\":\".\"}) → 6 files\n\nassistant> 当前目录有 src/、package.json 等文件。\n\n  usage: input=644 cache_creation=0 cache_read=1203\n  (第二次请求：命中缓存，省 90% 费用 ✓)\n", "color": "green" }
+  ]
+}
