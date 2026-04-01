@@ -1,0 +1,38 @@
+{
+  "version": "s08",
+  "description": "Tool 抽象：定义 Tool 接口 → buildTool 工厂 → agent 使用 toolMap → 工具分发",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【定义 Tool 接口】name + schema + call 三元组"
+    },
+    {
+      "type": "system_event",
+      "content": "【buildTool 工厂】bashTool = buildTool({ name, schema, call })"
+    },
+    {
+      "type": "user_message",
+      "content": "列出当前目录文件"
+    },
+    {
+      "type": "system_event",
+      "content": "调用模型：tools: toAnthropicTools(this.tools)"
+    },
+    {
+      "type": "tool_call",
+      "content": "bash({\"command\": \"ls -la\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "【工具分发】toolMap.get('bash') → bash.call()"
+    },
+    {
+      "type": "tool_result",
+      "content": "src/\nnode_modules/\npackage.json"
+    },
+    {
+      "type": "assistant_text",
+      "content": "新增工具无需修改循环——只要注册到 toolMap 并暴露给 API。"
+    }
+  ]
+}

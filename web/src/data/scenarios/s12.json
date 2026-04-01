@@ -1,0 +1,30 @@
+{
+  "version": "s12",
+  "description": "工具注册表：assembleToolPool → 工具清单 → --read-only 过滤",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【assembleToolPool】9 个工具按稳定顺序注册"
+    },
+    {
+      "type": "system_event",
+      "content": "【排序策略】glob → grep → ls → file_read → file_write → file_edit → bash → task → help"
+    },
+    {
+      "type": "user_message",
+      "content": "/tools"
+    },
+    {
+      "type": "system_event",
+      "content": "【工具清单】4 只读 / 5 读写"
+    },
+    {
+      "type": "system_event",
+      "content": "【--read-only】只读模式过滤掉写工具（file_write、file_edit、bash 等按策略隐藏）"
+    },
+    {
+      "type": "assistant_text",
+      "content": "稳定排序：prompt cache 命中率依赖工具列表前缀一致。"
+    }
+  ]
+}

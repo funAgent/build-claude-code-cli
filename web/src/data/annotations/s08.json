@@ -1,0 +1,50 @@
+{
+  "version": "s08",
+  "architecture": {
+    "title": "Tool 抽象架构",
+    "description": "s08 将工具统一为 name + JSON Schema + call 三元组。Agent 循环只通过 toolMap 按名分发，API 层用 toAnthropicTools 转为模型可见的工具列表。新增工具无需改循环逻辑。",
+    "mermaid": "graph TD\n  I[\"Tool 接口\\nname + schema + call\"] --> F[\"buildTool 工厂\"]\n  F --> B[\"bashTool\"]\n  F --> X[\"未来工具…\"]\n  L[\"Agent Loop\"] -->|\"toolMap.get\"| C[\"tool.call\"]\n  L -->|\"toAnthropicTools\"| A[\"Messages API\"]\n  I -.-> L\n\n  style I fill:#eff6ff,stroke:#93c5fd\n  style L fill:#fef3c7,stroke:#fcd34d\n  style A fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "接口 vs 基类",
+      "question": "为什么用接口而不是继承 Tool 基类？",
+      "options": [
+        { "name": "接口 + 工厂函数", "pros": "灵活，可用纯对象或函数实现", "cons": "缺少默认实现时需自行组装" },
+        { "name": "抽象类", "pros": "可共享通用逻辑", "cons": "工具差异大时继承层次易膨胀" }
+      ],
+      "chosen": "接口 + buildTool 工厂",
+      "reason": "函数式风格与教学代码更贴合；与 Claude Code 中 Tool 作为可组合定义的方式一致。生产版在类型上还会标注 isReadOnly、needsPermissions 等元数据。"
+    },
+    {
+      "title": "ToolContext",
+      "question": "为什么需要 ToolContext？",
+      "options": [
+        { "name": "显式上下文参数", "pros": "cwd、signal、权限可注入、可测试", "cons": "每个 call 都要传" },
+        { "name": "全局单例", "pros": "调用签名更短", "cons": "并发与测试困难" }
+      ],
+      "chosen": "显式 ToolContext",
+      "reason": "工具必须知道当前工作目录；生产版还包括 AbortSignal、权限检查结果等，不能依赖隐式全局状态。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Tool 类型系统",
+      "ourFile": "src/tool.ts",
+      "ourLines": "1-80",
+      "claudeCodeFile": "Tool.ts",
+      "claudeCodeConcept": "完整 Tool 类型含 isReadOnly、needsPermissions、isConcurrencySafe 等标记",
+      "difference": "教学版保留最小字段；生产版与 UI/权限/并行策略深度耦合",
+      "whyProduction": "并行执行、权限弹窗、只读模式都依赖这些元数据做决策"
+    },
+    {
+      "concept": "Bash 工具实现",
+      "ourFile": "src/tools/bash-tool.ts",
+      "ourLines": "1-120",
+      "claudeCodeFile": "tools/BashTool/BashTool.tsx",
+      "claudeCodeConcept": "BashTool 既是 React 组件也是 Tool 实现，含渲染与执行",
+      "difference": "教学 CLI 用纯 TS 模块；生产 TUI 在同一文件里挂 UI",
+      "whyProduction": "终端里需要展示命令审批、输出流、错误样式"
+    }
+  ]
+}

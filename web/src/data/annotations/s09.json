@@ -1,0 +1,50 @@
+{
+  "version": "s09",
+  "architecture": {
+    "title": "文件工具与路径安全",
+    "description": "s09 的 file_read 在输出中带行号，便于模型定位；file_write 在写入前解析路径并限制在 cwd 下，避免 ../ 逃逸。读与写在工具层统一校验，而不是交给模型自律。",
+    "mermaid": "graph LR\n  U[\"用户请求\"] --> M[\"模型\"]\n  M --> FR[\"file_read\"]\n  M --> FW[\"file_write\"]\n  FR --> P[\"resolve + normalize\\n限制在 cwd\"]\n  FW --> P\n  P -->|拒绝| E[\"错误 tool_result\"]\n  P -->|允许| FS[\"fs 读写\"]\n  FR --> LN[\"带行号输出\\n1|… 2|…\"]\n\n  style P fill:#fef3c7,stroke:#fcd34d\n  style LN fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "行号前缀",
+      "question": "file_read 要不要带行号？",
+      "options": [
+        { "name": "带行号", "pros": "与 file_edit 引用一致，模型少出错", "cons": "输出略长" },
+        { "name": "纯文本", "pros": "更短", "cons": "后续编辑难以对齐行" }
+      ],
+      "chosen": "带行号（limit 截断时仍从 1 起编号）",
+      "reason": "与精确替换工具对齐；Claude Code 的读文件工具同样强调可定位片段。"
+    },
+    {
+      "title": "路径安全边界",
+      "question": "路径校验放在哪一层？",
+      "options": [
+        { "name": "工具层强制 cwd 根", "pros": "无法通过 prompt 绕过", "cons": "工具代码略多" },
+        { "name": "仅依赖 system prompt", "pros": "实现简单", "cons": "不可靠" }
+      ],
+      "chosen": "工具层 resolve + 根目录检查",
+      "reason": "安全边界必须在代码里；模型指令不能替代沙箱。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "文件读取",
+      "ourFile": "src/tools/file-read-tool.ts",
+      "ourLines": "1-100",
+      "claudeCodeFile": "tools/FileReadTool/",
+      "claudeCodeConcept": "按块读取、图片/二进制检测、行号与截断策略",
+      "difference": "教学版聚焦文本 + limit；生产版处理大文件与多模态",
+      "whyProduction": "仓库规模与文件类型差异极大，需要流式与类型分流"
+    },
+    {
+      "concept": "写入与权限",
+      "ourFile": "src/tools/file-write-tool.ts",
+      "ourLines": "1-80",
+      "claudeCodeFile": "tools/FileWriteTool/",
+      "claudeCodeConcept": "写入前权限规则 + 目录创建策略",
+      "difference": "教学版只做路径规范化；生产版接权限引擎",
+      "whyProduction": "用户需要批准对受保护路径的写入"
+    }
+  ]
+}

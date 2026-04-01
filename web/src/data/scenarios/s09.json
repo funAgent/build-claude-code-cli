@@ -1,0 +1,38 @@
+{
+  "version": "s09",
+  "description": "文件工具：file_read 带行号 → file_write → 路径校验",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "读取 package.json 的前 10 行"
+    },
+    {
+      "type": "system_event",
+      "content": "调用模型：3 个工具 — bash + file_read + file_write"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({\"path\": \"package.json\", \"limit\": 10})"
+    },
+    {
+      "type": "tool_result",
+      "content": "1|{\n2|  \"name\": \"s09\",\n3|  \"version\": \"0.9.0\",\n..."
+    },
+    {
+      "type": "user_message",
+      "content": "创建 hello.txt 写入 Hello World"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_write({\"path\": \"hello.txt\", \"content\": \"Hello World\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "已创建 hello.txt (1 行)"
+    },
+    {
+      "type": "assistant_text",
+      "content": "文件已创建。"
+    }
+  ]
+}

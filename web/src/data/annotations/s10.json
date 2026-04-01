@@ -1,0 +1,41 @@
+{
+  "version": "s10",
+  "architecture": {
+    "title": "file_edit 与唯一性检查",
+    "description": "s10 用 old_string → new_string 做精确替换。执行前统计 old_string 出现次数：0 次报错、多次报错，仅 1 次时应用替换。失败时把错误作为 tool_result 返回，模型可自修正。",
+    "mermaid": "graph TD\n  R[\"file_read 片段\"] --> E[\"file_edit\"]\n  E --> C{\"old_string\\n出现次数?\"}\n  C -->|0| Err1[\"错误：未找到\"]\n  C -->|>1| Err2[\"错误：不唯一\"]\n  C -->|1| OK[\"应用替换 + diff 摘要\"]\n  Err1 --> M[\"模型自修正\"]\n  Err2 --> M\n\n  style C fill:#fef3c7,stroke:#fcd34d\n  style OK fill:#ecfdf5,stroke:#6ee7b7\n  style Err1 fill:#fee2e2,stroke:#fca5a5\n  style Err2 fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "替换 vs 整文件覆写",
+      "question": "编辑时优先精确替换还是整文件写入？",
+      "options": [
+        { "name": "精确替换", "pros": "token 省、冲突可见", "cons": "需唯一性检查" },
+        { "name": "整文件覆写", "pros": "实现简单", "cons": "大文件成本高、易覆盖并发修改" }
+      ],
+      "chosen": "精确替换为主，整文件为辅",
+      "reason": "大文件场景下节省 90%+ token；Claude Code 同样以 search_replace 风格编辑为主。"
+    },
+    {
+      "title": "唯一性语义",
+      "question": "old_string 匹配多次时怎么办？",
+      "options": [
+        { "name": "拒绝并提示", "pros": "避免误改", "cons": "多一步对话" },
+        { "name": "全部替换", "pros": "一次成功", "cons": "风险高" }
+      ],
+      "chosen": "拒绝（要求更多上下文）",
+      "reason": "安全默认；模型可扩大 old_string 或先读更多行再编辑。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "StrReplace 编辑",
+      "ourFile": "src/tools/file-edit-tool.ts",
+      "ourLines": "1-120",
+      "claudeCodeFile": "tools/FileEditTool/FileEditTool.ts",
+      "claudeCodeConcept": "唯一性检测、多文件批量、与 undo 栈集成",
+      "difference": "教学版单文件单次替换",
+      "whyProduction": "需要与版本控制视图和用户撤销一致"
+    }
+  ]
+}

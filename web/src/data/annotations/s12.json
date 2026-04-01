@@ -1,0 +1,50 @@
+{
+  "version": "s12",
+  "architecture": {
+    "title": "工具注册表与稳定排序",
+    "description": "s12 通过 assembleToolPool 将工具按固定顺序注册（如 glob→grep→…→help）。/tools 列出元数据（只读/读写）；--read-only 在注册阶段去掉写工具。稳定顺序使 system 中工具定义前缀与缓存键一致，利于 prompt cache。",
+    "mermaid": "graph TD\n  A[\"assembleToolPool\"] --> O[\"稳定排序\\n固定数组顺序\"]\n  O --> R[\"注册表 Map\"]\n  R --> API[\"toAnthropicTools → API\"]\n  R --> UI[\"/tools 清单\"]\n  RO[\"--read-only\"] --> F[\"过滤写工具\"]\n  F --> R\n\n  subgraph cache[\"Prompt cache\"]\n    API --> K[\"工具块前缀一致 → 缓存命中\"]\n  end\n\n  style O fill:#fef3c7,stroke:#fcd34d\n  style K fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "稳定排序",
+      "question": "工具顺序要不要固定？",
+      "options": [
+        { "name": "按名称字典序", "pros": "确定性强", "cons": "与「常用优先」不一致" },
+        { "name": "固定业务顺序", "pros": "与文档/缓存一致", "cons": "需维护列表" }
+      ],
+      "chosen": "固定业务顺序（glob→grep→ls→file_*→bash→task→help）",
+      "reason": "Prompt cache 与可重复请求依赖工具定义序列前缀稳定；Claude Code 同样维护有序工具列表。"
+    },
+    {
+      "title": "只读模式",
+      "question": "只读模式在何时过滤工具？",
+      "options": [
+        { "name": "注册时剔除", "pros": "模型根本看不到写工具", "cons": "需重启/重建 pool" },
+        { "name": "调用时拒绝", "pros": "实现快", "cons": "仍占用提示词空间" }
+      ],
+      "chosen": "注册时剔除（或构建 tool 列表时过滤）",
+      "reason": "减少工具定义 token，并避免模型规划无权限操作。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "工具注册",
+      "ourFile": "src/tool-pool.ts",
+      "ourLines": "1-100",
+      "claudeCodeFile": "tools/registry + assembleTools",
+      "claudeCodeConcept": "按特性开关、权限、SKU 组装工具集",
+      "difference": "教学版固定 9 工具；生产版动态增减",
+      "whyProduction": "企业策略与订阅层会改变可用工具集合"
+    },
+    {
+      "concept": "Prompt Cache 对齐",
+      "ourFile": "src/agent.ts",
+      "ourLines": "1-80",
+      "claudeCodeFile": "query / system prompt 构建",
+      "claudeCodeConcept": "稳定前缀 + 缓存读 token 计费",
+      "difference": "教学版仅强调顺序概念",
+      "whyProduction": "缓存命中直接降低 API 成本"
+    }
+  ]
+}

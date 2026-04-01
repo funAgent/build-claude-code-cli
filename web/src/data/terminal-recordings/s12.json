@@ -1,0 +1,12 @@
+{
+  "version": "s12",
+  "title": "工具注册表运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.ts --read-only", "typeDelay": 32 },
+    { "type": "output", "text": "mycli v0.12.0  [read-only] 写工具已从池中移除\n命令: /tools | /exit\n\n", "color": "green" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "/tools", "typeDelay": 35 },
+    { "type": "output", "text": "\n--- 工具清单 (稳定顺序) ---\n只读: glob, grep, ls, file_read\n(读写类已过滤)\n\nassistant> 工具顺序固定有助于 prompt cache 前缀一致。\n", "color": "cyan" }
+  ]
+}

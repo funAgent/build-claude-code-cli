@@ -1,0 +1,30 @@
+{
+  "version": "s10",
+  "description": "编辑工具：file_edit 唯一性检查 → 精确替换 → 节省 token",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "把 version 从 0.9.0 改为 0.10.0"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({\"path\": \"package.json\"})"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_edit({\"path\": \"package.json\", \"old_string\": \"0.9.0\", \"new_string\": \"0.10.0\"})"
+    },
+    {
+      "type": "system_event",
+      "content": "【唯一性检查】old_string 出现 1 次 ✓"
+    },
+    {
+      "type": "tool_result",
+      "content": "已编辑 package.json: 1行→1行"
+    },
+    {
+      "type": "assistant_text",
+      "content": "精确替换，节省约 90% token（相对整文件覆写）。"
+    }
+  ]
+}

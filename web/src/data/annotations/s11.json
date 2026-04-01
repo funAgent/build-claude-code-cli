@@ -1,0 +1,50 @@
+{
+  "version": "s11",
+  "architecture": {
+    "title": "搜索流水线：glob → grep",
+    "description": "s11 先用 glob 收敛候选路径，再用 grep 在内容中搜索。结果按需截断（行数/字节上限），避免把整仓输出塞进上下文。模型典型流程是搜索 → 读片段 → file_edit。",
+    "mermaid": "graph LR\n  Q[\"查询\"] --> G1[\"glob **/*.ts\"]\n  G1 --> L[\"候选文件列表\"]\n  L --> G2[\"grep TODO\"]\n  G2 --> H[\"命中行 + 路径:行号\"]\n  H --> FE[\"file_edit\"]\n  G2 --> T[\"截断策略\\nmaxResults / maxLineLen\"]\n\n  style G2 fill:#fef3c7,stroke:#fcd34d\n  style T fill:#e0e7ff,stroke:#a5b4fc"
+  },
+  "designDecisions": [
+    {
+      "title": "结果截断",
+      "question": "grep 命中太多时怎么办？",
+      "options": [
+        { "name": "硬上限 + 摘要", "pros": "保护上下文窗口", "cons": "可能漏掉尾部命中" },
+        { "name": "全量返回", "pros": "完整", "cons": "易撑爆上下文" }
+      ],
+      "chosen": "上限 + 提示「已截断」",
+      "reason": "Agent 可靠优先；模型可缩小 glob 或细化 pattern。"
+    },
+    {
+      "title": "先 glob 再 grep",
+      "question": "为什么要两阶段而不是直接 ripgrep 全仓？",
+      "options": [
+        { "name": "glob 缩小范围", "pros": "更快、更可控", "cons": "多一步" },
+        { "name": "单次全仓搜索", "pros": "一步完成", "cons": "难排除 node_modules 等" }
+      ],
+      "chosen": "glob 过滤 + grep",
+      "reason": "与 Claude Code 的「先定位文件再搜」一致，默认忽略规则也可复用。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Glob 工具",
+      "ourFile": "src/tools/glob-tool.ts",
+      "ourLines": "1-80",
+      "claudeCodeFile": "tools/GlobTool/",
+      "claudeCodeConcept": "尊重 .gitignore、大小写、工作区根",
+      "difference": "教学版模式串较简单",
+      "whyProduction": "单仓与 monorepo 的忽略规则必须一致"
+    },
+    {
+      "concept": "Grep / Ripgrep",
+      "ourFile": "src/tools/grep-tool.ts",
+      "ourLines": "1-100",
+      "claudeCodeFile": "tools/GrepTool/",
+      "claudeCodeConcept": "rg 封装、上下文行、多文件聚合",
+      "difference": "教学版输出为简化文本",
+      "whyProduction": "性能与输出格式需与 IDE 体验接近"
+    }
+  ]
+}

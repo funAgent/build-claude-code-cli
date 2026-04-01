@@ -1,0 +1,12 @@
+{
+  "version": "s08",
+  "title": "Tool 抽象运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.ts \"列出当前目录文件\"", "typeDelay": 35 },
+    { "type": "output", "text": "\nyou> 列出当前目录文件\n\n", "color": "white" },
+    { "type": "output", "text": "  [tool] bash({\"command\":\"ls -la\"})\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] total 24\ndrwxr-xr-x  src/\ndrwxr-xr-x  node_modules/\n-rw-r--r--  package.json\n-rw-r--r--  tsconfig.json\n\n", "color": "white" },
+    { "type": "output", "text": "assistant> 当前目录包含 src/、node_modules/、package.json 与 tsconfig.json。新增工具只需注册到 toolMap，无需改循环。\n", "color": "cyan" }
+  ]
+}

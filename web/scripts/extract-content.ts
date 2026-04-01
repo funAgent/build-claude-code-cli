@@ -72,12 +72,21 @@ function main() {
     const sourceFiles: SourceFile[] = [];
     let totalLoc = 0;
 
-    const files = fs.readdirSync(srcDir).filter((f) => f.endsWith(".ts") || f.endsWith(".tsx"));
-    for (const file of files) {
-      const content = fs.readFileSync(path.join(srcDir, file), "utf-8");
-      sourceFiles.push({ name: file, content });
-      totalLoc += countLoc(content);
+    function scanDir(dir: string, prefix: string) {
+      const entries = fs.readdirSync(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          scanDir(path.join(dir, entry.name), prefix ? `${prefix}/${entry.name}` : entry.name);
+        } else if (entry.name.endsWith(".ts") || entry.name.endsWith(".tsx")) {
+          const displayName = prefix ? `${prefix}/${entry.name}` : entry.name;
+          const content = fs.readFileSync(path.join(dir, entry.name), "utf-8");
+          sourceFiles.push({ name: displayName, content });
+          totalLoc += countLoc(content);
+        }
+      }
     }
+
+    scanDir(srcDir, "");
 
     versions.push({ id: versionId, loc: totalLoc, sourceFiles });
   }

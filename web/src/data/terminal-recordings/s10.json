@@ -1,0 +1,10 @@
+{
+  "version": "s10",
+  "title": "编辑工具运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.ts \"把 package.json 里 version 从 0.9.0 改成 0.10.0\"", "typeDelay": 30 },
+    { "type": "output", "text": "\n  [tool] file_read({\"path\":\"package.json\"})\n  [result] … \"version\": \"0.9.0\" …\n\n  [tool] file_edit({…})\n  [check] old_string 出现 1 次 ✓\n", "color": "yellow" },
+    { "type": "output", "text": "  [result] 已编辑 package.json: 1行→1行\n\nassistant> 精确替换完成，比整文件重写更省 token。\n", "color": "cyan" }
+  ]
+}

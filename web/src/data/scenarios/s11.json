@@ -1,0 +1,30 @@
+{
+  "version": "s11",
+  "description": "搜索工具：glob 列文件 → grep 搜内容 → 再精确编辑",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "找到所有包含 TODO 的 TypeScript 文件"
+    },
+    {
+      "type": "tool_call",
+      "content": "glob({\"pattern\": \"**/*.ts\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "找到 8 个文件"
+    },
+    {
+      "type": "tool_call",
+      "content": "grep({\"pattern\": \"TODO\", \"include\": \"ts\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "agent.ts:15: // TODO: add retry\ncli.ts:8: // TODO: add help"
+    },
+    {
+      "type": "assistant_text",
+      "content": "先搜索定位，再精确修改。"
+    }
+  ]
+}

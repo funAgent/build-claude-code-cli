@@ -1,0 +1,10 @@
+{
+  "version": "s11",
+  "title": "搜索工具运行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.ts \"找到所有包含 TODO 的 TypeScript 文件\"", "typeDelay": 30 },
+    { "type": "output", "text": "\n  [tool] glob({\"pattern\":\"**/*.ts\"})\n  [result] 找到 8 个文件\n\n  [tool] grep({\"pattern\":\"TODO\",\"include\":\"ts\"})\n  [result] agent.ts:15: // TODO: add retry\ncli.ts:8: // TODO: add help\n", "color": "white" },
+    { "type": "output", "text": "assistant> 先 glob 再 grep；命中多时会截断，可缩小范围后再 file_edit。\n", "color": "cyan" }
+  ]
+}
