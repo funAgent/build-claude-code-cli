@@ -1,0 +1,32 @@
+{
+  "version": "s22",
+  "architecture": {
+    "title": "工具并行执行架构",
+    "description": "s22 引入 StreamingToolExecutor：每个 Tool 声明 isConcurrencySafe 标记，执行器按连续安全工具分批 Promise.all 并行，不安全工具独占执行，结果按原始顺序返回。读操作（glob/grep/file_read/ls）可并行，写操作（file_write/file_edit/bash）必须串行。",
+    "mermaid": "graph TD\n  Q[\"工具队列\"] --> S{\"isConcurrencySafe?\"}\n  S -->|✅ Safe| B1[\"收集连续 Safe 工具\"]\n  S -->|❌ Unsafe| B2[\"独占执行\"]\n  B1 --> PA[\"Promise.all 并行\"]\n  PA --> R[\"按序返回结果\"]\n  B2 --> R\n\n  subgraph example[\"示例\"]\n    E1[\"glob ✅\"]\n    E2[\"read ✅\"]\n    E3[\"read ✅\"]\n    E4[\"write ❌\"]\n    E5[\"grep ✅\"]\n  end\n\n  E1 --- E2 --- E3 -->|Batch1 并行| PA2[\"Promise.all\"]\n  E4 -->|Batch2 独占| PA3[\"await\"]\n  E5 -->|Batch3 单独| PA4[\"await\"]\n\n  style PA fill:#dcfce7,stroke:#86efac\n  style B2 fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "并发安全判断方式",
+      "question": "如何判断工具是否可以并行执行？",
+      "options": [
+        { "name": "静态 flag", "pros": "简单明确", "cons": "粒度粗（bash 一律不安全）" },
+        { "name": "动态方法 isConcurrencySafe(input)", "pros": "按具体参数判断", "cons": "实现复杂" },
+        { "name": "全部串行", "pros": "最安全", "cons": "性能差" }
+      ],
+      "chosen": "静态 isConcurrencySafe flag（默认跟随 isReadOnly）",
+      "reason": "教学版用简单 flag 演示核心模式。Claude Code 用方法级判断（如 bash ls 也可并行）。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "StreamingToolExecutor",
+      "ourFile": "src/tool-executor.ts",
+      "ourLines": "1-130",
+      "claudeCodeFile": "services/tools/StreamingToolExecutor.ts",
+      "claudeCodeConcept": "TrackedTool + canExecuteTool + processQueue + sibling abort",
+      "difference": "教学版收集完再批执行；生产版边 stream 边执行 + sibling abort + progress streaming",
+      "whyProduction": "边收边执行进一步减少等待，sibling abort 避免无意义的工具执行"
+    }
+  ]
+}

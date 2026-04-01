@@ -1,0 +1,23 @@
+{
+  "version": "s20",
+  "title": "基础 Streaming 演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.20.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "explain streaming in 2 sentences", "typeDelay": 25 },
+    { "type": "output", "text": "\n  Streaming allows data to be sent in small", "color": "white" },
+    { "type": "output", "text": " chunks rather than waiting for the complete", "color": "white" },
+    { "type": "output", "text": " response. This gives users immediate", "color": "white" },
+    { "type": "output", "text": " feedback as tokens arrive.▍\n", "color": "white" },
+    { "type": "output", "text": "\n  (text_done → 完整文本移入 messages，光标消失)\n", "color": "gray" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "list files here", "typeDelay": 30 },
+    { "type": "output", "text": "\n  ⚡ ls({\"path\":\".\"}) → 4 items", "color": "yellow" },
+    { "type": "output", "text": "\n  ← package.json  tsconfig.json  src/  dist/", "color": "gray" },
+    { "type": "output", "text": "\n  Here are the", "color": "white" },
+    { "type": "output", "text": " files in the current directory.▍\n", "color": "white" },
+    { "type": "output", "text": "\n  (流式输出 → 工具调用 → 继续流式输出)\n", "color": "gray" }
+  ]
+}

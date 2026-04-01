@@ -1,0 +1,23 @@
+{
+  "version": "s22",
+  "title": "工具并行执行演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.22.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "read package.json, tsconfig.json and README.md", "typeDelay": 25 },
+    { "type": "output", "text": "\n  ℹ 并行执行 3 个安全工具", "color": "blue" },
+    { "type": "output", "text": "\n  ⚡ file_read(package.json)     ┐", "color": "yellow" },
+    { "type": "output", "text": "\n  ⚡ file_read(tsconfig.json)    ├ Batch 1: Promise.all", "color": "yellow" },
+    { "type": "output", "text": "\n  ⚡ file_read(README.md)        ┘", "color": "yellow" },
+    { "type": "output", "text": "\n  ← 3 个文件同时返回（并行 ~200ms vs 串行 ~600ms）", "color": "green" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "create test.txt then read it", "typeDelay": 30 },
+    { "type": "output", "text": "\n  ⚡ file_write(test.txt) ← Batch 2: 独占（❌ unsafe）", "color": "yellow" },
+    { "type": "output", "text": "\n  ← Created test.txt", "color": "gray" },
+    { "type": "output", "text": "\n  ⚡ file_read(test.txt)  ← Batch 3: 等写入完成后执行", "color": "yellow" },
+    { "type": "output", "text": "\n  ← Hello from test.txt", "color": "gray" },
+    { "type": "output", "text": "\n  写操作串行保证了数据一致性。\n", "color": "white" }
+  ]
+}

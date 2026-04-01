@@ -63,17 +63,20 @@ function loadEnvConfig(): Partial<AppConfig> {
   return config;
 }
 
+// 配置合并：用 spread 实现优先级链
+// 后面的展开会覆盖前面的同名属性
+// 所以优先级从低到高：DEFAULTS → global → project → env → cli
 export function loadConfig(cliOverrides: Partial<AppConfig> = {}): AppConfig {
-  const globalConfig = loadJsonFile(GLOBAL_CONFIG_PATH);
-  const projectConfig = findProjectConfig();
-  const envConfig = loadEnvConfig();
+  const globalConfig = loadJsonFile(GLOBAL_CONFIG_PATH);     // ~/.mycli/config.json
+  const projectConfig = findProjectConfig();                  // 向上找 .mycli.json
+  const envConfig = loadEnvConfig();                         // MYCLI_* 环境变量
 
   return {
-    ...DEFAULTS,
-    ...globalConfig,
-    ...projectConfig,
-    ...envConfig,
-    ...cliOverrides,
+    ...DEFAULTS,         // 最低优先级：代码内置默认值
+    ...globalConfig,     // 用户全局配置
+    ...projectConfig,    // 项目级配置
+    ...envConfig,        // 环境变量覆盖
+    ...cliOverrides,     // 最高优先级：命令行参数
   };
 }
 

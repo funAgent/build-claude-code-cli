@@ -19,9 +19,13 @@ import { loadRules, rulesToPromptSection } from "./rules.js";
 export interface PromptSection {
   name: string;
   content: string;
+  // cacheable=true 的 section 会被标记 cache_control，API 会缓存这部分前缀
+  // 后续请求只要前缀一致，就以 cache_read 计费（便宜 90%）
   cacheable: boolean;
 }
 
+// 逻辑边界标记：cacheable=true 的 section 在边界之前（静态前缀），
+// cacheable=false 的 section 在边界之后（动态后缀）
 export const DYNAMIC_BOUNDARY = "__DYNAMIC_BOUNDARY__";
 
 function getIdentitySection(): PromptSection {
@@ -140,6 +144,7 @@ export interface SystemPromptBlock {
 export function splitPromptForCache(
   sections: PromptSection[],
 ): SystemPromptBlock[] {
+  // 按 cacheable 标记分离：静态部分拼成一个大块，动态部分拼成另一个
   const staticParts: string[] = [];
   const dynamicParts: string[] = [];
 
@@ -154,6 +159,8 @@ export function splitPromptForCache(
   const blocks: SystemPromptBlock[] = [];
 
   if (staticParts.length > 0) {
+    // 静态前缀加 cache_control: ephemeral → API 缓存 5 分钟
+    // 关键前提：identity + tool-guide 在整个会话中保持不变
     blocks.push({
       text: staticParts.join("\n\n"),
       cacheScope: "ephemeral",
@@ -161,6 +168,8 @@ export function splitPromptForCache(
   }
 
   if (dynamicParts.length > 0) {
+    // 动态后缀不加 cache_control → 每次都重新计算
+    // environment 的日期/cwd 可能变化，rules 可能被用户编辑
     blocks.push({
       text: dynamicParts.join("\n\n"),
       cacheScope: null,

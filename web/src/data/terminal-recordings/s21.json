@@ -1,0 +1,21 @@
+{
+  "version": "s21",
+  "title": "Streaming 进阶演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.21.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "prompt", "text": "❯" },
+    { "type": "input", "text": "analyze the project structure", "typeDelay": 25 },
+    { "type": "output", "text": "\n  💭 让我先看看项目结构…需要检查 src 目录…▍", "color": "magenta" },
+    { "type": "output", "text": "\n  (thinking_delta → 折叠预览最后 120 字符)\n", "color": "gray" },
+    { "type": "output", "text": "\n  ⚡ glob({\"pattern\":\"src/**/*.ts\"})", "color": "yellow" },
+    { "type": "output", "text": "\n  (input_json_delta: {\"pat → tern\": → \"src/** → /*.ts\"})", "color": "gray" },
+    { "type": "output", "text": "\n  ← src/agent.ts  src/tool.ts  src/prompt.ts", "color": "gray" },
+    { "type": "output", "text": "\n  ⚡ file_read({\"path\":\"package.json\"})", "color": "yellow" },
+    { "type": "output", "text": "\n  ← {\"name\":\"s21-advanced-streaming\"…}", "color": "gray" },
+    { "type": "output", "text": "\n  This project uses a modular", "color": "white" },
+    { "type": "output", "text": " architecture with agent, tool, and prompt modules.▍\n", "color": "white" },
+    { "type": "output", "text": "\n  (watchdog: 每个事件重置 60s 计时器)\n", "color": "gray" }
+  ]
+}

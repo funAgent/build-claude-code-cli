@@ -34,8 +34,10 @@ function postProcessHtml(html: string): string {
   );
 
   html = html.replace(
-    /<pre><code(?! class="hljs)([^>]*)>/g,
-    '<pre class="ascii-diagram"><code$1>'
+    /<pre><code(?! class="hljs)([^>]*)>([\s\S]*?)<\/code><\/pre>/g,
+    (_match, attrs, content) => {
+      return `<pre class="code-plain"><code${attrs}>${content}</code></pre>`;
+    }
   );
 
   html = html.replace(/<blockquote>/, '<blockquote class="hero-callout">');
@@ -79,7 +81,7 @@ export function DocRenderer({ version }: DocRendererProps) {
   }, [doc.content]);
 
   return (
-    <div className="py-4">
+    <div>
       <div
         className="prose-custom"
         dangerouslySetInnerHTML={{ __html: html }}

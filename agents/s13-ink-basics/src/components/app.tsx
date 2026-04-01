@@ -29,9 +29,12 @@ export function App(): React.ReactElement {
   const [lines, setLines] = useState<Line[]>([]);
   const [input, setInput] = useState("");
   const [running, setRunning] = useState(false);
+  // useRef 而非 useState：Agent 实例不触发 re-render，在整个生命周期中保持同一个
   const agentRef = useRef(new Agent());
 
+  // useCallback 包裹以保证 reference 稳定，避免子组件不必要的 re-render
   const addLine = useCallback((type: Line["type"], content: string) => {
+    // 函数式更新 setState：避免闭包中捕获过时的 lines 值
     setLines((prev) => [...prev, { id: ++lineId, type, content }]);
   }, []);
 
@@ -40,6 +43,8 @@ export function App(): React.ReactElement {
       addLine("user", text);
       setRunning(true);
       try {
+        // Agent.run 的 onOutput 回调在每个 tool_call/result 时触发
+        // 这就是 Agent 和 UI 解耦的关键——Agent 不知道 UI 是什么
         await agentRef.current.run(text, (out: AgentOutput) => {
           addLine(out.type, out.content);
         });
@@ -51,11 +56,12 @@ export function App(): React.ReactElement {
     [addLine],
   );
 
+  // useInput 是 Ink 的键盘事件 hook，类似 Web 的 addEventListener("keydown")
   useInput((ch, key) => {
-    if (running) return;
+    if (running) return; // Agent 运行时锁定输入
     if (key.return && input.trim()) {
       const text = input;
-      setInput("");
+      setInput(""); // 先清空再提交——避免用户看到残留输入
       handleSubmit(text);
     } else if (key.backspace || key.delete) {
       setInput((prev) => prev.slice(0, -1));

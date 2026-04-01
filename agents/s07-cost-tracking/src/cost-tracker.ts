@@ -41,6 +41,9 @@ export class CostTracker {
     return PRICING[this.model] ?? DEFAULT_PRICING;
   }
 
+  // 实时计算当前累计成本（美元）
+  // 输出 tokens 比输入贵 ~5 倍——这影响 prompt 设计：
+  // 尽量用 system prompt 提供信息（input），让模型少输出废话（output）
   getCost(): { inputCost: number; outputCost: number; totalCost: number } {
     const pricing = this.getPricing();
     const inputCost = (this.totalInputTokens / 1_000_000) * pricing.inputPerMillion;

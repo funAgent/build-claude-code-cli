@@ -276,12 +276,12 @@
 >
 > 重点研究：BetaRawMessageStreamEvent 处理、thinking block、watchdog、非流式回退
 
-- [ ] **E-s20.1** 编写 Agent 源码 `agents/s20-basic-streaming/`
-- [ ] **E-s20.2** 编写教学文档 `docs/zh/s20-basic-streaming.md`
-- [ ] **E-s20.3** 创建配套数据
-- [ ] **E-s21.1** 编写 Agent 源码 `agents/s21-advanced-streaming/`
-- [ ] **E-s21.2** 编写教学文档 `docs/zh/s21-advanced-streaming.md`
-- [ ] **E-s21.3** 创建配套数据
+- [x] **E-s20.1** 编写 Agent 源码 `agents/s20-basic-streaming/`
+- [x] **E-s20.2** 编写教学文档 `docs/zh/s20-basic-streaming.md`
+- [x] **E-s20.3** 创建配套数据
+- [x] **E-s21.1** 编写 Agent 源码 `agents/s21-advanced-streaming/`
+- [x] **E-s21.2** 编写教学文档 `docs/zh/s21-advanced-streaming.md`
+- [x] **E-s21.3** 创建配套数据
 
 ### s22 — 工具并行执行
 
@@ -289,17 +289,17 @@
 >
 > 重点研究：isConcurrencySafe 标记、sibling abort
 
-- [ ] **E-s22.1** 编写 Agent 源码 `agents/s22-parallel-tools/`
-- [ ] **E-s22.2** 编写教学文档 `docs/zh/s22-parallel-tools.md`
-- [ ] **E-s22.3** 创建配套数据
+- [x] **E-s22.1** 编写 Agent 源码 `agents/s22-parallel-tools/`
+- [x] **E-s22.2** 编写教学文档 `docs/zh/s22-parallel-tools.md`
+- [x] **E-s22.3** 创建配套数据
 
 ### s23 — 启动性能
 
 > **Claude Code 参考**: `src/entrypoints/cli.tsx`（快速路径） + `src/main.tsx`（并行 prefetch）
 
-- [ ] **E-s23.1** 编写 Agent 源码 `agents/s23-startup-perf/`
-- [ ] **E-s23.2** 编写教学文档 `docs/zh/s23-startup-perf.md`
-- [ ] **E-s23.3** 创建配套数据
+- [x] **E-s23.1** 编写 Agent 源码 `agents/s23-startup-perf/`
+- [x] **E-s23.2** 编写教学文档 `docs/zh/s23-startup-perf.md`
+- [x] **E-s23.3** 创建配套数据
 
 ---
 

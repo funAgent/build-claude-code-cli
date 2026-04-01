@@ -1,0 +1,54 @@
+{
+  "version": "s22",
+  "description": "工具并行执行：isConcurrencySafe 标记 + StreamingToolExecutor 分批",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "读取 package.json 和 tsconfig.json 并给我摘要"
+    },
+    {
+      "type": "system_event",
+      "content": "【收集 tool_use】file_read(package.json) + file_read(tsconfig.json)"
+    },
+    {
+      "type": "system_event",
+      "content": "【isConcurrencySafe】file_read ✅ + file_read ✅ → 可并行"
+    },
+    {
+      "type": "system_event",
+      "content": "【Batch 1】Promise.all([file_read, file_read]) — 并行执行"
+    },
+    {
+      "type": "tool_call",
+      "content": "⚡ file_read(package.json) | file_read(tsconfig.json) [并行]"
+    },
+    {
+      "type": "tool_result",
+      "content": "两个文件同时读取完成"
+    },
+    {
+      "type": "assistant_text",
+      "content": "package.json 定义了项目依赖，tsconfig.json 配置了 TypeScript 编译选项。"
+    },
+    {
+      "type": "user_message",
+      "content": "创建 config.json 然后验证它"
+    },
+    {
+      "type": "system_event",
+      "content": "【isConcurrencySafe】file_write ❌ + bash ❌ → 必须串行"
+    },
+    {
+      "type": "system_event",
+      "content": "【Batch 2】file_write 独占执行 → 完成后 → bash 独占执行"
+    },
+    {
+      "type": "tool_call",
+      "content": "file_write(config.json) → bash(node validate.js)"
+    },
+    {
+      "type": "assistant_text",
+      "content": "文件已创建并验证通过。写操作串行保证了数据一致性。"
+    }
+  ]
+}

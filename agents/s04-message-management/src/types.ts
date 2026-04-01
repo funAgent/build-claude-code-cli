@@ -14,6 +14,11 @@ import type Anthropic from "@anthropic-ai/sdk";
 export type ContentBlock = Anthropic.ContentBlock;
 export type ContentBlockParam = Anthropic.ContentBlockParam;
 
+// AgentMessage 是 Agent 的"工作记忆"单元
+// 注意 content 有两种形态：
+//   string — 纯文本（用户输入、简单回复）
+//   ContentBlockParam[] — 结构化内容（包含 text + tool_use + tool_result blocks）
+// 这种联合类型避免了简单场景下创建数组的开销
 export interface AgentMessage {
   role: "user" | "assistant";
   content: string | ContentBlockParam[];
@@ -37,6 +42,9 @@ export function createAssistantMessage(
   };
 }
 
+// 工具结果以 role: "user" 发送——这是 API 协议的强制要求
+// 对话结构是严格的 user ↔ assistant 交替
+// 工具结果虽然不是"用户说的话"，但 API 要求它在 user 位置
 export function createToolResultMessage(
   results: Anthropic.ToolResultBlockParam[]
 ): AgentMessage {

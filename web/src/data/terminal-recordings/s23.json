@@ -1,0 +1,23 @@
+{
+  "version": "s23",
+  "title": "启动性能优化演示",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "time npx tsx src/cli.tsx --version", "typeDelay": 25 },
+    { "type": "output", "text": "\nmycli 0.23.0\n\nreal  0m0.012s  ← 快速路径: 零 import, 12ms 退出\n", "color": "green" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/cli.tsx --profile", "typeDelay": 25 },
+    { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.23.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
+    { "type": "output", "text": "\n⏱  Startup Profile:", "color": "yellow" },
+    { "type": "output", "text": "\n────────────────────────────────────────", "color": "gray" },
+    { "type": "output", "text": "\n  cli_entry                    0.1ms  (+0.1ms)", "color": "white" },
+    { "type": "output", "text": "\n  fast_path_done               0.3ms  (+0.2ms)", "color": "white" },
+    { "type": "output", "text": "\n  prefetch_fired               1.2ms  (+0.9ms)", "color": "white" },
+    { "type": "output", "text": "\n  main_start                   1.5ms  (+0.3ms)", "color": "white" },
+    { "type": "output", "text": "\n  imports_done               145.0ms  (+143.5ms)", "color": "yellow" },
+    { "type": "output", "text": "\n  prefetch_resolved          146.2ms  (+1.2ms)", "color": "green" },
+    { "type": "output", "text": "\n  first_render               152.0ms  (+5.8ms)", "color": "green" },
+    { "type": "output", "text": "\n────────────────────────────────────────\n  Total: 152.0ms\n", "color": "gray" },
+    { "type": "output", "text": "\n  (prefetch 与 import 并行: 146ms 的 I/O 被 145ms 的 import 完全覆盖)\n", "color": "gray" }
+  ]
+}

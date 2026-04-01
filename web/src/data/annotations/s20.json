@@ -1,0 +1,32 @@
+{
+  "version": "s20",
+  "architecture": {
+    "title": "基础 Streaming 架构",
+    "description": "s20 将 API 调用从同步 create() 切换为流式 stream()。Agent 通过 stream.on('text') 逐 token 推送文本，REPL 用 streamingText state 累积增量，MessageList 用 StreamingMessage 组件实时渲染带光标的文字流。text_done 时完整文本移入 messages 数组。",
+    "mermaid": "sequenceDiagram\n  participant U as 用户\n  participant R as REPL\n  participant A as Agent\n  participant API as Anthropic\n  U->>R: 输入问题\n  R->>A: run(userMessage)\n  A->>API: messages.stream()\n  loop 每个 token\n    API-->>A: text_delta\n    A-->>R: onOutput(text_delta)\n    R->>R: streamingText += delta\n  end\n  API-->>A: message_stop\n  A-->>R: onOutput(text_done)\n  R->>R: messages.push(streamingText)\n  R->>R: streamingText = undefined"
+  },
+  "designDecisions": [
+    {
+      "title": "流式文本的 UI 处理",
+      "question": "text_delta 到达时如何更新 UI？",
+      "options": [
+        { "name": "每个 delta 插入新消息", "pros": "实现简单", "cons": "消息列表爆炸式增长" },
+        { "name": "维护 streamingText buffer", "pros": "单条消息，流畅体验", "cons": "需要 useRef+setState 双轨" },
+        { "name": "直接操作 DOM", "pros": "性能最优", "cons": "脱离 React 体系" }
+      ],
+      "chosen": "维护 streamingText buffer + useRef",
+      "reason": "useRef 避免闭包陷阱，setState 触发 re-render。文字完成后移入 messages 数组。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "流式 API 调用",
+      "ourFile": "src/agent.ts",
+      "ourLines": "78-95",
+      "claudeCodeFile": "services/api/claude.ts queryModelWithStreaming()",
+      "claudeCodeConcept": "raw Stream<BetaRawMessageStreamEvent> + async generator",
+      "difference": "教学版用 SDK stream() helper；生产版直接处理 raw SSE 避免 partialParse O(n²)",
+      "whyProduction": "大型工具输入的 JSON 增量解析在 SDK helper 中会产生 O(n²) 性能问题"
+    }
+  ]
+}

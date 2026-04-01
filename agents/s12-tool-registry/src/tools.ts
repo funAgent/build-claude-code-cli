@@ -44,20 +44,25 @@ export interface ToolRegistry {
 export function assembleToolPool(options: {
   readOnlyMode?: boolean;
 } = {}): ToolRegistry {
+  // 工具列表的顺序是固定的——这不是偶然，而是 prompt cache 的要求
+  // API 请求中 tools 参数会被编码进 system prompt 前缀
+  // 如果顺序变了，前缀就变了，cache 就 miss 了
   const allTools: Tool[] = [
-    globTool,
-    grepTool,
-    lsTool,
-    fileReadTool,
-    fileWriteTool,
-    fileEditTool,
-    bashTool,
-    taskTool,
-    helpTool,
+    globTool,     // 读：文件搜索（最高频）
+    grepTool,     // 读：内容搜索
+    lsTool,       // 读：目录列表
+    fileReadTool, // 读：文件读取
+    fileWriteTool,// 写：文件创建/覆写
+    fileEditTool, // 写：精确替换
+    bashTool,     // 写：Shell 命令
+    taskTool,     // 写：子任务
+    helpTool,     // 读：帮助信息
   ];
 
+  // name → Tool 映射，O(1) 查找。Agent 循环中每个 tool_use block 都要查
   const toolMap = new Map(allTools.map((t) => [t.name, t]));
 
+  // readOnlyMode 下过滤掉写工具——这是权限系统的基础
   const filtered = options.readOnlyMode
     ? allTools.filter((t) => t.isReadOnly)
     : allTools;

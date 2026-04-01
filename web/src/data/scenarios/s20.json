@@ -1,0 +1,50 @@
+{
+  "version": "s20",
+  "description": "基础 Streaming：stream() 替代 create()，逐 token 推送文本",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【切换 API】messages.create() → messages.stream()"
+    },
+    {
+      "type": "user_message",
+      "content": "解释一下什么是 streaming"
+    },
+    {
+      "type": "system_event",
+      "content": "【stream 事件】text_delta: \"流\" → \"式\" → \"输\" → \"出\" → \"是\" → \"…\""
+    },
+    {
+      "type": "assistant_text",
+      "content": "流式输出是..."
+    },
+    {
+      "type": "system_event",
+      "content": "【text_done】累积文本移入 messages，清空 streamingText"
+    },
+    {
+      "type": "system_event",
+      "content": "【UI 状态】streamingText 显示光标 ▍ → 完成后消失"
+    },
+    {
+      "type": "user_message",
+      "content": "列出当前目录的文件"
+    },
+    {
+      "type": "tool_call",
+      "content": "ls({\"path\": \".\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "package.json\ntsconfig.json\nsrc/\ndist/"
+    },
+    {
+      "type": "system_event",
+      "content": "【text_delta 恢复】工具调用后继续流式输出文本"
+    },
+    {
+      "type": "assistant_text",
+      "content": "当前目录包含 4 个文件/目录。"
+    }
+  ]
+}

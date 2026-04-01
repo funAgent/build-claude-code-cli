@@ -1,0 +1,32 @@
+{
+  "version": "s23",
+  "architecture": {
+    "title": "启动性能优化架构",
+    "description": "s23 实现三层启动优化：快速路径（--version/--help 零 import 退出）、懒加载（React/Ink/ReplScreen 动态 import 并行加载）、并行预取（Promise.all 并行执行 projectRoot/rules/apiKey/git 检测）。profileCheckpoint 在关键节点打点度量耗时。",
+    "mermaid": "graph TD\n  E[\"cli.tsx entry\"] --> FP{\"--version / --help?\"}\n  FP -->|Yes| EXIT[\"直接退出 ~10ms\"]\n  FP -->|No| PF[\"startPrefetch()\"]\n  PF --> MAIN[\"async main()\"]\n\n  subgraph parallel[\"并行执行\"]\n    IMP[\"import react+ink+repl\"]\n    PRE[\"prefetch I/O\"]\n  end\n\n  MAIN --> IMP\n  PF --> PRE\n  IMP --> RENDER[\"render()\"]\n  PRE --> RENDER\n\n  subgraph prefetch[\"并行预取\"]\n    P1[\"detectProjectRoot\"]\n    P2[\"loadRules\"]\n    P3[\"validateApiKey\"]\n    P4[\"detectGit\"]\n  end\n\n  PRE --> P1\n  PRE --> P2\n  PRE --> P3\n  PRE --> P4\n\n  RENDER --> CP[\"profileCheckpoint first_render\"]\n\n  style EXIT fill:#dcfce7,stroke:#86efac\n  style parallel fill:#eff6ff,stroke:#93c5fd\n  style prefetch fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "模块加载策略",
+      "question": "何时加载重量级模块（React、Ink）？",
+      "options": [
+        { "name": "顶层 import（静态）", "pros": "简单", "cons": "所有路径都付出加载代价" },
+        { "name": "动态 import（懒加载）", "pros": "快速路径不加载", "cons": "多一层 async" },
+        { "name": "worker 预加载", "pros": "后台并行", "cons": "复杂度高" }
+      ],
+      "chosen": "动态 import + Promise.all 并行加载",
+      "reason": "简单有效。--version 路径完全不加载 React/Ink，节省 100ms+。Claude Code 的 cli.tsx 也用动态 import。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "分层启动",
+      "ourFile": "src/cli.tsx + src/prefetch.ts + src/perf.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "entrypoints/cli.tsx + main.tsx",
+      "claudeCodeConcept": "零 import 快速路径 + 10+ 子命令按需加载 + ~15 个并行 prefetch + deferred prefetches",
+      "difference": "教学版 4 个 prefetch + 3 个动态 import；生产版 ~15 个 prefetch + 安全门控 + 缓存",
+      "whyProduction": "生产环境有更多启动依赖（keychain、MCP、云凭证），需更精细的分层和门控"
+    }
+  ]
+}

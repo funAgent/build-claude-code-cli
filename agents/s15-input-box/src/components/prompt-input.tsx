@@ -24,6 +24,8 @@ export function PromptInput({
   disabled?: boolean;
 }): React.ReactElement {
   const [input, setInput] = useState("");
+  // 输入历史栈：每次提交 push，↑/↓ 浏览
+  // -1 = 当前输入（不在历史中），0~N = 历史索引
   const [history, setHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 

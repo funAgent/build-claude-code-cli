@@ -23,10 +23,17 @@ export interface ToolContext {
   abortSignal?: AbortSignal;
 }
 
+// Tool 接口的三要素：name + schema + call
+// 这三个属性完全对应 Anthropic API 的 Tool 结构：
+//   name → tools[].name
+//   description + inputSchema → tools[].description + tools[].input_schema
+//   call → 本地执行逻辑（API 只负责"决定调用"，执行在客户端）
 export interface Tool {
   name: string;
   description: string;
   inputSchema: Anthropic.Tool["input_schema"];
+  // isReadOnly 标记：读工具可以在沙盒/只读模式下使用
+  // 后续 s22 中还会扩展为 isConcurrencySafe 用于并行执行
   isReadOnly?: boolean;
   call(input: Record<string, unknown>, context: ToolContext): Promise<ToolResult>;
 }
@@ -52,9 +59,9 @@ export function buildTool(config: {
   };
 }
 
-/**
- * 将 Tool[] 转为 Anthropic API 需要的 tools 参数
- */
+// 将内部 Tool[] 转为 API 需要的 tools 参数
+// 关键点：API 的 Tool 格式只有 name/description/input_schema
+// call 方法不发给 API——它在本地执行
 export function toAnthropicTools(tools: Tool[]): Anthropic.Tool[] {
   return tools.map((t) => ({
     name: t.name,

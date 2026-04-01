@@ -1,0 +1,43 @@
+{
+  "version": "s21",
+  "architecture": {
+    "title": "Streaming 进阶架构",
+    "description": "s21 在基础流式上增加：thinking block 流式展示、tool_use JSON 增量解析、watchdog 超时机制、非流式回退。stream.on('event') 监听底层事件，按 content_block 类型分发 thinking_delta/text_delta/input_json_delta。",
+    "mermaid": "graph TD\n  E[\"stream.on event\"] --> CBS[\"content_block_start\"]\n  E --> CBD[\"content_block_delta\"]\n  E --> CBST[\"content_block_stop\"]\n  CBS --> T[\"type=thinking\"]\n  CBS --> TX[\"type=text\"]\n  CBS --> TU[\"type=tool_use\"]\n  CBD --> TD[\"thinking_delta → 💭 预览\"]\n  CBD --> TXD[\"text_delta → 流式文字\"]\n  CBD --> IJD[\"input_json_delta → JSON 拼接\"]\n  CBST --> DONE[\"block 完成\"]\n\n  W[\"Watchdog 60s\"] -->|超时| ABORT[\"stream.abort()\"]\n  ABORT --> FB[\"fallbackNonStreaming()\"]\n\n  style W fill:#fef3c7,stroke:#fcd34d\n  style FB fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "Thinking Block 展示方式",
+      "question": "如何展示 AI 的思考过程？",
+      "options": [
+        { "name": "完全隐藏", "pros": "界面干净", "cons": "用户不知道 AI 在思考" },
+        { "name": "全量显示", "pros": "完全透明", "cons": "长文本干扰正文" },
+        { "name": "折叠预览尾部", "pros": "既有反馈又不干扰", "cons": "可能丢失上下文" }
+      ],
+      "chosen": "折叠预览最后 120 字符",
+      "reason": "流式时显示尾部给用户'正在思考'反馈，完成后保存为可回溯的消息。Claude Code 的 ThinkingBlock 组件更丰富。"
+    },
+    {
+      "title": "流式失败处理",
+      "question": "streaming 失败时如何处理？",
+      "options": [
+        { "name": "直接报错", "pros": "简单", "cons": "用户体验差" },
+        { "name": "自动重试 streaming", "pros": "对用户透明", "cons": "可能重复执行工具" },
+        { "name": "降级为 create()", "pros": "保证拿到结果", "cons": "失去流式体验" }
+      ],
+      "chosen": "降级为 messages.create() 非流式调用",
+      "reason": "保证功能可用。Claude Code 额外跟踪已执行工具防止双重执行。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Watchdog + 回退",
+      "ourFile": "src/agent.ts",
+      "ourLines": "120-145",
+      "claudeCodeFile": "services/api/claude.ts",
+      "claudeCodeConcept": "idle watchdog + stall 日志(>30s) + 可配置 feature flag 禁用回退",
+      "difference": "教学版单一超时；生产版分层超时 + 防双重执行 + VCR 录制回放",
+      "whyProduction": "分层超时更精确，VCR 录制让测试不依赖真实 API"
+    }
+  ]
+}

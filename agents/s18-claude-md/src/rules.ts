@@ -22,9 +22,11 @@ export interface RuleFile {
   content: string;
 }
 
+// 向上遍历目录树找到项目根——package.json 或 .git 所在的目录
+// 这决定了"项目级规则"从哪里加载
 function findProjectRoot(cwd: string): string {
   let dir = cwd;
-  while (dir !== path.dirname(dir)) {
+  while (dir !== path.dirname(dir)) { // 到达文件系统根时停止
     if (
       fs.existsSync(path.join(dir, "package.json")) ||
       fs.existsSync(path.join(dir, ".git"))
@@ -33,7 +35,7 @@ function findProjectRoot(cwd: string): string {
     }
     dir = path.dirname(dir);
   }
-  return cwd;
+  return cwd; // 找不到则用当前目录作为项目根
 }
 
 function tryReadFile(filePath: string): string | null {
@@ -45,15 +47,19 @@ function tryReadFile(filePath: string): string | null {
   return null;
 }
 
+// 按优先级从低到高加载三级规则
+// 如果同时存在，三级规则会合并（不是覆盖），模型能看到所有层级
 export function loadRules(cwd: string): RuleFile[] {
   const rules: RuleFile[] = [];
 
+  // 第1级：全局规则（最低优先级）— 用户的个人偏好，如"总是用中文回复"
   const globalPath = path.join(os.homedir(), ".mycli", "RULES.md");
   const globalContent = tryReadFile(globalPath);
   if (globalContent) {
     rules.push({ level: "global", path: globalPath, content: globalContent });
   }
 
+  // 第2级：项目根规则 — 团队共享约定，如"使用 ESM + strict TypeScript"
   const projectRoot = findProjectRoot(cwd);
   const projectPath = path.join(projectRoot, "RULES.md");
   const projectContent = tryReadFile(projectPath);
@@ -61,6 +67,8 @@ export function loadRules(cwd: string): RuleFile[] {
     rules.push({ level: "project", path: projectPath, content: projectContent });
   }
 
+  // 第3级：子目录规则（最高优先级）— 模块专属约定，如"这个包用 Vitest"
+  // 只有 cwd 不是项目根时才检查，避免重复加载
   if (cwd !== projectRoot) {
     const localPath = path.join(cwd, "RULES.md");
     const localContent = tryReadFile(localPath);

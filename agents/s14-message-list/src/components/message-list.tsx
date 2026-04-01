@@ -44,6 +44,8 @@ export function MessageList({
   );
 }
 
+// 类型→组件的映射：消息类型不同，视觉呈现也不同
+// 这是 Claude Code 的核心 UI 模式——Messages.tsx 中 10+ 种消息类型各有专属组件
 function MessageRow({
   message,
 }: {
@@ -137,6 +139,8 @@ interface TextPart {
   isCode: boolean;
 }
 
+// 解析 Markdown 代码块：将 "text ```code``` text" 拆分为 [{text}, {code}, {text}]
+// 代码块用 Box+边框渲染，普通文本用 Text wrap 渲染
 function parseCodeBlocks(text: string): TextPart[] {
   const parts: TextPart[] = [];
   const regex = /```[\w]*\n?([\s\S]*?)```/g;

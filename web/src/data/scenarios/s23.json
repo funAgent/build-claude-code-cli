@@ -1,0 +1,46 @@
+{
+  "version": "s23",
+  "description": "启动性能优化：快速路径 + 懒加载 + 并行 prefetch + profileCheckpoint",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "【profileCheckpoint】cli_entry: 0.1ms"
+    },
+    {
+      "type": "system_event",
+      "content": "【快速路径】--version → console.log + process.exit (10ms)"
+    },
+    {
+      "type": "system_event",
+      "content": "【启动 prefetch】Promise.all([projectRoot, rules, apiKey, git])"
+    },
+    {
+      "type": "system_event",
+      "content": "【profileCheckpoint】prefetch_fired: 1.2ms"
+    },
+    {
+      "type": "system_event",
+      "content": "【懒加载】await Promise.all([import(react), import(ink), import(repl)])"
+    },
+    {
+      "type": "system_event",
+      "content": "【profileCheckpoint】imports_done: 145ms"
+    },
+    {
+      "type": "system_event",
+      "content": "【prefetch 完成】projectRoot=/project, apiKey=valid"
+    },
+    {
+      "type": "system_event",
+      "content": "【profileCheckpoint】first_render: 152ms（总启动耗时）"
+    },
+    {
+      "type": "user_message",
+      "content": "你好"
+    },
+    {
+      "type": "assistant_text",
+      "content": "启动完成！prefetch 与 import 并行执行，总耗时约 150ms。"
+    }
+  ]
+}

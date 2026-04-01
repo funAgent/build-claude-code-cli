@@ -47,6 +47,10 @@ body {
 
 /* Prose custom styles for markdown rendering */
 
+.prose-custom > :first-child {
+  margin-top: 0;
+}
+
 .prose-custom h1 {
   margin-top: 2.5rem;
   margin-bottom: 1rem;
@@ -234,6 +238,21 @@ body {
   background: linear-gradient(135deg, #1e1b4b, #172554);
   border-color: #312e81;
   color: #c7d2fe;
+}
+
+.prose-custom pre.code-plain {
+  background-color: #0f172a;
+  border: 1px solid #1e293b;
+  color: #e2e8f0;
+  text-align: left;
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  padding: 1.25rem;
+}
+
+.dark .prose-custom pre.code-plain {
+  background-color: #0c0f1a;
+  border-color: #1e293b;
 }
 
 .prose-custom :not(pre) > code {

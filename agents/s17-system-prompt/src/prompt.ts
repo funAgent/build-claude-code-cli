@@ -101,11 +101,14 @@ export function buildSystemPrompt(
   tools: Tool[],
   cwd: string,
 ): PromptSection[] {
+  // 顺序很重要：identity → tools → environment → style
+  // 模型对 prompt 开头的内容更敏感（primacy effect）
+  // 身份和工具放最前面，确保模型优先遵守
   return [
-    getIdentitySection(),
-    getToolGuideSection(tools),
-    getEnvironmentSection(cwd),
-    getStyleSection(),
+    getIdentitySection(),     // "你是谁"——定义角色和核心能力
+    getToolGuideSection(tools),// "你能做什么"——工具使用指南
+    getEnvironmentSection(cwd),// "你在哪里"——运行时环境
+    getStyleSection(),         // "怎么说话"——输出风格约束
   ];
 }
 

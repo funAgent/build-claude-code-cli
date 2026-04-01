@@ -57,14 +57,18 @@ export async function runAgent(userMessage: string): Promise<void> {
   while (turnCount < MAX_TURNS) {
     turnCount++;
 
+    // 每次循环就是一次 API 调用——整个 messages 历史都发过去
     const response = await client.messages.create({
       model: "claude-sonnet-4-20250514",
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
+      // tools 参数告诉模型它可以使用哪些工具
+      // 模型会在 content 中返回 tool_use block 来调用工具
       tools: TOOLS,
       messages,
     });
 
+    // 模型的回复必须原封不动地放回 messages——这是"记忆"的一部分
     const assistantContent = response.content;
     messages.push({ role: "assistant", content: assistantContent });
 
@@ -74,12 +78,14 @@ export async function runAgent(userMessage: string): Promise<void> {
       }
     }
 
-    // 关键判断：模型是否请求使用工具？
+    // ★ Agent 循环的核心判断 ★
+    // stop_reason === "tool_use" → 模型想调用工具，循环继续
+    // stop_reason === "end_turn" → 模型认为任务完成，循环退出
     if (response.stop_reason !== "tool_use") {
-      break; // 模型说完了，退出循环
+      break;
     }
 
-    // 执行所有工具调用，收集结果
+    // 模型可能一次返回多个 tool_use block → 都要执行
     const toolResults: Anthropic.ToolResultBlockParam[] = [];
 
     for (const block of assistantContent) {
@@ -117,7 +123,10 @@ export async function runAgent(userMessage: string): Promise<void> {
       }
     }
 
-    // 把工具结果作为 user message 发回——这是 API 的协议要求
+    // ★ API 协议要求 ★
+    // 工具结果必须作为 role: "user" 的 message 发回
+    // 每个 tool_result 通过 tool_use_id 关联到对应的 tool_use block
+    // 然后模型看到结果，决定下一步行动——这就是"循环"的驱动力
     messages.push({ role: "user", content: toolResults });
   }
 

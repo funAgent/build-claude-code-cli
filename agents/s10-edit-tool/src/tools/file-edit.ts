@@ -47,9 +47,13 @@ export const fileEditTool = buildTool({
 
     const content = fs.readFileSync(resolved, "utf-8");
 
+    // 唯一性校验：old_string 必须在文件中恰好出现 1 次
+    // 这是 Claude Code FileEditTool 的核心安全机制——
+    // 防止模型的模糊匹配导致错误的位置被替换
     const count = content.split(oldStr).length - 1;
 
     if (count === 0) {
+      // 找不到 → 返回文件预览，帮助模型修正 old_string
       const lines = content.split("\n");
       const preview = lines.slice(0, 20).map((l, i) => `${i + 1}|${l}`).join("\n");
       return {
@@ -59,12 +63,14 @@ export const fileEditTool = buildTool({
     }
 
     if (count > 1) {
+      // 多次出现 → 让模型提供更多上下文来消歧
       return {
         output: `old_string 在文件中出现了 ${count} 次，必须唯一。请提供更多上下文使其唯一。`,
         isError: true,
       };
     }
 
+    // 精确替换：只改一处，其余文件内容完全不变
     const updated = content.replace(oldStr, newStr);
     fs.writeFileSync(resolved, updated, "utf-8");
 

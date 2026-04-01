@@ -58,6 +58,8 @@ export async function execShell(
   }
 
   return new Promise((resolve) => {
+    // spawn 而非 exec：避免 shell 注入，且支持 stream 式输出收集
+    // stdio: ignore stdin（不需要交互），pipe stdout/stderr（收集输出）
     const child = spawn("sh", ["-c", command], {
       cwd,
       env: { ...process.env },
@@ -68,12 +70,15 @@ export async function execShell(
     let stderr = "";
     let killed = false;
 
+    // 超时保护：先 SIGTERM（优雅终止），3s 后 SIGKILL（强制杀死）
+    // 两阶段 kill 是 Unix 进程管理的标准模式
     const timer = setTimeout(() => {
       killed = true;
       child.kill("SIGTERM");
       setTimeout(() => child.kill("SIGKILL"), 3000);
     }, timeout);
 
+    // 流式收集输出，超过 maxOutput 后丢弃——防止 OOM
     child.stdout.on("data", (chunk: Buffer) => {
       if (stdout.length < maxOutput) {
         stdout += chunk.toString();
@@ -104,6 +109,8 @@ export async function execShell(
       });
     });
 
+    // error 事件在子进程无法启动时触发（如命令不存在）
+    // 注意：命令执行失败（exit code != 0）不会触发 error
     child.on("error", (err) => {
       clearTimeout(timer);
       resolve({

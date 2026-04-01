@@ -50,6 +50,8 @@ export function ReplScreen(): React.ReactElement {
     [],
   );
 
+  // 内置命令路由：以 / 开头的输入先走这里，不发给 Agent
+  // 返回 true = 已处理，返回 false = 不是内置命令，继续发给 Agent
   const handleCommand = useCallback(
     (cmd: string): boolean => {
       switch (cmd) {

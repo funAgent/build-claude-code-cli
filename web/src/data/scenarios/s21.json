@@ -1,0 +1,50 @@
+{
+  "version": "s21",
+  "description": "Streaming 进阶：thinking block + 工具 JSON 流式 + watchdog + 回退",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "分析这个项目的架构"
+    },
+    {
+      "type": "system_event",
+      "content": "【content_block_start】type: \"thinking\""
+    },
+    {
+      "type": "system_event",
+      "content": "【thinking_delta】💭 \"让我先看看项目结构…目录中有…\""
+    },
+    {
+      "type": "system_event",
+      "content": "【content_block_stop】thinking 完成 → 保存为 thinking 消息"
+    },
+    {
+      "type": "system_event",
+      "content": "【content_block_start】type: \"tool_use\", name: \"glob\""
+    },
+    {
+      "type": "system_event",
+      "content": "【input_json_delta】{\"pat → tern\": → \"src/ → **/*.ts\"}"
+    },
+    {
+      "type": "tool_call",
+      "content": "glob({\"pattern\": \"src/**/*.ts\"})"
+    },
+    {
+      "type": "tool_result",
+      "content": "src/agent.ts\nsrc/tool.ts\nsrc/prompt.ts"
+    },
+    {
+      "type": "system_event",
+      "content": "【watchdog 重置】每个事件 → clearTimeout + setTimeout(60s)"
+    },
+    {
+      "type": "assistant_text",
+      "content": "项目采用模块化架构，核心包含 agent、tool、prompt 三个模块。"
+    },
+    {
+      "type": "system_event",
+      "content": "【容错】stream 失败时 → fallbackNonStreaming() → messages.create()"
+    }
+  ]
+}

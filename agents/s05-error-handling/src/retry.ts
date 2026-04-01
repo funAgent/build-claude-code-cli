@@ -53,6 +53,8 @@ export async function withRetry<T>(
         throw error;
       }
 
+      // 指数退避 + 随机抖动：1s → 2s → 4s → 8s...
+      // 随机抖动（jitter）防止多个客户端同时重试导致"惊群效应"
       const delay = Math.min(
         opts.baseDelay * Math.pow(2, attempt) + Math.random() * 1000,
         opts.maxDelay
