@@ -6,6 +6,7 @@ import { LEARNING_PATH, VERSION_META, PHASES } from "@/lib/constants";
 import { PhaseBadge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress";
+import { ArchMap } from "@/components/architecture/arch-map";
 import { useProgress } from "@/hooks/useProgress";
 import { cn } from "@/lib/utils";
 
@@ -133,6 +134,25 @@ export default function HomePage() {
               <span className="text-zinc-300">{"}"}</span>
             </code>
           </pre>
+        </div>
+      </section>
+
+      {/* Architecture Overview */}
+      <section>
+        <div className="mb-6 text-center">
+          <h2 className="text-2xl font-bold sm:text-3xl">系统架构</h2>
+          <p className="mt-2 text-[var(--color-text-secondary)]">
+            12 个阶段、40+ 模块构成完整的 Agent CLI 产品
+          </p>
+        </div>
+        <ArchMap compact />
+        <div className="mt-4 text-center">
+          <Link
+            href={`/${locale}/architecture`}
+            className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white"
+          >
+            查看完整架构图 &rarr;
+          </Link>
         </div>
       </section>
 
