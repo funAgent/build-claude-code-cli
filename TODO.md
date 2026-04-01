@@ -20,19 +20,19 @@
 
 ### B1. CodeDiff 版本差异对比
 
-- [ ] **B1.1** 实现 `web/src/components/diff/code-diff.tsx` — unified diff 渲染
-- [ ] **B1.2** 实现 `web/src/components/diff/whats-new.tsx` — 新增内容高亮
-- [ ] **B1.3** 实现 `/[locale]/[version]/diff/page.tsx` — 对比页面路由
-- [ ] **B1.4** 在 extract-content.ts 中增加版本间 diff 提取逻辑
+- [x] **B1.1** 实现 `web/src/components/diff/code-diff.tsx` — unified diff 渲染
+- [x] **B1.2** 实现 `web/src/components/diff/whats-new.tsx` — 新增内容高亮
+- [x] **B1.3** 实现 `/[locale]/[version]/diff/page.tsx` — 对比页面路由 + 版本页 "变更" Tab
+- [x] **B1.4** 在 extract-content.ts 中增加子目录递归扫描 + 客户端 diff 计算
 
 ### B2. 可交互架构全景图（优化 1）
 
-- [ ] **B2.1** 实现 `web/src/components/architecture/arch-map.tsx` — SVG 可交互架构图
+- [x] **B2.1** 实现 `web/src/components/architecture/arch-map.tsx` — SVG 可交互架构图
   - 鼠标悬停模块 → 高亮 + 显示关联课程
   - 点击模块 → 跳转对应课程
   - 12 个 Phase 折叠/展开
-- [ ] **B2.2** 实现 `/[locale]/architecture/page.tsx` — 架构全景页面
-- [ ] **B2.3** 在首页添加架构图 Section
+- [x] **B2.2** 实现 `/[locale]/architecture/page.tsx` — 架构全景页面
+- [x] **B2.3** 在首页添加架构图 Section
 
 ---
 
@@ -134,11 +134,11 @@
 >
 > 重点研究：Tool 类型定义（name + schema + call 三元组）、isReadOnly/needsPermissions 标记
 
-- [ ] **E-s08.1** 编写 Agent 源码 `agents/s08-tool-abstraction/`
+- [x] **E-s08.1** 编写 Agent 源码 `agents/s08-tool-abstraction/`
   - `src/tool.ts` — Tool interface + buildTool 工厂
   - 改造 BashTool 为 Tool 接口实现
-- [ ] **E-s08.2** 编写教学文档 `docs/zh/s08-tool-abstraction.md`
-- [ ] **E-s08.3** 创建配套数据 (scenarios + annotations + terminal-recordings)
+- [x] **E-s08.2** 编写教学文档 `docs/zh/s08-tool-abstraction.md`
+- [x] **E-s08.3** 创建配套数据 (scenarios + annotations + terminal-recordings)
 
 ### s09 — 文件工具
 
@@ -146,9 +146,9 @@
 >
 > 重点研究：路径安全验证 validateFilePath()、行号标注、diff 生成
 
-- [ ] **E-s09.1** 编写 Agent 源码 `agents/s09-file-tools/`
-- [ ] **E-s09.2** 编写教学文档 `docs/zh/s09-file-tools.md`
-- [ ] **E-s09.3** 创建配套数据
+- [x] **E-s09.1** 编写 Agent 源码 `agents/s09-file-tools/`
+- [x] **E-s09.2** 编写教学文档 `docs/zh/s09-file-tools.md`
+- [x] **E-s09.3** 创建配套数据
 
 ### s10 — 编辑工具
 
@@ -156,9 +156,9 @@
 >
 > 重点研究：old_string→new_string 替换、唯一性检查、diff 预览
 
-- [ ] **E-s10.1** 编写 Agent 源码 `agents/s10-edit-tool/`
-- [ ] **E-s10.2** 编写教学文档 `docs/zh/s10-edit-tool.md`
-- [ ] **E-s10.3** 创建配套数据
+- [x] **E-s10.1** 编写 Agent 源码 `agents/s10-edit-tool/`
+- [x] **E-s10.2** 编写教学文档 `docs/zh/s10-edit-tool.md`
+- [x] **E-s10.3** 创建配套数据
 
 ### s11 — 搜索工具
 
@@ -166,9 +166,9 @@
 >
 > 重点研究：ripgrep 集成、输出截断策略
 
-- [ ] **E-s11.1** 编写 Agent 源码 `agents/s11-search-tools/`
-- [ ] **E-s11.2** 编写教学文档 `docs/zh/s11-search-tools.md`
-- [ ] **E-s11.3** 创建配套数据
+- [x] **E-s11.1** 编写 Agent 源码 `agents/s11-search-tools/`
+- [x] **E-s11.2** 编写教学文档 `docs/zh/s11-search-tools.md`
+- [x] **E-s11.3** 创建配套数据
 
 ### s12 — 工具注册表
 
@@ -176,9 +176,9 @@
 >
 > 重点研究：工具列表稳定排序（prompt cache 依赖）、条件加载
 
-- [ ] **E-s12.1** 编写 Agent 源码 `agents/s12-tool-registry/`
-- [ ] **E-s12.2** 编写教学文档 `docs/zh/s12-tool-registry.md`
-- [ ] **E-s12.3** 创建配套数据
+- [x] **E-s12.1** 编写 Agent 源码 `agents/s12-tool-registry/`
+- [x] **E-s12.2** 编写教学文档 `docs/zh/s12-tool-registry.md`
+- [x] **E-s12.3** 创建配套数据
 
 ---
 
