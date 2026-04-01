@@ -1,0 +1,18 @@
+{
+  "version": "s32",
+  "description": "权限规则引擎：allow/deny/ask 三种行为 + 决策流水线",
+  "steps": [
+    { "type": "user_message", "content": "帮我清理临时文件和安装依赖" },
+    { "type": "tool_call", "content": "bash({ command: \"ls /tmp\" })" },
+    { "type": "system_event", "content": "【权限检查】bash: checkPermissions → ls 是安全命令 → allow" },
+    { "type": "tool_result", "content": "file1.tmp  file2.tmp  cache/" },
+    { "type": "tool_call", "content": "bash({ command: \"rm -rf /tmp/*\" })" },
+    { "type": "system_event", "content": "【权限检查】bash: checkPermissions → rm -rf 是危险命令 → deny" },
+    { "type": "tool_result", "content": "❌ 权限拒绝: 危险命令被阻止: rm -rf /tmp/*" },
+    { "type": "tool_call", "content": "bash({ command: \"npm install\" })" },
+    { "type": "system_event", "content": "【权限检查】bash: checkPermissions → 需要确认 → ask" },
+    { "type": "system_event", "content": "【用户确认】允许执行 npm install" },
+    { "type": "tool_result", "content": "added 150 packages in 5s" },
+    { "type": "assistant_text", "content": "ls 查看了临时文件，rm -rf 被权限引擎阻止（危险命令），npm install 经用户确认后已完成。" }
+  ]
+}

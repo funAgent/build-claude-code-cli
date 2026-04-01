@@ -1,0 +1,20 @@
+{
+  "version": "s34",
+  "description": "子 Agent 权限隔离：session allow 不继承 + 模式收紧 + 无 UI 拒绝",
+  "steps": [
+    { "type": "user_message", "content": "帮我分析和清理项目" },
+    { "type": "system_event", "content": "用户之前选择了 Always Allow bash（session 规则）" },
+    { "type": "tool_call", "content": "bash({ command: \"ls -la\" })" },
+    { "type": "system_event", "content": "【权限检查】主 Agent: bash → session allow → ✓ 自动放行" },
+    { "type": "tool_result", "content": "total 48\ndrwxr-xr-x  12 user  staff  384  ..." },
+    { "type": "tool_call", "content": "agent({ task: \"清理 node_modules 和临时文件\" })" },
+    { "type": "system_event", "content": "【createSubagentPermissionContext】session allow 规则不继承" },
+    { "type": "system_event", "content": "子 Agent 的 allowRules: [] (session 已清除)" },
+    { "type": "system_event", "content": "【子 Agent】bash({command: \"rm -rf node_modules\"})" },
+    { "type": "system_event", "content": "【权限检查】子 Agent: bash → 无匹配 allow → ask" },
+    { "type": "system_event", "content": "🔒 子 Agent 权限询问: rm -rf node_modules" },
+    { "type": "system_event", "content": "用户选择: Allow" },
+    { "type": "tool_result", "content": "子 Agent 完成: node_modules 已清理" },
+    { "type": "assistant_text", "content": "子 Agent 需要单独获得权限确认——父 Agent 的 Always Allow 不会传递给子 Agent。" }
+  ]
+}

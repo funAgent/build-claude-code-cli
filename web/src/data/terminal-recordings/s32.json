@@ -1,0 +1,22 @@
+{
+  "version": "s32",
+  "title": "权限规则引擎演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "清理临时文件和安装依赖", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 bash({command: \"ls /tmp\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  🔒 权限检查: ls → 安全命令 → ✓ allow\n", "color": "green" },
+    { "type": "output", "text": "  file1.tmp  file2.tmp  cache/\n", "color": "white" },
+    { "type": "output", "text": "\n🔧 bash({command: \"rm -rf /tmp/*\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  🔒 权限检查: rm -rf → 危险命令 → ✗ deny\n", "color": "red" },
+    { "type": "output", "text": "  ❌ 权限拒绝: 危险命令被阻止\n", "color": "red" },
+    { "type": "output", "text": "\n🔧 bash({command: \"npm install\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  🔒 权限检查: npm install → 未知命令 → ? ask\n", "color": "yellow" },
+    { "type": "output", "text": "  ┌─ 需要确认 ──────────────────────┐\n", "color": "yellow" },
+    { "type": "output", "text": "  │ 执行: npm install               │\n", "color": "white" },
+    { "type": "output", "text": "  │ [Allow] [Deny] [Always Allow]   │\n", "color": "yellow" },
+    { "type": "output", "text": "  └────────────────────────────────┘\n", "color": "yellow" },
+    { "type": "output", "text": "  用户选择: Allow\n", "color": "green" },
+    { "type": "output", "text": "  added 150 packages in 5s\n", "color": "white" }
+  ]
+}

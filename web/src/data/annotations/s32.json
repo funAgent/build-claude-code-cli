@@ -1,0 +1,31 @@
+{
+  "version": "s32",
+  "architecture": {
+    "title": "权限规则引擎架构",
+    "description": "s32 实现分层权限控制：PermissionRule 定义规则（toolName + ruleContent + behavior），PermissionMode 设置全局安全级别，hasPermissionsToUseTool() 按严格顺序执行决策流水线（deny优先 → ask → checkPermissions → bypass → allow → 默认ask）。工具可实现 checkPermissions 做细粒度控制。",
+    "mermaid": "graph TD\n  CALL[\"工具调用 (name, input)\"] --> DENY{\"deny 规则?\"}\n  DENY -->|Yes| D[\"deny: 拒绝\"]\n  DENY -->|No| ASK_RULE{\"ask 规则?\"}\n  ASK_RULE -->|Yes| A1[\"ask: 询问用户\"]\n  ASK_RULE -->|No| CHECK[\"tool.checkPermissions()\"]\n\n  CHECK --> CHECK_R{\"结果?\"}\n  CHECK_R -->|deny| D\n  CHECK_R -->|ask| A2[\"ask: 工具要求确认\"]\n  CHECK_R -->|allow| CONTENT{\"内容级 deny/ask?\"}\n\n  CONTENT -->|Yes| A3[\"ask/deny: 内容规则\"]\n  CONTENT -->|No| BYPASS{\"bypass 模式?\"}\n  BYPASS -->|Yes| ALLOW1[\"allow: bypass\"]\n  BYPASS -->|No| EDIT{\"acceptEdits + 编辑工具?\"}\n  EDIT -->|Yes| ALLOW2[\"allow: 自动批准编辑\"]\n  EDIT -->|No| ALLOW_RULE{\"allow 规则?\"}\n  ALLOW_RULE -->|Yes| ALLOW3[\"allow\"]\n  ALLOW_RULE -->|No| RO{\"只读工具?\"}\n  RO -->|Yes| ALLOW4[\"allow\"]\n  RO -->|No| A4[\"ask: 默认\"]\n\n  style D fill:#fee2e2,stroke:#fca5a5\n  style A1 fill:#fef3c7,stroke:#fcd34d\n  style A2 fill:#fef3c7,stroke:#fcd34d\n  style A3 fill:#fef3c7,stroke:#fcd34d\n  style A4 fill:#fef3c7,stroke:#fcd34d\n  style ALLOW1 fill:#dcfce7,stroke:#86efac\n  style ALLOW2 fill:#dcfce7,stroke:#86efac\n  style ALLOW3 fill:#dcfce7,stroke:#86efac\n  style ALLOW4 fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "权限控制方式",
+      "question": "如何约束 Agent 的危险操作？",
+      "options": [
+        { "name": "Prompt 约束（告诉模型不要做危险操作）", "pros": "简单", "cons": "模型可能忽略，无法物理隔离" },
+        { "name": "代码级规则引擎", "pros": "物理隔离，无法绕过", "cons": "需要复杂的规则匹配和 UI" }
+      ],
+      "chosen": "代码级规则引擎",
+      "reason": "Claude Code 的核心安全原则：安全靠代码隔离，不靠 prompt 约束。规则引擎在工具调用前拦截，模型根本无法执行被禁止的操作。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "权限规则引擎",
+      "ourFile": "src/permissions.ts + src/tools/bash.ts (checkPermissions)",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/permissions/permissions.ts + types/permissions.ts",
+      "claudeCodeConcept": "hasPermissionsToUseToolInner + toolMatchesRule + PermissionMode + PermissionRule + PermissionRuleSource + checkPermissions",
+      "difference": "教学版4种模式4种来源，简单正则分类；生产版6+种模式8+种来源，完整shell分类器，MCP工具语义匹配，denialTracking，auto分类器",
+      "whyProduction": "auto分类器用ML判断操作安全性；denialTracking在连续拒绝后提示切换模式；MCP前缀匹配支持第三方工具的权限控制"
+    }
+  ]
+}

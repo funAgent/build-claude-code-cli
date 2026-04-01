@@ -1,0 +1,32 @@
+{
+  "version": "s33",
+  "architecture": {
+    "title": "权限 UI 架构",
+    "description": "s33 将权限引擎与 UI 集成：PermissionManager 在工具执行前调用 hasPermissionsToUseTool，ask 时通过 Promise 挂起执行流，渲染 PermissionPrompt 组件等待用户选择（Allow/Deny/Always Allow）。Always Allow 写入 session 规则实现「记住选择」。",
+    "mermaid": "graph TD\n  LOOP[\"Agent Loop\"] --> EXEC[\"执行工具调用\"]\n  EXEC --> PM[\"PermissionManager.checkPermission()\"]\n  PM --> ENGINE[\"hasPermissionsToUseTool()\"]\n\n  ENGINE --> RESULT{\"决策?\"}\n  RESULT -->|allow| RUN[\"执行工具\"]\n  RESULT -->|deny| REJECT[\"返回错误消息\"]\n  RESULT -->|ask| SUSPEND[\"Promise 挂起\"]\n\n  SUSPEND --> UI[\"渲染 PermissionPrompt\"]\n  UI --> CHOICE{\"用户选择?\"}\n  CHOICE -->|Allow| RESOLVE_A[\"resolve('allow')\"]\n  CHOICE -->|Deny| RESOLVE_D[\"resolve('deny')\"]\n  CHOICE -->|Always Allow| SAVE[\"addRule(session, allow)\"]\n  SAVE --> RESOLVE_A\n\n  RESOLVE_A --> RUN\n  RESOLVE_D --> REJECT\n\n  style SUSPEND fill:#fef3c7,stroke:#fcd34d\n  style UI fill:#eff6ff,stroke:#93c5fd\n  style RUN fill:#dcfce7,stroke:#86efac\n  style REJECT fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "权限 UI 交互模式",
+      "question": "Agent 执行被 ask 时如何处理？",
+      "options": [
+        { "name": "自动跳过（不执行）", "pros": "不打断用户", "cons": "Agent 会丢失重要操作" },
+        { "name": "暂停执行 + UI 审批", "pros": "用户有完整控制权", "cons": "打断工作流" },
+        { "name": "先执行后确认", "pros": "不打断", "cons": "无法撤销危险操作" }
+      ],
+      "chosen": "暂停执行 + UI 审批",
+      "reason": "Claude Code 的策略。对于可能修改文件或执行命令的操作，必须在执行前获得用户确认。Promise 挂起模式让 Agent Loop 自然暂停，不需要轮询或复杂的状态机。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "权限 UI",
+      "ourFile": "src/components/permission-prompt.tsx + src/permission-manager.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "components/permissions/PermissionPrompt.tsx + PermissionRequest.tsx + PermissionDialog.tsx",
+      "claudeCodeConcept": "ToolUseConfirm + onAllow/onReject + PermissionUpdate 持久化 + 工具专属 UI (BashPermissionRequest, FileEditPermissionRequest) + Tab 展开反馈输入",
+      "difference": "教学版通用文本预览 + 3 个选项；生产版工具专属 UI（diff 渲染、命令高亮）+ Allow with edits + Reject with feedback + 持久化到设置文件",
+      "whyProduction": "工具专属 UI 让用户更快做出判断（看 diff 比看 JSON 快）；Reject with feedback 让模型知道为什么被拒绝从而修正方案"
+    }
+  ]
+}

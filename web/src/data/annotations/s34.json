@@ -1,0 +1,32 @@
+{
+  "version": "s34",
+  "architecture": {
+    "title": "子 Agent 权限隔离架构",
+    "description": "s34 确保子 Agent 权限不超过父 Agent：createSubagentPermissionContext 清除 session allow 规则（父的运行时批准不泄漏），resolveSubagentMode 限制子模式不能比父宽松，shouldAvoidPermissionPrompts 让异步子 Agent 的 ask 自动变 deny。deny/ask 规则完整继承。",
+    "mermaid": "graph TD\n  PARENT[\"父 Agent 权限上下文\"] --> SCOPE[\"createSubagentPermissionContext()\"]\n\n  subgraph parent_rules[\"父 Agent 规则\"]\n    PA_CLI[\"cliArg allow\"]\n    PA_USER[\"userSettings allow\"]\n    PA_SESSION[\"session allow ← Always Allow\"]\n    PD[\"deny 规则\"]\n    PK[\"ask 规则\"]\n  end\n\n  SCOPE --> CHILD[\"子 Agent 权限上下文\"]\n\n  subgraph child_rules[\"子 Agent 规则\"]\n    CA_CLI[\"cliArg allow ← 继承 ✓\"]\n    CA_USER[\"userSettings allow ← 继承 ✓\"]\n    CA_NO[\"session allow ← 不继承 ✗\"]\n    CD[\"deny 规则 ← 完整继承\"]\n    CK[\"ask 规则 ← 完整继承\"]\n  end\n\n  PA_CLI --> CA_CLI\n  PA_USER --> CA_USER\n  PA_SESSION -.->|清除| CA_NO\n  PD --> CD\n  PK --> CK\n\n  SCOPE --> MODE[\"resolveSubagentMode()\"]\n  MODE --> STRICT{\"子比父更松?\"}\n  STRICT -->|Yes| KEEP[\"使用父模式\"]\n  STRICT -->|No| USE[\"使用子模式\"]\n\n  style CA_NO fill:#fee2e2,stroke:#fca5a5\n  style PA_SESSION fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "子 Agent 权限继承策略",
+      "question": "子 Agent 应该继承父 Agent 的哪些权限？",
+      "options": [
+        { "name": "完全继承", "pros": "简单", "cons": "用户的 Always Allow 会泄漏给子 Agent" },
+        { "name": "完全隔离", "pros": "最安全", "cons": "子 Agent 需要重新获得所有权限" },
+        { "name": "选择性继承（session 不继承）", "pros": "安全且实用", "cons": "需要区分规则来源" }
+      ],
+      "chosen": "选择性继承（session 不继承）",
+      "reason": "Claude Code 的策略。持久化规则（cliArg、settings）是用户有意配置的，可以继承。session 规则是运行时临时批准的，不应自动传递给子 Agent——因为用户可能不知道子 Agent 会做什么。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "子 Agent 权限隔离",
+      "ourFile": "src/permission-scoping.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/AgentTool/runAgent.ts (permission scoping section)",
+      "claudeCodeConcept": "toolPermissionContext 替换 session allow + resolveSubagentMode + shouldAvoidPermissionPrompts + bubble 模式 + cliArg 保留 + awaitAutomatedChecksBeforeDialog",
+      "difference": "教学版简单过滤 source !== 'session'；生产版显式替换为 allowedTools 列表 + cliArg 保留 + bubble 冒泡 + hook 机制",
+      "whyProduction": "bubble 模式让异步子 Agent 也能获得权限（通过冒泡到父 UI）；hook 机制支持 SDK 级别的自动化权限批准"
+    }
+  ]
+}

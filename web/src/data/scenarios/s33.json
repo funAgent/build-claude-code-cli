@@ -1,0 +1,16 @@
+{
+  "version": "s33",
+  "description": "权限 UI：交互式审批 + Always Allow + Promise 挂起模式",
+  "steps": [
+    { "type": "user_message", "content": "安装依赖并创建配置文件" },
+    { "type": "tool_call", "content": "bash({ command: \"npm install\" })" },
+    { "type": "system_event", "content": "【权限检查】ask → 暂停执行，渲染 PermissionPrompt" },
+    { "type": "system_event", "content": "🔒 需要权限确认\n工具: bash\n$ npm install\n❯ Allow | Deny | Always Allow" },
+    { "type": "system_event", "content": "用户选择: Always Allow → 写入 session 规则" },
+    { "type": "tool_result", "content": "added 150 packages in 5s" },
+    { "type": "tool_call", "content": "bash({ command: \"echo '{\"port\": 3000}' > config.json\" })" },
+    { "type": "system_event", "content": "【权限检查】bash → 匹配 session allow 规则 → allow（不再询问）" },
+    { "type": "tool_result", "content": "(no output)" },
+    { "type": "assistant_text", "content": "依赖已安装，配置文件已创建。第二个 bash 命令因为你之前选了 Always Allow，所以自动放行了。" }
+  ]
+}

@@ -337,9 +337,9 @@
 >
 > Claude Code 源码参考：`src/utils/permissions/`（6300+ 行） + `src/components/permissions/`
 
-- [ ] **F-s32** s32 权限规则引擎 — 参考 `permissions/permissions.ts`
-- [ ] **F-s33** s33 权限 UI — 参考 `components/permissions/`
-- [ ] **F-s34** s34 子 Agent 权限 — 参考 `runAgent.ts`（permission scoping）
+- [x] **F-s32** s32 权限规则引擎 — 参考 `permissions/permissions.ts`
+- [x] **F-s33** s33 权限 UI — 参考 `components/permissions/`
+- [x] **F-s34** s34 子 Agent 权限 — 参考 `runAgent.ts`（permission scoping）
 
 ---
 

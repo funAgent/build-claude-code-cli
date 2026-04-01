@@ -1,0 +1,24 @@
+{
+  "version": "s33",
+  "title": "权限 UI 审批演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "安装依赖并创建配置文件", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 bash({command: \"npm install\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  ╭─ 🔒 需要权限确认 ─────────────╮\n", "color": "yellow" },
+    { "type": "output", "text": "  │                                │\n", "color": "yellow" },
+    { "type": "output", "text": "  │  工具: bash                    │\n", "color": "white" },
+    { "type": "output", "text": "  │  $ npm install                 │\n", "color": "gray" },
+    { "type": "output", "text": "  │                                │\n", "color": "yellow" },
+    { "type": "output", "text": "  │  ❯ Allow (本次允许)            │\n", "color": "cyan" },
+    { "type": "output", "text": "  │    Deny (拒绝)                 │\n", "color": "white" },
+    { "type": "output", "text": "  │    Always Allow (始终允许)      │\n", "color": "white" },
+    { "type": "output", "text": "  ╰────────────────────────────────╯\n", "color": "yellow" },
+    { "type": "output", "text": "\n  → 用户选择: Always Allow\n", "color": "green" },
+    { "type": "output", "text": "  📝 session 规则已添加: bash → allow\n", "color": "gray" },
+    { "type": "output", "text": "\n  added 150 packages in 5s\n", "color": "white" },
+    { "type": "output", "text": "\n🔧 bash({command: \"echo > config.json\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  🔒 权限检查: 匹配 session allow → ✓ 自动放行\n", "color": "green" },
+    { "type": "output", "text": "  配置文件已创建\n", "color": "white" }
+  ]
+}

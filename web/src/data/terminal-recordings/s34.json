@@ -1,0 +1,25 @@
+{
+  "version": "s34",
+  "title": "子 Agent 权限隔离演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "分析和清理项目", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 bash({command: \"ls -la\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  🔒 主 Agent: session allow → ✓ 自动放行\n", "color": "green" },
+    { "type": "output", "text": "\n🤖 agent({task: \"清理 node_modules\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  🔒 权限隔离:\n", "color": "yellow" },
+    { "type": "output", "text": "  ├── session allow 规则: 不继承 ✗\n", "color": "red" },
+    { "type": "output", "text": "  ├── cliArg allow: 继承 ✓\n", "color": "green" },
+    { "type": "output", "text": "  └── deny/ask 规则: 完整继承 ✓\n", "color": "green" },
+    { "type": "output", "text": "\n  ┌─ 子 Agent ─────────────────────┐\n", "color": "gray" },
+    { "type": "output", "text": "  │ bash({command: \"rm -rf node_modules\"})\n", "color": "gray" },
+    { "type": "output", "text": "  │ 🔒 无 session allow → ask\n", "color": "yellow" },
+    { "type": "output", "text": "  │ ╭─ 需要权限确认 ────────╮\n", "color": "yellow" },
+    { "type": "output", "text": "  │ │ $ rm -rf node_modules │\n", "color": "white" },
+    { "type": "output", "text": "  │ │ ❯ Allow              │\n", "color": "cyan" },
+    { "type": "output", "text": "  │ ╰──────────────────────╯\n", "color": "yellow" },
+    { "type": "output", "text": "  │ → 用户 Allow → 执行\n", "color": "green" },
+    { "type": "output", "text": "  └─ 完成 ─────────────────────┘\n", "color": "green" },
+    { "type": "output", "text": "\n💡 子 Agent 的 Always Allow 不从父继承\n", "color": "cyan" }
+  ]
+}
