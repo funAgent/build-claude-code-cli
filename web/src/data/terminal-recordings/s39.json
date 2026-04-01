@@ -1,0 +1,23 @@
+{
+  "version": "s39",
+  "title": "Agent 定义与加载",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "cat .agents/security-reviewer.md", "typeDelay": 25 },
+    { "type": "output", "text": "---\nagentType: security-reviewer\nwhenToUse: 安全审查和漏洞分析\ntools: file_read, grep, bash\n---\n你是安全审查专家。分析代码中的安全漏洞...\n", "color": "white" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli agents", "typeDelay": 25 },
+    { "type": "output", "text": "\n  可用 Agent：\n", "color": "white" },
+    { "type": "output", "text": "  [内置]\n", "color": "yellow" },
+    { "type": "output", "text": "    coder — 编写、修改和调试代码\n", "color": "white" },
+    { "type": "output", "text": "    reviewer — 代码审查和质量分析\n", "color": "white" },
+    { "type": "output", "text": "  [项目]\n", "color": "yellow" },
+    { "type": "output", "text": "    security-reviewer — 安全审查和漏洞分析\n", "color": "cyan" },
+    { "type": "output", "text": "    coder — 编写代码 (覆盖内置)\n", "color": "cyan" },
+    { "type": "output", "text": "\n", "color": "white" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "帮我做安全审查", "typeDelay": 30 },
+    { "type": "output", "text": "\n🤖 使用 security-reviewer Agent\n", "color": "green" },
+    { "type": "output", "text": "\n💡 放一个 .md 文件就能创建新 Agent\n", "color": "cyan" }
+  ]
+}

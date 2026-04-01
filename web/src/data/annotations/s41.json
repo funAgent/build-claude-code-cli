@@ -1,0 +1,32 @@
+{
+  "version": "s41",
+  "architecture": {
+    "title": "Team + Mailbox 架构",
+    "description": "s41 实现文件邮箱通信。每个团队成员有独立的 JSON 邮箱文件。writeToMailbox 追加消息到对方邮箱，readUnreadMessages 读取自己的未读消息。createTeam 初始化团队目录和邮箱文件。",
+    "mermaid": "graph TD\n  subgraph team[\"团队 refactor-team\"]\n    LEADER[\"Leader\\ncoordinator.json\"] \n    W1[\"Worker-1\\nworker-auth.json\"]\n    W2[\"Worker-2\\nworker-test.json\"]\n  end\n\n  LEADER -->|writeToMailbox| W1\n  LEADER -->|writeToMailbox| W2\n  W1 -->|writeToMailbox| LEADER\n  W1 -->|writeToMailbox| W2\n  W2 -->|writeToMailbox| LEADER\n\n  subgraph storage[\"文件存储\"]\n    DIR[\"~/.agent-cli/teams/refactor-team/\"]\n    TINFO[\"team.json\"]\n    INBOX[\"inboxes/\"]\n    I1[\"coordinator.json\"]\n    I2[\"worker-auth.json\"]\n    I3[\"worker-test.json\"]\n    DIR --> TINFO\n    DIR --> INBOX\n    INBOX --> I1\n    INBOX --> I2\n    INBOX --> I3\n  end\n\n  subgraph msg[\"TeammateMessage\"]\n    FROM[\"from: string\"]\n    TEXT[\"text: string\"]\n    TS[\"timestamp: string\"]\n    READ[\"read: boolean\"]\n  end\n\n  style LEADER fill:#fef3c7,stroke:#fcd34d\n  style W1 fill:#dbeafe,stroke:#93c5fd\n  style W2 fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "进程间通信方式",
+      "question": "多 Agent 之间如何通信？",
+      "options": [
+        { "name": "消息队列 (Redis)", "pros": "高性能", "cons": "额外依赖，对 CLI 过重" },
+        { "name": "共享内存", "pros": "极快", "cons": "跨进程复杂" },
+        { "name": "文件邮箱 (JSON)", "pros": "零依赖 + 天然持久化", "cons": "并发需文件锁" }
+      ],
+      "chosen": "文件邮箱 (JSON)",
+      "reason": "Claude Code 的方案。CLI 工具是单机场景，文件系统比网络消息队列更可靠。JSON 文件天然持久化，重启后消息不丢。proper-lockfile 解决并发写入。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "文件邮箱通信",
+      "ourFile": "src/team-mailbox.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/swarm/teammateMailbox.ts + tools/TeamCreateTool/ + tools/SendMessageTool/",
+      "claudeCodeConcept": "TeammateMessage + readMailbox/writeToMailbox + proper-lockfile 并发锁 + formatTeammateMessages XML + 结构化协议消息",
+      "difference": "教学版简单 JSON 读写无文件锁；生产版有 proper-lockfile、结构化协议消息路由、XML 格式化、邮箱轮询 hook",
+      "whyProduction": "多 Agent 并行写入同一邮箱文件需要文件锁防止数据损坏；结构化协议消息需要特殊路由不能当普通对话处理"
+    }
+  ]
+}

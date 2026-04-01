@@ -1,0 +1,24 @@
+{
+  "version": "s43",
+  "title": "Worktree 隔离演示",
+  "steps": [
+    { "type": "output", "text": "🌳 创建 Agent Worktree\n", "color": "cyan" },
+    { "type": "output", "text": "  slug: agent-abc12345\n", "color": "white" },
+    { "type": "output", "text": "  git worktree add -b worktree-agent-abc\n", "color": "gray" },
+    { "type": "output", "text": "  ✓ .claude/worktrees/agent-abc/\n", "color": "green" },
+    { "type": "output", "text": "\n── Worker 1 ──\n", "color": "yellow" },
+    { "type": "output", "text": "  cwd: .claude/worktrees/agent-abc/\n", "color": "white" },
+    { "type": "output", "text": "  branch: worktree-agent-abc\n", "color": "gray" },
+    { "type": "output", "text": "  → 修改 src/auth.ts\n", "color": "white" },
+    { "type": "output", "text": "\n── Worker 2 ──\n", "color": "yellow" },
+    { "type": "output", "text": "  cwd: .claude/worktrees/agent-def/\n", "color": "white" },
+    { "type": "output", "text": "  branch: worktree-agent-def\n", "color": "gray" },
+    { "type": "output", "text": "  → 修改 src/auth.ts (同一文件!)\n", "color": "white" },
+    { "type": "output", "text": "\n  ✓ 两个 Agent 修改同一文件 → 零冲突\n", "color": "green" },
+    { "type": "output", "text": "    (不同目录 + 不同分支)\n", "color": "gray" },
+    { "type": "output", "text": "\n── 完成后 ──\n", "color": "yellow" },
+    { "type": "output", "text": "  hasWorktreeChanges? → true\n", "color": "white" },
+    { "type": "output", "text": "  → 保留 worktree 供用户审查\n", "color": "green" },
+    { "type": "output", "text": "\n💡 Git Worktree = 每个 Agent 一个平行世界\n", "color": "cyan" }
+  ]
+}

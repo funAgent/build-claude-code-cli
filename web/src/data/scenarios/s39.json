@@ -1,0 +1,21 @@
+{
+  "version": "s39",
+  "description": "Agent 定义：声明式配置，多来源加载与合并",
+  "steps": [
+    { "type": "system_event", "content": "【loadAllAgentDefinitions】加载 Agent 定义" },
+    { "type": "system_event", "content": "  built-in: coder, reviewer" },
+    { "type": "system_event", "content": "  user (~/.agent-cli/agents/): lint-agent.md" },
+    { "type": "system_event", "content": "  project (.agents/): security-reviewer.md, coder.md" },
+    { "type": "system_event", "content": "【getActiveAgents】同名合并（后者覆盖前者）" },
+    { "type": "system_event", "content": "  coder: project 覆盖 built-in (shadowed)" },
+    { "type": "system_event", "content": "  reviewer: built-in (无覆盖)" },
+    { "type": "system_event", "content": "  lint-agent: user" },
+    { "type": "system_event", "content": "  security-reviewer: project" },
+    { "type": "user_message", "content": "帮我做安全审查" },
+    { "type": "system_event", "content": "【匹配 Agent】security-reviewer (whenToUse: 安全审查和漏洞分析)" },
+    { "type": "system_event", "content": "  tools: file_read, grep, bash (白名单)" },
+    { "type": "system_event", "content": "  systemPrompt: 你是一个安全审查专家..." },
+    { "type": "tool_call", "content": "agent({ agentType: \"security-reviewer\", task: \"审查 src/auth.ts\" })" },
+    { "type": "assistant_text", "content": "使用 security-reviewer Agent 执行安全审查。用户只需放一个 .md 文件就能创建新 Agent——零代码扩展。" }
+  ]
+}

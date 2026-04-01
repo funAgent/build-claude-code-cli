@@ -1,0 +1,26 @@
+{
+  "version": "s43",
+  "description": "Worktree 隔离：每个 Agent 独立 Git 工作目录",
+  "steps": [
+    { "type": "system_event", "content": "【Agent 需要 worktree 隔离】isolation: worktree" },
+    { "type": "system_event", "content": "slug = agent-abc12345" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【createAgentWorktree】" },
+    { "type": "system_event", "content": "  git worktree add -b worktree-agent-abc .claude/worktrees/agent-abc HEAD" },
+    { "type": "system_event", "content": "  ✓ 创建隔离工作区: .claude/worktrees/agent-abc/" },
+    { "type": "system_event", "content": "  ✓ 独立分支: worktree-agent-abc" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "Worker-1: cwd = .claude/worktrees/agent-abc/" },
+    { "type": "system_event", "content": "  → file_edit(\"src/auth.ts\") → 在分支 worktree-agent-abc 上" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "Worker-2: cwd = .claude/worktrees/agent-def/" },
+    { "type": "system_event", "content": "  → file_edit(\"src/auth.ts\") → 在分支 worktree-agent-def 上" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【两个 Agent 修改同一文件 → 零冲突】" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【Agent 完成后】" },
+    { "type": "system_event", "content": "  hasWorktreeChanges? → true" },
+    { "type": "system_event", "content": "  → 保留 worktree 供用户审查/合并" },
+    { "type": "assistant_text", "content": "Git Worktree 让每个 Agent 在自己的平行世界工作——文件不冲突，分支不混乱。" }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "version": "s42",
+  "title": "权限同步协议演示",
+  "steps": [
+    { "type": "output", "text": "🔒 Worker 需要执行危险命令\n", "color": "yellow" },
+    { "type": "output", "text": "  bash: rm -rf node_modules\n", "color": "white" },
+    { "type": "output", "text": "  权限检查: ask → 需要 Leader 审批\n", "color": "yellow" },
+    { "type": "output", "text": "\n── 权限同步协议 ──\n", "color": "cyan" },
+    { "type": "output", "text": "  Worker → Leader 邮箱:\n", "color": "white" },
+    { "type": "output", "text": "  {\n", "color": "gray" },
+    { "type": "output", "text": "    protocol: \"permission_request\",\n", "color": "gray" },
+    { "type": "output", "text": "    requestId: \"req-1\",\n", "color": "gray" },
+    { "type": "output", "text": "    payload: {toolName: \"bash\", ...}\n", "color": "gray" },
+    { "type": "output", "text": "  }\n", "color": "gray" },
+    { "type": "output", "text": "\n  Leader 审批 → approved: true\n", "color": "green" },
+    { "type": "output", "text": "\n  Leader → Worker 邮箱:\n", "color": "white" },
+    { "type": "output", "text": "  {protocol: \"permission_response\", approved: true}\n", "color": "gray" },
+    { "type": "output", "text": "\n  Worker 轮询 → 收到批准\n", "color": "green" },
+    { "type": "output", "text": "  → 继续执行 rm -rf node_modules\n", "color": "green" },
+    { "type": "output", "text": "\n💡 协议让协作有序 — 不是模糊的自然语言\n", "color": "cyan" }
+  ]
+}

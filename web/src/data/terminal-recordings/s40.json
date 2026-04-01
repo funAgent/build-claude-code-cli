@@ -1,0 +1,22 @@
+{
+  "version": "s40",
+  "title": "Coordinator Leader-Worker 编排",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "重构认证模块，包括代码、测试和文档", "typeDelay": 30 },
+    { "type": "output", "text": "\n🎯 Coordinator 模式\n", "color": "yellow" },
+    { "type": "output", "text": "  工具池: agent, send_message, task_stop\n", "color": "gray" },
+    { "type": "output", "text": "\n📋 任务拆解:\n", "color": "white" },
+    { "type": "output", "text": "  1. 修改 auth.ts → Worker 1\n", "color": "white" },
+    { "type": "output", "text": "  2. 更新测试    → Worker 2\n", "color": "white" },
+    { "type": "output", "text": "  3. 更新文档    → Worker 3\n", "color": "white" },
+    { "type": "output", "text": "\n🔧 agent({task: \"修改 auth.ts\"})\n", "color": "cyan" },
+    { "type": "output", "text": "🔧 agent({task: \"更新测试\"})\n", "color": "cyan" },
+    { "type": "output", "text": "🔧 agent({task: \"更新文档\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  ⟳ 3 个 Worker 并行执行...\n", "color": "gray" },
+    { "type": "output", "text": "  ✓ Worker 1 完成 (auth.ts 修改)\n", "color": "green" },
+    { "type": "output", "text": "  ✓ Worker 2 完成 (测试更新)\n", "color": "green" },
+    { "type": "output", "text": "  ✓ Worker 3 完成 (文档更新)\n", "color": "green" },
+    { "type": "output", "text": "\n💡 Coordinator 不直接执行 — 只派活和汇总\n", "color": "cyan" }
+  ]
+}

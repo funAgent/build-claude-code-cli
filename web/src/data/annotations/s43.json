@@ -1,0 +1,32 @@
+{
+  "version": "s43",
+  "architecture": {
+    "title": "Worktree 隔离架构",
+    "description": "s43 利用 Git Worktree 给每个 Agent 独立的工作目录和分支。createAgentWorktree 在 .claude/worktrees/ 下创建隔离空间，withAgentWorktree 封装完整生命周期（创建→执行→检查更改→清理/保留）。cleanupStaleWorktrees 只清理临时 slug。",
+    "mermaid": "graph TD\n  AGENT[\"Agent 需要隔离\"] --> SLUG[\"slug = agent-{id[:8]}\"]\n  SLUG --> CREATE[\"createAgentWorktree()\"]\n\n  subgraph worktree[\"Git Worktree\"]\n    CREATE --> GIT[\"git worktree add -b worktree-agent-abc\"]\n    GIT --> DIR[\".claude/worktrees/agent-abc/\"]\n    DIR --> BRANCH[\"独立分支: worktree-agent-abc\"]\n  end\n\n  DIR --> EXEC[\"Agent 在隔离目录工作\"]\n  EXEC --> CHECK{\"hasWorktreeChanges?\"}\n  CHECK -->|No| CLEANUP[\"removeAgentWorktree()\\ngit worktree remove --force\"]\n  CHECK -->|Yes| KEEP[\"保留供用户审查\"]\n\n  subgraph cleanup_policy[\"清理策略\"]\n    TEMP[\"临时 slug\\nagent-, wf_, bridge-\"] --> AUTO[\"自动清理\"]\n    NAMED[\"用户命名\\nfeature-auth\"] --> MANUAL[\"不自动清理\"]\n  end\n\n  style DIR fill:#dbeafe,stroke:#93c5fd\n  style KEEP fill:#d1fae5,stroke:#6ee7b7\n  style CLEANUP fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "Agent 隔离策略",
+      "question": "如何隔离多 Agent 的文件操作？",
+      "options": [
+        { "name": "Docker 容器", "pros": "完全隔离", "cons": "重量级，启动慢" },
+        { "name": "目录复制", "pros": "简单", "cons": "大仓库复制慢，无版本控制" },
+        { "name": "Git Worktree", "pros": "轻量级 + 原生分支隔离", "cons": "需要 Git 仓库" }
+      ],
+      "chosen": "Git Worktree",
+      "reason": "Claude Code 的方案。Git Worktree 是 Git 原生功能，在同一仓库下创建多个工作目录，每个有独立分支。不需要复制文件，共享 Git 历史。创建快、占用小、天然支持合并。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Worktree 隔离",
+      "ourFile": "src/worktree.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/worktree.ts + tools/EnterWorktreeTool/EnterWorktreeTool.ts",
+      "claudeCodeConcept": "WorktreeSession + createAgentWorktree/removeAgentWorktree + findCanonicalGitRoot + cleanupStaleAgentWorktrees + sparse-checkout + PR fetch",
+      "difference": "教学版基础 git worktree add/remove；生产版有 canonical root 防嵌套、sparse-checkout 加速、PR fetch 支持、EnterWorktree 用户主动进入、runWithCwdOverride",
+      "whyProduction": "canonical root 防止在 worktree 里创建嵌套 worktree；sparse-checkout 让大仓库只检出需要的文件；EnterWorktree 支持用户主动进入持久化工作区"
+    }
+  ]
+}

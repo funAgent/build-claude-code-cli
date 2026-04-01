@@ -1,0 +1,20 @@
+{
+  "version": "s40",
+  "description": "Coordinator：Leader-Worker 编排，工具池分裂",
+  "steps": [
+    { "type": "user_message", "content": "重构整个认证模块，包括测试和文档" },
+    { "type": "system_event", "content": "【Coordinator 模式】COORDINATOR_MODE=true" },
+    { "type": "system_event", "content": "系统提示: 你是协调者，不直接执行" },
+    { "type": "system_event", "content": "Coordinator 工具池: agent, send_message, task_stop" },
+    { "type": "system_event", "content": "Worker 工具池: bash, file_read, file_write, file_edit, glob, grep" },
+    { "type": "assistant_text", "content": "这个任务我来拆解为 3 个并行子任务：" },
+    { "type": "tool_call", "content": "agent({ task: \"修改 src/auth.ts 重构认证逻辑\" })" },
+    { "type": "tool_call", "content": "agent({ task: \"更新 tests/auth.test.ts 测试\" })" },
+    { "type": "tool_call", "content": "agent({ task: \"更新 docs/auth.md 文档\" })" },
+    { "type": "system_event", "content": "3 个 Worker Agent 并行执行..." },
+    { "type": "system_event", "content": "Worker-1: file_read + file_edit → auth.ts 已修改" },
+    { "type": "system_event", "content": "Worker-2: file_read + file_write → 测试已更新" },
+    { "type": "system_event", "content": "Worker-3: file_write → 文档已更新" },
+    { "type": "assistant_text", "content": "3 个 Worker 已完成。Coordinator 只管派活和汇总——不直接执行任何操作。" }
+  ]
+}

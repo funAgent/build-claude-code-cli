@@ -1,0 +1,32 @@
+{
+  "version": "s39",
+  "architecture": {
+    "title": "Agent 定义架构",
+    "description": "s39 实现声明式 Agent 配置。用户在 .agents/ 目录放 Markdown 文件即可创建新 Agent。parseAgentFromMarkdown 解析 frontmatter + body，loadAllAgentDefinitions 从多来源加载，getActiveAgents 按优先级合并（同名后者覆盖前者）。",
+    "mermaid": "graph TD\n  subgraph sources[\"多来源加载\"]\n    BUILTIN[\"built-in\\ncoder, reviewer\"] --> LOAD[\"loadAllAgentDefinitions()\"]\n    USER[\"~/.agent-cli/agents/\\n(user)\"] --> LOAD\n    PROJECT[\".agents/\\n(project)\"] --> LOAD\n  end\n\n  LOAD --> ALL[\"all: AgentDefinition[]\"]\n  ALL --> MERGE[\"getActiveAgents()\"]\n\n  subgraph merge[\"优先级合并\"]\n    MERGE --> MAP[\"Map<agentType, AgentDefinition>\"]\n    MAP --> PRIORITY[\"built-in < plugin < user < project\"]\n    PRIORITY --> ACTIVE[\"active: AgentDefinition[]\"]\n  end\n\n  subgraph format[\"Markdown 格式\"]\n    MD[\"agent.md\"] --> PARSE[\"parseAgentFromMarkdown()\"]\n    PARSE --> FM[\"frontmatter → 元数据\"]\n    PARSE --> BODY[\"body → systemPrompt\"]\n  end\n\n  style MERGE fill:#dbeafe,stroke:#93c5fd\n  style ACTIVE fill:#d1fae5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "Agent 配置格式",
+      "question": "用什么格式定义 Agent？",
+      "options": [
+        { "name": "TypeScript 代码", "pros": "灵活", "cons": "用户需要懂编程" },
+        { "name": "JSON 配置", "pros": "结构化", "cons": "系统提示词难写" },
+        { "name": "Markdown (frontmatter + body)", "pros": "元数据结构化 + 提示词自由", "cons": "解析略复杂" }
+      ],
+      "chosen": "Markdown (frontmatter + body)",
+      "reason": "Claude Code 的方案。frontmatter 定义元数据（类型、工具、模型），body 是自由格式的系统提示词。用户不需要懂编程就能创建 Agent。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Agent 定义加载与合并",
+      "ourFile": "src/agent-definition.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/AgentTool/loadAgentsDir.ts + utils/markdownConfigLoader.ts",
+      "claudeCodeConcept": "BaseAgentDefinition 联合类型 + getAgentDefinitionsWithOverrides + getActiveAgentsFromList 分组覆盖 + parseAgentFromMarkdown/Json",
+      "difference": "教学版统一 AgentDefinition 类型，简单 Map 覆盖；生产版联合类型 + 7 层来源 + inode 去重 + managed 策略 + shadowed 标记",
+      "whyProduction": "企业需要 managed 策略强制覆盖用户 Agent；inode 去重防止符号链接导致重复加载；shadowed 标记帮助用户理解优先级冲突"
+    }
+  ]
+}

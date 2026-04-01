@@ -1,0 +1,32 @@
+{
+  "version": "s42",
+  "architecture": {
+    "title": "Team Protocols 架构",
+    "description": "s42 实现多 Agent 协商协议。权限同步协议让 Worker 向 Leader 请求审批，计划审批协议确保执行计划经过验证，关闭协议管理 Worker 的优雅退出。所有协议消息通过邮箱传递，isProtocolMessage 过滤避免协议消息被当作对话内容。",
+    "mermaid": "graph TD\n  subgraph perm[\"权限同步协议\"]\n    W_REQ[\"Worker\"] -->|sendPermissionRequest| L_INBOX[\"Leader 邮箱\"]\n    L_INBOX --> L_READ[\"Leader 读取\"]\n    L_READ --> L_DECIDE[\"审批决策\"]\n    L_DECIDE -->|sendPermissionResponse| W_INBOX[\"Worker 邮箱\"]\n    W_INBOX --> W_POLL[\"Worker 轮询\"]\n    W_POLL --> W_EXEC[\"批准→执行\"]\n  end\n\n  subgraph plan[\"计划审批协议\"]\n    P_REQ[\"sendPlanApproval\"] --> P_LEADER[\"Leader 审批\"]\n    P_LEADER --> P_RESP[\"批准/修改/拒绝\"]\n  end\n\n  subgraph shutdown[\"关闭协议\"]\n    S_REQ[\"sendShutdownRequest\"] --> S_LEADER[\"Leader 确认\"]\n    S_LEADER --> S_RESP[\"确认关闭/继续\"]\n  end\n\n  subgraph filter[\"协议过滤\"]\n    MSG[\"邮箱消息\"] --> CHECK{\"isProtocolMessage?\"}\n    CHECK -->|Yes| ROUTE[\"协议路由\"]\n    CHECK -->|No| CONV[\"普通对话\"]\n  end\n\n  style W_EXEC fill:#d1fae5,stroke:#6ee7b7\n  style ROUTE fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "协议消息格式",
+      "question": "如何在邮箱中区分协议消息和普通消息？",
+      "options": [
+        { "name": "不同邮箱文件", "pros": "物理隔离", "cons": "文件太多" },
+        { "name": "消息类型字段", "pros": "灵活", "cons": "需要解析每条消息" },
+        { "name": "嵌入 JSON + protocol 字段", "pros": "自描述 + 可扩展", "cons": "text 字段包含 JSON" }
+      ],
+      "chosen": "嵌入 JSON + protocol 字段",
+      "reason": "Claude Code 的方案。text 字段中嵌入 JSON 对象，包含 protocol 和 requestId 字段。isProtocolMessage 通过 JSON.parse 判断。协议消息不应喂给模型——这个过滤是关键。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "多 Agent 协商协议",
+      "ourFile": "src/team-protocols.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/swarm/permissionSync.ts + teammateMailbox.ts (protocol messages)",
+      "claudeCodeConcept": "PermissionRequest/Response + PlanApproval + ShutdownRequest + isStructuredProtocolMessage + 文件持久化 + leaderPermissionBridge",
+      "difference": "教学版 4 种协议类型简单请求-响应；生产版 8+ 种协议、双轨存储（邮箱+文件）、进程内桥接、FSM 状态机、超时重试",
+      "whyProduction": "进程内 Worker 需要 leaderPermissionBridge 直接访问 Leader UI 队列；双轨存储确保协议持久化；FSM 追踪复杂协议状态"
+    }
+  ]
+}

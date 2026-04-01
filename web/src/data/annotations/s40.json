@@ -1,0 +1,31 @@
+{
+  "version": "s40",
+  "architecture": {
+    "title": "Coordinator 编排架构",
+    "description": "s40 实现 Leader-Worker 编排模式。Coordinator 只能使用编排工具（agent, send_message, task_stop），Worker 只能使用执行工具（bash, file_read 等）。getCoordinatorSystemPrompt 定义协调者角色，getWorkerToolsContext 描述 Worker 能力。",
+    "mermaid": "graph TD\n  USER[\"用户任务\"] --> COORD[\"Coordinator\"]\n\n  subgraph coord_tools[\"Coordinator 工具池\"]\n    AGENT[\"agent\"]\n    SEND[\"send_message\"]\n    STOP[\"task_stop\"]\n  end\n\n  COORD --> AGENT\n  AGENT --> W1[\"Worker 1\"]\n  AGENT --> W2[\"Worker 2\"]\n  AGENT --> W3[\"Worker 3\"]\n\n  subgraph worker_tools[\"Worker 工具池\"]\n    BASH[\"bash\"]\n    FREAD[\"file_read\"]\n    FWRITE[\"file_write\"]\n    FEDIT[\"file_edit\"]\n    GLOB[\"glob, grep, ls\"]\n  end\n\n  W1 --> BASH\n  W2 --> FREAD\n  W3 --> FEDIT\n\n  W1 --> RESULT1[\"结果 1\"]\n  W2 --> RESULT2[\"结果 2\"]\n  W3 --> RESULT3[\"结果 3\"]\n\n  RESULT1 --> COORD\n  RESULT2 --> COORD\n  RESULT3 --> COORD\n  COORD --> SUMMARY[\"汇总报告\"]\n\n  style COORD fill:#fef3c7,stroke:#fcd34d\n  style W1 fill:#dbeafe,stroke:#93c5fd\n  style W2 fill:#dbeafe,stroke:#93c5fd\n  style W3 fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "工具池分裂策略",
+      "question": "Coordinator 和 Worker 应该用同一套工具还是分离？",
+      "options": [
+        { "name": "共享工具池", "pros": "简单", "cons": "Coordinator 可能直接执行而不委派" },
+        { "name": "工具池分裂", "pros": "强制委派 + 安全隔离", "cons": "需要维护两套过滤逻辑" }
+      ],
+      "chosen": "工具池分裂",
+      "reason": "Claude Code 的方案。Coordinator 不能直接执行是刻意设计。强制通过 Worker 间接操作限制了单点故障影响范围，并确保并行执行的架构优势。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Coordinator 模式",
+      "ourFile": "src/coordinator.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "coordinator/coordinatorMode.ts + constants/tools.ts + utils/toolPool.ts",
+      "claudeCodeConcept": "getCoordinatorSystemPrompt + getCoordinatorUserContext 动态工具描述 + COORDINATOR_MODE_ALLOWED_TOOLS + applyCoordinatorToolFilter + matchSessionMode",
+      "difference": "教学版静态工具列表和固定提示词；生产版动态生成 Worker 工具描述（含 MCP）、支持会话模式恢复、feature flag 控制",
+      "whyProduction": "Worker 可用的 MCP 工具是动态的（取决于连接状态），必须动态生成描述；会话恢复需要匹配 Coordinator 模式"
+    }
+  ]
+}

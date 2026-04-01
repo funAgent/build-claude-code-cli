@@ -1,0 +1,24 @@
+{
+  "version": "s41",
+  "description": "Team + Mailbox：文件邮箱通信，多 Agent 消息传递",
+  "steps": [
+    { "type": "system_event", "content": "【createTeam】创建团队 refactor-team" },
+    { "type": "system_event", "content": "  leader: coordinator" },
+    { "type": "system_event", "content": "  members: worker-auth, worker-test" },
+    { "type": "system_event", "content": "  创建邮箱: coordinator.json, worker-auth.json, worker-test.json" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【writeToMailbox】coordinator → worker-auth" },
+    { "type": "system_event", "content": "  message: 请重构 auth.ts 认证逻辑" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【worker-auth 读取邮箱】" },
+    { "type": "system_event", "content": "  readUnreadMessages → 1 条未读" },
+    { "type": "system_event", "content": "  执行任务..." },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【writeToMailbox】worker-auth → worker-test" },
+    { "type": "system_event", "content": "  message: auth.ts 已修改，需要更新对应测试" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【writeToMailbox】worker-auth → coordinator" },
+    { "type": "system_event", "content": "  message: 任务完成，修改了 3 个文件" },
+    { "type": "assistant_text", "content": "文件邮箱让多 Agent 通信零依赖——JSON 文件就是消息队列。" }
+  ]
+}

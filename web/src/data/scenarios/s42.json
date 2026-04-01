@@ -1,0 +1,24 @@
+{
+  "version": "s42",
+  "description": "Team Protocols：权限同步、计划审批、关闭协议",
+  "steps": [
+    { "type": "system_event", "content": "【Worker 需要执行危险命令】" },
+    { "type": "system_event", "content": "Worker: bash({ command: \"rm -rf node_modules\" })" },
+    { "type": "system_event", "content": "  → 权限检查: ask" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【权限同步协议】" },
+    { "type": "system_event", "content": "sendPermissionRequest(team, worker, leader)" },
+    { "type": "system_event", "content": "  → Leader 邮箱: {protocol: \"permission_request\", requestId: \"req-1\"}" },
+    { "type": "system_event", "content": "  → payload: {toolName: \"bash\", toolInput: \"rm -rf node_modules\"}" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【Leader 审批】" },
+    { "type": "system_event", "content": "Leader 读取邮箱 → isProtocolMessage → 权限请求" },
+    { "type": "system_event", "content": "sendPermissionResponse(team, leader, worker, req-1, true)" },
+    { "type": "system_event", "content": "  → Worker 邮箱: {protocol: \"permission_response\", approved: true}" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "【Worker 收到批准】" },
+    { "type": "system_event", "content": "pollForPermissionResponse → 匹配 req-1 → approved" },
+    { "type": "system_event", "content": "→ 继续执行 rm -rf node_modules" },
+    { "type": "assistant_text", "content": "协议让多 Agent 协作有序——权限请求、计划审批、关闭通知都是结构化 JSON，不是模糊的自然语言。" }
+  ]
+}

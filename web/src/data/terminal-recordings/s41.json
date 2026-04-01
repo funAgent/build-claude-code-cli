@@ -1,0 +1,22 @@
+{
+  "version": "s41",
+  "title": "Team 文件邮箱通信",
+  "steps": [
+    { "type": "output", "text": "📬 创建团队 refactor-team\n", "color": "cyan" },
+    { "type": "output", "text": "  Leader: coordinator\n", "color": "white" },
+    { "type": "output", "text": "  Members: worker-auth, worker-test\n", "color": "white" },
+    { "type": "output", "text": "  ✓ 邮箱已创建\n", "color": "green" },
+    { "type": "output", "text": "\n── coordinator → worker-auth ──\n", "color": "yellow" },
+    { "type": "output", "text": "  writeToMailbox: \"请重构 auth.ts\"\n", "color": "white" },
+    { "type": "output", "text": "\n── worker-auth 读取邮箱 ──\n", "color": "yellow" },
+    { "type": "output", "text": "  readUnreadMessages → 1 条未读\n", "color": "white" },
+    { "type": "output", "text": "  from: coordinator\n", "color": "gray" },
+    { "type": "output", "text": "  text: 请重构 auth.ts\n", "color": "gray" },
+    { "type": "output", "text": "  执行任务...\n", "color": "white" },
+    { "type": "output", "text": "\n── worker-auth → coordinator ──\n", "color": "yellow" },
+    { "type": "output", "text": "  writeToMailbox: \"auth.ts 已修改\"\n", "color": "white" },
+    { "type": "output", "text": "\n── worker-auth → worker-test ──\n", "color": "yellow" },
+    { "type": "output", "text": "  writeToMailbox: \"需要更新对应测试\"\n", "color": "white" },
+    { "type": "output", "text": "\n💡 JSON 文件就是消息队列 — 零依赖\n", "color": "cyan" }
+  ]
+}
