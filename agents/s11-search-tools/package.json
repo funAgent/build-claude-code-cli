@@ -1,0 +1,24 @@
+{
+  "name": "s11-search-tools",
+  "version": "0.11.0",
+  "description": "AI Agent CLI — s11: Search Tools",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "mycli": "./dist/cli.mjs"
+  },
+  "scripts": {
+    "dev": "npx tsx src/cli.ts",
+    "build": "npx esbuild src/cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.mjs --external:@anthropic-ai/sdk",
+    "start": "node dist/cli.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "commander": "^13.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.8.0"
+  }
+}
