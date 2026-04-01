@@ -38,11 +38,10 @@
     "tab_learn": "Learn",
     "tab_simulate": "Simulate",
     "tab_code": "Code",
-    "tab_reference": "Reference",
     "tab_deep_dive": "Deep Dive",
     "design_decisions": "Design Decisions",
     "whats_new": "What's New",
-    "execution_flow": "Execution Flow",
+
     "architecture": "Architecture",
     "concept_viz": "Concept Visualization",
     "mark_complete": "Mark as Complete",
