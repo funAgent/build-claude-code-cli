@@ -1,0 +1,21 @@
+{
+  "version": "s35",
+  "description": "MCP 客户端：连接外部工具服务器，动态发现和调用远程工具",
+  "steps": [
+    { "type": "user_message", "content": "帮我查看 GitHub 上的 PR 列表" },
+    { "type": "system_event", "content": "读取 MCP 配置: mcpServers.github = { command: \"npx\", args: [\"@mcp/github\"] }" },
+    { "type": "system_event", "content": "【connectToMcpServer】spawn 子进程: npx @mcp/github" },
+    { "type": "system_event", "content": "→ JSON-RPC: initialize (protocolVersion: 2024-11-05)" },
+    { "type": "system_event", "content": "→ JSON-RPC: tools/list" },
+    { "type": "system_event", "content": "发现 4 个 MCP 工具 → 创建代理 Tool" },
+    { "type": "system_event", "content": "  mcp__github__list_prs (buildMcpToolName)" },
+    { "type": "system_event", "content": "  mcp__github__create_pr" },
+    { "type": "system_event", "content": "  mcp__github__get_issue" },
+    { "type": "system_event", "content": "  mcp__github__search_code" },
+    { "type": "system_event", "content": "✓ MCP 服务器 github 已连接，4 个工具注册到工具池" },
+    { "type": "tool_call", "content": "mcp__github__list_prs({ owner: \"anthropics\", repo: \"claude-code\" })" },
+    { "type": "system_event", "content": "→ JSON-RPC: tools/call → MCP 服务器执行" },
+    { "type": "tool_result", "content": "#142 Fix streaming bug (open)\n#141 Add MCP support (merged)" },
+    { "type": "assistant_text", "content": "通过 MCP 查到 2 个 PR。Agent 不需要知道 GitHub API 细节——MCP 服务器封装了一切。" }
+  ]
+}

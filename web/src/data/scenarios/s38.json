@@ -1,0 +1,20 @@
+{
+  "version": "s38",
+  "description": "Plugin System：第三方扩展，从工具到平台",
+  "steps": [
+    { "type": "user_message", "content": "安装数据库插件" },
+    { "type": "system_event", "content": "$ my-cli plugin install db-tools --source local ./plugins/db" },
+    { "type": "system_event", "content": "【validateManifest】校验 plugin.json:" },
+    { "type": "system_event", "content": "  ✓ name: db-tools" },
+    { "type": "system_event", "content": "  ✓ version: 1.0.0 (semver)" },
+    { "type": "system_event", "content": "  ✓ 路径安全 (无 .. 或 /)" },
+    { "type": "system_event", "content": "【loadAllPlugins】注册到 registry" },
+    { "type": "system_event", "content": "【getPluginMcpServers】发现 MCP: db-tools/postgres" },
+    { "type": "system_event", "content": "→ 连接插件提供的 MCP 服务器" },
+    { "type": "system_event", "content": "✓ 插件 db-tools 安装成功 (1 个 MCP 服务器)" },
+    { "type": "user_message", "content": "查询用户表" },
+    { "type": "tool_call", "content": "mcp__db_tools_postgres__query({ sql: \"SELECT id, name FROM users LIMIT 5\" })" },
+    { "type": "tool_result", "content": "id | name\n---+--------\n 1 | Alice\n 2 | Bob" },
+    { "type": "assistant_text", "content": "通过插件提供的数据库工具查到 2 条记录。插件把产品从工具变成平台——第三方可以扩展任何能力。" }
+  ]
+}

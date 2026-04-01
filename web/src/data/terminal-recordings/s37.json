@@ -1,0 +1,26 @@
+{
+  "version": "s37",
+  "title": "会话恢复演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "帮我重构认证模块", "typeDelay": 30 },
+    { "type": "output", "text": "\n📝 分析 auth.ts...\n", "color": "cyan" },
+    { "type": "output", "text": "  💾 → sess-001.jsonl (实时追加)\n", "color": "gray" },
+    { "type": "output", "text": "\n已修改 auth.ts 和 middleware.ts\n", "color": "green" },
+    { "type": "output", "text": "  💾 → sess-001.jsonl (4 条消息)\n", "color": "gray" },
+    { "type": "output", "text": "\n^C (用户中断)\n", "color": "red" },
+    { "type": "output", "text": "\n── 次日 ──\n", "color": "yellow" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli --resume", "typeDelay": 25 },
+    { "type": "output", "text": "\n  历史会话:\n", "color": "white" },
+    { "type": "output", "text": "  ❯ 1. 帮我重构认证模块     3h ago  (4 msgs)\n", "color": "cyan" },
+    { "type": "output", "text": "    2. 修复 CI 问题          1d ago  (8 msgs)\n", "color": "gray" },
+    { "type": "output", "text": "    3. 添加测试用例          3d ago  (12 msgs)\n", "color": "gray" },
+    { "type": "output", "text": "\n  ⟳ 恢复 4 条消息...\n", "color": "cyan" },
+    { "type": "output", "text": "  ✓ 会话已恢复\n", "color": "green" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "继续，还有哪些文件需要修改?", "typeDelay": 30 },
+    { "type": "output", "text": "\n根据之前的分析，还需修改 routes/auth.ts...\n", "color": "white" },
+    { "type": "output", "text": "\n💡 JSONL 追加写入 — 崩溃只影响最后一行\n", "color": "cyan" }
+  ]
+}

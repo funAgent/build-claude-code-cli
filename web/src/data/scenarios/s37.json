@@ -1,0 +1,24 @@
+{
+  "version": "s37",
+  "description": "会话持久化：JSONL 实时追加，断点续做",
+  "steps": [
+    { "type": "user_message", "content": "帮我重构认证模块" },
+    { "type": "system_event", "content": "【recordTranscript】追加到 ~/.agent-cli/projects/a1b2c3/sess-001.jsonl" },
+    { "type": "system_event", "content": "  {type:\"message\", role:\"user\", uuid:\"u-1\", sessionId:\"sess-001\"}" },
+    { "type": "tool_call", "content": "file_read({ path: \"src/auth.ts\" })" },
+    { "type": "tool_result", "content": "// 认证模块代码..." },
+    { "type": "assistant_text", "content": "已分析认证代码，开始修改 auth.ts..." },
+    { "type": "system_event", "content": "【recordTranscript】追加 assistant 消息 (uuid:\"u-2\", parentUuid:\"u-1\")" },
+    { "type": "system_event", "content": "^C (用户中断)" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "── 次日恢复 ──" },
+    { "type": "system_event", "content": "$ my-cli --resume" },
+    { "type": "system_event", "content": "【listSessions】扫描 .jsonl 文件:" },
+    { "type": "system_event", "content": "  1. 帮我重构认证模块 (3h ago, 4 messages)" },
+    { "type": "system_event", "content": "  2. 修复 CI 问题 (1d ago, 8 messages)" },
+    { "type": "system_event", "content": "用户选择会话 1" },
+    { "type": "system_event", "content": "【resumeSession】loadTranscript → 恢复 4 条消息" },
+    { "type": "user_message", "content": "继续，还有哪些文件需要修改?" },
+    { "type": "assistant_text", "content": "根据之前的分析，还需要修改 routes/auth.ts 和 tests/auth.test.ts..." }
+  ]
+}

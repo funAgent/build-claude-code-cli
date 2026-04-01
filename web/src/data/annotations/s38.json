@@ -1,0 +1,32 @@
+{
+  "version": "s38",
+  "architecture": {
+    "title": "Plugin System 架构",
+    "description": "s38 实现插件系统，让第三方扩展 Agent 能力。loadAllPlugins 扫描插件目录加载 manifest，validateManifest 校验安全约束，getPluginMcpServers 提取插件提供的 MCP 服务器配置。install/uninstall/enable/disable 管理插件生命周期。",
+    "mermaid": "graph TD\n  subgraph discover[\"发现\"]\n    MARKET[\"Marketplace\\n(远程仓库)\"] --> LOAD[\"loadAllPlugins()\"]\n    LOCAL[\"本地目录\\n~/.agent-cli/plugins/\"] --> LOAD\n    SESSION[\"session-only\\n--plugin-dir\"] --> LOAD\n  end\n\n  LOAD --> VALIDATE[\"validateManifest()\"]\n\n  subgraph validate[\"验证\"]\n    V1[\"必需字段完整\"] --> VALIDATE\n    V2[\"版本格式 semver\"] --> VALIDATE\n    V3[\"路径安全检查\"] --> VALIDATE\n    V4[\"策略 allow/deny\"] --> VALIDATE\n  end\n\n  VALIDATE --> REGISTER[\"注册到 Registry\"]\n\n  subgraph integrate[\"集成\"]\n    REGISTER --> MCP_INJECT[\"getPluginMcpServers()\\n→ 配置合并\"]\n    REGISTER --> HOOKS[\"Hooks\\n→ 生命周期注入\"]\n    REGISTER --> STATE[\"状态持久化\\n→ enable/disable\"]\n  end\n\n  subgraph manage[\"管理\"]\n    INSTALL[\"install\"] --> REGISTER\n    UNINSTALL[\"uninstall\"] --> REMOVE[\"从 Registry 移除\"]\n    ENABLE[\"enable\"] --> STATE\n    DISABLE[\"disable\"] --> STATE\n  end\n\n  style VALIDATE fill:#fef3c7,stroke:#fcd34d\n  style REGISTER fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "插件安全策略",
+      "question": "如何确保第三方插件不危害系统？",
+      "options": [
+        { "name": "信任所有插件", "pros": "简单", "cons": "极不安全" },
+        { "name": "仅 manifest 验证", "pros": "基本安全", "cons": "无法防止恶意行为" },
+        { "name": "三层防线（验证+策略+隔离）", "pros": "纵深防御", "cons": "实现复杂" }
+      ],
+      "chosen": "三层防线（验证+策略+隔离）",
+      "reason": "Claude Code 的方案。manifest 验证确保格式合法和路径安全，策略控制（allowlist/blocklist）让企业管控可用插件，运行时隔离（MCP 签名去重、缓存路径 sanitize）防止资源冲突和穿越攻击。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "插件加载 + 安全 + 管理",
+      "ourFile": "src/plugin-system.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/plugins/pluginLoader.ts + services/plugins/pluginOperations.ts + utils/plugins/marketplaceManager.ts + utils/plugins/pluginPolicy.ts",
+      "claudeCodeConcept": "loadAllPlugins + PluginManifestSchema (Zod) + marketplace API + 企业 policySettings + dedupPluginMcpServers 签名去重 + getVersionedCachePath sanitize",
+      "difference": "教学版基础文件系统加载和手动验证；生产版有 Zod schema 严格验证、完整 marketplace API、企业策略控制、NPM 包支持、MCP 签名去重",
+      "whyProduction": "marketplace 让插件发现和分发标准化；Zod schema 比手动校验更严格和可维护；企业策略是 B2B 产品的硬性需求"
+    }
+  ]
+}

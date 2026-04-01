@@ -65,6 +65,10 @@ const recordingModules: Record<string, () => Promise<{ default: TerminalRecordin
   s32: () => import("@/data/terminal-recordings/s32.json") as Promise<{ default: TerminalRecording }>,
   s33: () => import("@/data/terminal-recordings/s33.json") as Promise<{ default: TerminalRecording }>,
   s34: () => import("@/data/terminal-recordings/s34.json") as Promise<{ default: TerminalRecording }>,
+  s35: () => import("@/data/terminal-recordings/s35.json") as Promise<{ default: TerminalRecording }>,
+  s36: () => import("@/data/terminal-recordings/s36.json") as Promise<{ default: TerminalRecording }>,
+  s37: () => import("@/data/terminal-recordings/s37.json") as Promise<{ default: TerminalRecording }>,
+  s38: () => import("@/data/terminal-recordings/s38.json") as Promise<{ default: TerminalRecording }>,
 };
 
 interface RenderedChunk {

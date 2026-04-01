@@ -1,0 +1,32 @@
+{
+  "version": "s37",
+  "architecture": {
+    "title": "会话持久化架构",
+    "description": "s37 实现 JSONL 实时追加持久化。每条消息通过 recordTranscript 追加到 ~/.agent-cli/projects/<hash>/<sessionId>.jsonl。消息带 uuid/parentUuid 形成链表。listSessions 扫描目录生成可恢复列表，resumeSession 完整恢复消息和元数据。",
+    "mermaid": "graph TD\n  subgraph write[\"实时写入\"]\n    MSG[\"MessageParam\"] --> RECORD[\"recordTranscript()\"]\n    RECORD --> ENTRY[\"TranscriptEntry\\nuuid + parentUuid\"]\n    ENTRY --> APPEND[\"appendFileSync()\"]\n    APPEND --> JSONL[\"session.jsonl\"]\n  end\n\n  subgraph storage[\"存储结构\"]\n    HOME[\"~/.agent-cli/projects/\"] --> HASH[\"<SHA256(cwd)[:16]>/\"]\n    HASH --> FILE1[\"abc-123.jsonl\"]\n    HASH --> FILE2[\"def-456.jsonl\"]\n  end\n\n  subgraph resume[\"恢复流程\"]\n    RESUME_CMD[\"--resume\"] --> LIST[\"listSessions()\"]\n    LIST --> SCAN[\"扫描 .jsonl 文件\"]\n    SCAN --> SUMMARY[\"SessionSummary[]\"]\n    SUMMARY --> SELECT[\"用户选择\"]\n    SELECT --> LOAD[\"resumeSession()\"]\n    LOAD --> MESSAGES[\"恢复消息数组\"]\n    LOAD --> META[\"恢复元数据\"]\n    MESSAGES --> CONTINUE[\"继续对话循环\"]\n  end\n\n  style JSONL fill:#d1fae5,stroke:#6ee7b7\n  style LOAD fill:#dbeafe,stroke:#93c5fd"
+  },
+  "designDecisions": [
+    {
+      "title": "持久化格式选择",
+      "question": "用什么格式存储会话记录？",
+      "options": [
+        { "name": "JSON 文件", "pros": "结构化", "cons": "读写需要全量操作，崩溃可能损坏" },
+        { "name": "SQLite", "pros": "查询灵活", "cons": "增加依赖，对简单追加场景过重" },
+        { "name": "JSONL (每行一条 JSON)", "pros": "追加写入 + 行级容错 + 流式读取", "cons": "查询不如数据库" }
+      ],
+      "chosen": "JSONL (每行一条 JSON)",
+      "reason": "Claude Code 的方案。追加写入的特性天然适合实时记录，行级独立意味着进程崩溃只影响最后一行，流式读取可以在不加载全部内容的情况下提取首条消息用于 resume 列表。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "会话持久化 + resume",
+      "ourFile": "src/session-storage.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/sessionStorage.ts + utils/conversationRecovery.ts + screens/ResumeConversation.tsx",
+      "claudeCodeConcept": "recordTranscript + loadTranscriptFile 带 parentUuid 链修复 + switchSession 原子更新 + adoptResumedSessionFile + 渐进加载",
+      "difference": "教学版全量读取和简单 ID 切换；生产版有渐进加载（只读前几行提取标题）、parentUuid 孤儿过滤、原子 session 切换、Ink 交互 UI",
+      "whyProduction": "大量历史会话需要渐进加载避免内存爆炸；parentUuid 链修复确保 compaction 后的会话能正确恢复；原子切换防止 ID 和路径不一致"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "version": "s36",
+  "title": "MCP 服务端与配置管理",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli mcp add github -- npx @mcp/github", "typeDelay": 25 },
+    { "type": "output", "text": "✓ 已添加 MCP 服务器 'github' 到 project 配置\n", "color": "green" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli mcp list", "typeDelay": 25 },
+    { "type": "output", "text": "\n  MCP 服务器列表:\n", "color": "white" },
+    { "type": "output", "text": "  ┌──────────┬───────────────────┬─────────┐\n", "color": "gray" },
+    { "type": "output", "text": "  │ 名称      │ 命令               │ 作用域   │\n", "color": "gray" },
+    { "type": "output", "text": "  ├──────────┼───────────────────┼─────────┤\n", "color": "gray" },
+    { "type": "output", "text": "  │ github   │ npx @mcp/github   │ project │\n", "color": "white" },
+    { "type": "output", "text": "  └──────────┴───────────────────┴─────────┘\n", "color": "gray" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli mcp serve", "typeDelay": 25 },
+    { "type": "output", "text": "\n⟳ 启动 MCP 服务端 (stdio)...\n", "color": "cyan" },
+    { "type": "output", "text": "  暴露 15 个内置工具\n", "color": "white" },
+    { "type": "output", "text": "  等待 JSON-RPC 请求...\n", "color": "gray" },
+    { "type": "output", "text": "  ← tools/list (来自 IDE)\n", "color": "yellow" },
+    { "type": "output", "text": "  → 返回 15 个工具定义\n", "color": "green" },
+    { "type": "output", "text": "\n💡 CLI 既是客户端(调用别人)也是服务端(被别人调用)\n", "color": "cyan" }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "version": "s35",
+  "title": "MCP 客户端工具发现",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "帮我查看 GitHub 上的 PR 列表", "typeDelay": 30 },
+    { "type": "output", "text": "\n⟳ 连接 MCP 服务器 'github'...\n", "color": "cyan" },
+    { "type": "output", "text": "  → spawn: npx @mcp/github-server\n", "color": "gray" },
+    { "type": "output", "text": "  → JSON-RPC: initialize\n", "color": "gray" },
+    { "type": "output", "text": "  → JSON-RPC: tools/list\n", "color": "gray" },
+    { "type": "output", "text": "\n  发现 4 个工具:\n", "color": "green" },
+    { "type": "output", "text": "    mcp__github__list_prs\n", "color": "white" },
+    { "type": "output", "text": "    mcp__github__create_pr\n", "color": "white" },
+    { "type": "output", "text": "    mcp__github__get_issue\n", "color": "white" },
+    { "type": "output", "text": "    mcp__github__search_code\n", "color": "white" },
+    { "type": "output", "text": "  ✓ MCP 服务器 'github' 已连接\n", "color": "green" },
+    { "type": "output", "text": "\n🔧 mcp__github__list_prs({owner: \"anthropics\", repo: \"claude-code\"})\n", "color": "cyan" },
+    { "type": "output", "text": "  → JSON-RPC: tools/call → MCP 服务器执行\n", "color": "gray" },
+    { "type": "output", "text": "\n  #142 Fix streaming bug (open)\n", "color": "white" },
+    { "type": "output", "text": "  #141 Add MCP support (merged)\n", "color": "white" },
+    { "type": "output", "text": "\n💡 Agent 不需要知道 GitHub API — MCP 服务器封装了一切\n", "color": "cyan" }
+  ]
+}

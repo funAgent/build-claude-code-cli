@@ -1,0 +1,21 @@
+{
+  "version": "s36",
+  "description": "MCP 服务端 + 配置：让自己也能被调用，三层配置管理",
+  "steps": [
+    { "type": "user_message", "content": "启动 MCP 服务端模式" },
+    { "type": "system_event", "content": "$ my-cli mcp serve" },
+    { "type": "system_event", "content": "【startMcpServer】暴露 15 个内置工具为 MCP 服务" },
+    { "type": "system_event", "content": "等待 stdin JSON-RPC 请求..." },
+    { "type": "system_event", "content": "← tools/list (来自 IDE 客户端)" },
+    { "type": "system_event", "content": "→ 返回 15 个工具定义 (bash, file_read, ...)" },
+    { "type": "system_event", "content": "← tools/call: bash { command: \"git status\" }" },
+    { "type": "system_event", "content": "→ 执行 bash 工具，返回结果" },
+    { "type": "system_event", "content": "" },
+    { "type": "system_event", "content": "── 配置管理 ──" },
+    { "type": "system_event", "content": "$ my-cli mcp add github -- npx @mcp/github" },
+    { "type": "system_event", "content": "→ 写入 .mcp.json (project 作用域)" },
+    { "type": "system_event", "content": "【getMergedMcpConfig】合并优先级:" },
+    { "type": "system_event", "content": "  user (~/.agent-cli/mcp.json) < project (.mcp.json) < local (.mcp.local.json)" },
+    { "type": "assistant_text", "content": "CLI 既是 MCP 客户端（调用别人）也是 MCP 服务端（被别人调用）。配置三层分离支持团队共享和个人覆盖。" }
+  ]
+}

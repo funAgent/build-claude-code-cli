@@ -1,0 +1,32 @@
+{
+  "version": "s35",
+  "architecture": {
+    "title": "MCP 客户端架构",
+    "description": "s35 实现 MCP 客户端，让 Agent 连接外部工具服务器。connectToMcpServer 通过 stdio 传输连接 MCP 服务器，tools/list 发现可用工具，createMcpToolProxy 为每个远程工具创建本地代理 Tool。工具以 mcp__<server>__<tool> 格式命名，避免与内置工具冲突。",
+    "mermaid": "graph TD\n  CONFIG[\"McpServerConfig\"] --> CONNECT[\"connectToMcpServer()\"]\n\n  subgraph connection[\"连接流程\"]\n    SPAWN[\"spawn 子进程\"] --> INIT[\"JSON-RPC: initialize\"]\n    INIT --> LIST[\"JSON-RPC: tools/list\"]\n    LIST --> DISCOVER[\"发现 MCP 工具\"]\n  end\n\n  CONNECT --> SPAWN\n  DISCOVER --> PROXY[\"createMcpToolProxy()\"]\n\n  subgraph naming[\"工具命名\"]\n    NORM[\"normalizeName()\"] --> BUILD[\"buildMcpToolName()\"]\n    BUILD --> NAME[\"mcp__server__tool\"]\n  end\n\n  PROXY --> TOOL[\"代理 Tool\"]\n  TOOL --> POOL[\"工具池\"]\n\n  subgraph runtime[\"运行时调用\"]\n    AGENT[\"Agent\"] --> CALL[\"tool.call()\"]\n    CALL --> RPC[\"JSON-RPC: tools/call\"]\n    RPC --> MCP[\"MCP 服务器执行\"]\n    MCP --> RESULT[\"返回结果\"]\n  end\n\n  POOL --> AGENT\n\n  style PROXY fill:#dbeafe,stroke:#93c5fd\n  style NAME fill:#d1fae5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "MCP 工具命名策略",
+      "question": "如何为 MCP 工具命名以避免冲突？",
+      "options": [
+        { "name": "原始工具名", "pros": "简洁", "cons": "可能与内置工具名冲突" },
+        { "name": "server:tool 格式", "pros": "直观", "cons": "冒号不是所有场景都合法" },
+        { "name": "mcp__server__tool 格式", "pros": "安全 + 可解析 + 权限匹配", "cons": "名称较长" }
+      ],
+      "chosen": "mcp__server__tool 格式",
+      "reason": "Claude Code 的方案。双下划线是明确的分隔符，支持权限系统按前缀匹配（mcp__github 允许 GitHub 所有工具），parseMcpToolName 可反向解析。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "MCP 客户端连接 + 工具发现",
+      "ourFile": "src/mcp-client.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "services/mcp/client.ts + mcpStringUtils.ts + normalization.ts",
+      "claudeCodeConcept": "connectToServer 多传输 + fetchToolsForClient 工具发现 + buildMcpToolName 命名 + MCPConnectionManager 生命周期 + 自动重连",
+      "difference": "教学版仅支持 stdio 传输和手动连接；生产版支持 stdio/SSE/HTTP/WS/SDK 五种传输，有自动重连、动态刷新、OAuth 认证",
+      "whyProduction": "真实场景需要连接远程 MCP 服务器（SSE/HTTP）、处理网络断开（自动重连）、企业认证（OAuth），以及 SDK 模式跳过 mcp__ 前缀"
+    }
+  ]
+}

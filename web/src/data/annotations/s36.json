@@ -1,0 +1,32 @@
+{
+  "version": "s36",
+  "architecture": {
+    "title": "MCP 服务端 + 配置架构",
+    "description": "s36 实现 MCP 双向性：startMcpServer 将内置工具暴露为 MCP 服务端（stdio JSON-RPC），外部宿主可以调用。配置管理支持 user/project/local 三层作用域，getMergedMcpConfig 按优先级合并。",
+    "mermaid": "graph TD\n  subgraph server[\"MCP 服务端\"]\n    TOOLS[\"内置工具集\"] --> START[\"startMcpServer()\"]\n    START --> HANDLER[\"handleJsonRpcRequest()\"]\n    HANDLER --> INIT_H[\"initialize → 协议握手\"]\n    HANDLER --> LIST_H[\"tools/list → 工具发现\"]\n    HANDLER --> CALL_H[\"tools/call → 执行工具\"]\n  end\n\n  subgraph config[\"配置管理\"]\n    USER[\"~/.agent-cli/mcp.json\\n(user 全局)\"] --> MERGE[\"getMergedMcpConfig()\"]\n    PROJECT[\".mcp.json\\n(project 共享)\"] --> MERGE\n    LOCAL[\".mcp.local.json\\n(local 覆盖)\"] --> MERGE\n    MERGE --> RESULT[\"合并结果\\n(后者覆盖前者)\"]\n  end\n\n  subgraph cli[\"CLI 子命令\"]\n    ADD[\"mcp add\"] --> PROJECT\n    REMOVE[\"mcp remove\"] --> PROJECT\n    LSCMD[\"mcp list\"] --> MERGE\n  end\n\n  style MERGE fill:#dbeafe,stroke:#93c5fd\n  style LOCAL fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "配置作用域分层",
+      "question": "如何组织多层 MCP 配置？",
+      "options": [
+        { "name": "单一配置文件", "pros": "简单", "cons": "团队无法共享，个人无法覆盖" },
+        { "name": "user + project 两层", "pros": "支持共享", "cons": "个人覆盖不方便" },
+        { "name": "user + project + local 三层", "pros": "灵活，支持共享和覆盖", "cons": "合并逻辑略复杂" }
+      ],
+      "chosen": "user + project + local 三层",
+      "reason": "Claude Code 的方案。project 配置可提交到 git 供团队共享，local 配置做个人覆盖（不提交），user 配置全局生效。后者覆盖前者的合并策略简单明了。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "MCP 服务端 + 配置合并",
+      "ourFile": "src/mcp-server.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "entrypoints/mcp.ts + services/mcp/config.ts + cli/handlers/mcp.tsx",
+      "claudeCodeConcept": "startMCPServer + getClaudeCodeMcpConfigs 配置合并 + 企业 managed-mcp.json + 签名去重 + 策略过滤",
+      "difference": "教学版直接处理 JSON-RPC，三层配置简单合并；生产版使用 MCP SDK Server，支持 plugin/enterprise 配置，有签名去重和策略控制",
+      "whyProduction": "企业环境需要 managed 策略控制哪些 MCP 服务器可用；插件提供的 MCP 需要与手动配置去重避免重复连接"
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "version": "s38",
+  "title": "插件安装与管理",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli plugin install db-tools --source local ./plugins/db", "typeDelay": 25 },
+    { "type": "output", "text": "\n⟳ 验证 plugin.json...\n", "color": "cyan" },
+    { "type": "output", "text": "  ✓ name: db-tools\n", "color": "green" },
+    { "type": "output", "text": "  ✓ version: 1.0.0 (semver)\n", "color": "green" },
+    { "type": "output", "text": "  ✓ 路径安全检查通过\n", "color": "green" },
+    { "type": "output", "text": "  ✓ MCP: db-tools/postgres\n", "color": "green" },
+    { "type": "output", "text": "✓ 插件 'db-tools' 安装成功\n", "color": "green" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "my-cli plugin list", "typeDelay": 25 },
+    { "type": "output", "text": "\n  已安装插件:\n", "color": "white" },
+    { "type": "output", "text": "  ┌────────────┬────────┬────────┬────────┐\n", "color": "gray" },
+    { "type": "output", "text": "  │ 名称        │ 版本    │ 来源   │ 状态    │\n", "color": "gray" },
+    { "type": "output", "text": "  ├────────────┼────────┼────────┼────────┤\n", "color": "gray" },
+    { "type": "output", "text": "  │ db-tools   │ 1.0.0  │ local  │ ✓ 启用 │\n", "color": "white" },
+    { "type": "output", "text": "  └────────────┴────────┴────────┴────────┘\n", "color": "gray" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "查询用户表", "typeDelay": 30 },
+    { "type": "output", "text": "\n🔧 mcp__db_tools_postgres__query({sql: \"SELECT id, name FROM users\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  id | name\n  ---+-------\n   1 | Alice\n   2 | Bob\n", "color": "white" },
+    { "type": "output", "text": "\n💡 插件让你的产品从工具变成平台\n", "color": "cyan" }
+  ]
+}
