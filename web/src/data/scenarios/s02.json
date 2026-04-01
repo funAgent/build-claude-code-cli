@@ -1,0 +1,46 @@
+{
+  "version": "s02",
+  "description": "Shell 命令安全执行：安全检查 → spawn → 超时控制 → 输出收集",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "用户运行: mycli exec \"ls -la\""
+    },
+    {
+      "type": "system_event",
+      "content": "isDangerous(\"ls -la\") → null — 命令安全"
+    },
+    {
+      "type": "system_event",
+      "content": "spawn(\"sh\", [\"-c\", \"ls -la\"])，设置 30s 超时"
+    },
+    {
+      "type": "tool_result",
+      "content": "total 32\ndrwxr-xr-x  5 user staff  160 Mar 31 10:00 .\n-rw-r--r--  1 user staff  420 Mar 31 10:00 package.json\n-rw-r--r--  1 user staff  150 Mar 31 10:00 tsconfig.json\ndrwxr-xr-x  3 user staff   96 Mar 31 10:00 src"
+    },
+    {
+      "type": "system_event",
+      "content": "exitCode: 0, timedOut: false — 命令正常完成"
+    },
+    {
+      "type": "system_event",
+      "content": "--- 接下来测试危险命令 ---"
+    },
+    {
+      "type": "system_event",
+      "content": "用户运行: mycli exec \"rm -rf /\""
+    },
+    {
+      "type": "system_event",
+      "content": "isDangerous(\"rm -rf /\") → \"命令匹配危险模式\" — 拦截!"
+    },
+    {
+      "type": "tool_result",
+      "content": "[安全拦截] 命令匹配危险模式: \\brm\\s+(-[a-zA-Z]*)?.*\\s+\\/(?!\\w)"
+    },
+    {
+      "type": "system_event",
+      "content": "命令未被执行，返回 exitCode: 1"
+    }
+  ]
+}

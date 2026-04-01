@@ -1,0 +1,17 @@
+{
+  "version": "s02",
+  "title": "子进程与安全执行",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli exec \"ls -la\"", "typeDelay": 40 },
+    { "type": "output", "text": "\n$ ls -la\n\n", "color": "yellow" },
+    { "type": "output", "text": "total 32\ndrwxr-xr-x  5 user  staff  160 Mar 31 10:00 .\n-rw-r--r--  1 user  staff  420 Mar 31 10:00 package.json\ndrwxr-xr-x  3 user  staff   96 Mar 31 10:00 src\n", "color": "white" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli exec \"rm -rf /\"", "typeDelay": 40 },
+    { "type": "output", "text": "\n[安全拦截] 命令匹配危险模式: \\brm\\s+(-[a-zA-Z]*)?.*\\s+\\/(?!\\w)\n", "color": "red" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli exec \"sleep 60\" --timeout 3000", "typeDelay": 40 },
+    { "type": "output", "text": "\n$ sleep 60\n\n", "color": "yellow" },
+    { "type": "output", "text": "[超时] 命令被终止\n", "color": "red" }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "version": "s01",
+  "description": "CLI 启动流程：Commander.js 解析参数 → 调用 main.ts → 进入对话循环",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "用户运行: mycli chat --model claude-sonnet-4-20250514 --system \"你是 TS 专家\""
+    },
+    {
+      "type": "system_event",
+      "content": "Commander.js 解析参数: model=claude-sonnet-4-20250514, system=\"你是 TS 专家\""
+    },
+    {
+      "type": "system_event",
+      "content": "调用 startChat({ model, systemPrompt })，初始化空 messages 数组"
+    },
+    {
+      "type": "user_message",
+      "content": "什么是 interface 和 type 的区别？"
+    },
+    {
+      "type": "system_event",
+      "content": "messages.push({ role: 'user', content: '...' }) → 长度: 1"
+    },
+    {
+      "type": "assistant_text",
+      "content": "interface 支持声明合并和 extends 继承，type 支持联合类型和交叉类型。interface 更适合定义对象形状，type 更灵活。"
+    },
+    {
+      "type": "system_event",
+      "content": "messages.push({ role: 'assistant', content: '...' }) → 长度: 2"
+    },
+    {
+      "type": "user_message",
+      "content": "/exit"
+    },
+    {
+      "type": "system_event",
+      "content": "检测到退出命令，关闭 readline，程序结束"
+    }
+  ]
+}

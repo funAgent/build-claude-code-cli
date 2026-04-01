@@ -1,0 +1,50 @@
+{
+  "version": "s00",
+  "architecture": {
+    "title": "单次 API 调用架构",
+    "description": "s00 的架构极简：一个脚本文件直连 Anthropic API，没有中间层。这是 Agent 的最小起点。",
+    "mermaid": "graph LR\n  script[\"index.ts\"] -->|创建客户端| sdk[\"Anthropic SDK\"]\n  sdk -->|messages.create| api[\"Messages API\"]\n  api -->|返回 JSON| response[\"Response\"]\n  response -->|解析 content| script\n\n  style script fill:#eff6ff,stroke:#93c5fd\n  style sdk fill:#faf5ff,stroke:#c4b5fd\n  style api fill:#f4f4f5,stroke:#a1a1aa\n  style response fill:#ecfdf5,stroke:#6ee7b7"
+  },
+  "designDecisions": [
+    {
+      "title": "同步调用 vs 流式响应",
+      "question": "为什么 s00 用同步的 messages.create() 而不是流式 API？",
+      "options": [
+        { "name": "同步 create()", "pros": "代码简单，返回完整响应", "cons": "用户要等 3-5 秒才看到输出" },
+        { "name": "流式 stream()", "pros": "逐 token 显示，体验好", "cons": "需要处理 SSE 事件流，复杂度高" }
+      ],
+      "chosen": "同步 create()",
+      "reason": "教学第一课追求简单。流式 API 在 s20 课正式引入。Claude Code 生产版默认使用流式，因为用户体验远优于等 3 秒白屏。"
+    },
+    {
+      "title": "SDK vs 原生 HTTP",
+      "question": "为什么用官方 SDK 而不是直接 fetch API？",
+      "options": [
+        { "name": "官方 SDK", "pros": "类型安全、自动重试、错误封装", "cons": "多一个依赖" },
+        { "name": "原生 fetch", "pros": "零依赖、完全控制", "cons": "需要手写认证 header、错误处理、类型定义" }
+      ],
+      "chosen": "官方 SDK",
+      "reason": "SDK 省去了大量样板代码（认证 header、Content-Type、错误码映射等），让教学聚焦于 API 概念而非 HTTP 细节。Claude Code 也使用官方 SDK。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "API 客户端初始化",
+      "ourFile": "src/index.ts",
+      "ourLines": "10-11",
+      "claudeCodeFile": "services/api/claude.ts",
+      "claudeCodeConcept": "createAnthropicClient + 多 Provider 支持",
+      "difference": "我们直接 new Anthropic()；生产版封装了 Provider 选择、API Base URL 配置、beta header 注入等",
+      "whyProduction": "支持 AWS Bedrock、Google Vertex 等多种 API 提供商，用户可以选择最适合的方案"
+    },
+    {
+      "concept": "消息发送",
+      "ourFile": "src/index.ts",
+      "ourLines": "13-19",
+      "claudeCodeFile": "services/api/claude.ts",
+      "claudeCodeConcept": "createMessage + streaming",
+      "difference": "我们用同步 create()；生产版默认使用 streaming，同时支持 thinking、tool_use 等多种 content block",
+      "whyProduction": "流式响应让用户在模型思考时就能看到输出，体验从「等3秒」变成「实时显示」"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "version": "s01",
+  "title": "CLI 脚手架",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli --help", "typeDelay": 40 },
+    { "type": "output", "text": "\nUsage: mycli [options] [command]\n\nAI Agent CLI — 从零构建\n\nOptions:\n  -V, --version          output the version number\n  -h, --help             display help for command\n\nCommands:\n  chat [options]         启动交互式对话\n  ask [options] <question>  单次提问\n  help [command]         display help for command\n", "color": "white" },
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "mycli chat", "typeDelay": 40 },
+    { "type": "output", "text": "\nmycli v0.1.0  model=claude-sonnet-4-20250514\n输入 /exit 退出\n\n", "color": "cyan" },
+    { "type": "prompt", "text": "you>" },
+    { "type": "input", "text": "什么是 CLI？", "typeDelay": 50 },
+    { "type": "output", "text": "\nassistant> CLI（Command Line Interface）是通过文本命令与程序交互的界面。\n  [18 in / 25 out | msgs=2]\n", "color": "white", "charDelay": 15 }
+  ]
+}

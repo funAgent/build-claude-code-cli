@@ -1,0 +1,30 @@
+{
+  "version": "s00",
+  "description": "单次 API 调用：发送一个问题，模型返回文本回答",
+  "steps": [
+    {
+      "type": "system_event",
+      "content": "创建 Anthropic 客户端，从环境变量读取 API Key"
+    },
+    {
+      "type": "user_message",
+      "content": "用一句话解释：什么是 AI Agent？"
+    },
+    {
+      "type": "system_event",
+      "content": "调用 client.messages.create()，发送 messages 数组"
+    },
+    {
+      "type": "assistant_text",
+      "content": "AI Agent 是一种能够感知环境、自主做出决策并采取行动来完成目标任务的智能系统。"
+    },
+    {
+      "type": "system_event",
+      "content": "stop_reason: end_turn — 模型完成回答，没有工具调用请求"
+    },
+    {
+      "type": "system_event",
+      "content": "使用量: input_tokens=25, output_tokens=42"
+    }
+  ]
+}

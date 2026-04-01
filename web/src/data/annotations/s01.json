@@ -1,0 +1,62 @@
+{
+  "version": "s01",
+  "architecture": {
+    "title": "CLI 分层架构",
+    "description": "s01 引入了关键的分层原则：入口（cli.ts）只负责参数解析，业务逻辑全部在 main.ts。这和 Claude Code 的 cli.tsx / main.tsx 分离一致。",
+    "mermaid": "graph LR\n  terminal[\"终端\"] -->|mycli chat| cli[\"cli.ts\"]\n  cli -->|解析参数| commander[\"Commander.js\"]\n  commander -->|调用 action| main[\"main.ts\"]\n  main -->|API 调用| sdk[\"Anthropic SDK\"]\n  cli -.->|打包| esbuild[\"esbuild\"]\n\n  style terminal fill:#f4f4f5,stroke:#a1a1aa\n  style cli fill:#eff6ff,stroke:#93c5fd\n  style commander fill:#faf5ff,stroke:#c4b5fd\n  style main fill:#fffbeb,stroke:#fcd34d\n  style sdk fill:#faf5ff,stroke:#c4b5fd\n  style esbuild fill:#fff7ed,stroke:#fdba74"
+  },
+  "designDecisions": [
+    {
+      "title": "参数解析库选择",
+      "question": "为什么选 Commander.js 而不是 yargs 或手写 argv 解析？",
+      "options": [
+        { "name": "手写 process.argv", "pros": "零依赖", "cons": "子命令、帮助文本要手写，维护成本高" },
+        { "name": "Commander.js", "pros": "轻量、子命令、help/version 自动生成", "cons": "多一个依赖" },
+        { "name": "yargs", "pros": "功能更丰富（交互式提示等）", "cons": "API 更复杂，包体积 3x" }
+      ],
+      "chosen": "Commander.js",
+      "reason": "Node.js CLI 生态中使用率最高。Claude Code 也用 Commander.js，API 直觉，文档完善。"
+    },
+    {
+      "title": "入口与逻辑分离",
+      "question": "为什么要把 cli.ts 和 main.ts 分开？",
+      "options": [
+        { "name": "单文件", "pros": "简单直接", "cons": "无法被其他模块 import（测试、SDK 调用）" },
+        { "name": "cli/main 分离", "pros": "main 可被测试和 SDK 复用", "cons": "多一个文件" }
+      ],
+      "chosen": "cli/main 分离",
+      "reason": "cli.ts 是「壳」，main.ts 是「核」。Claude Code 的 cli.tsx 只有几十行，所有逻辑在 main.tsx 里。这样 main 可以被单元测试直接 import，也可以被其他 Node.js 程序以 SDK 方式调用。"
+    },
+    {
+      "title": "打包工具选择",
+      "question": "为什么用 esbuild 而不是 tsc 或 webpack？",
+      "options": [
+        { "name": "tsc", "pros": "TypeScript 官方", "cons": "只编译不打包，输出多文件" },
+        { "name": "esbuild", "pros": "编译+打包一步到位，极快（<100ms）", "cons": "不做类型检查" },
+        { "name": "webpack", "pros": "生态成熟", "cons": "配置复杂，速度慢" }
+      ],
+      "chosen": "esbuild",
+      "reason": "Claude Code 也用 esbuild。一个 CLI 产品需要单文件分发（一个 dist/cli.mjs 包含所有本地模块），esbuild 的 --bundle 完美满足这个需求，且构建速度比 webpack 快 100 倍。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "CLI 入口",
+      "ourFile": "src/cli.ts",
+      "ourLines": "1-25",
+      "claudeCodeFile": "entrypoints/cli.tsx",
+      "claudeCodeConcept": "CLI 入口 + 快速路径",
+      "difference": "我们 top-level import 所有模块；生产版对 --version 等不需要 AI 的命令走快速路径，跳过重量级模块加载",
+      "whyProduction": "快速路径让 mycli --version 从 3 秒降到 100ms——用户不会因为查版本号等 3 秒"
+    },
+    {
+      "concept": "核心逻辑分离",
+      "ourFile": "src/main.ts",
+      "ourLines": "1-20",
+      "claudeCodeFile": "main.tsx",
+      "claudeCodeConcept": "launchRepl + 并行 prefetch",
+      "difference": "我们的 main.ts 是简单的函数；生产版在启动时并行 prefetch 配置、权限、MCP 连接等",
+      "whyProduction": "并行预加载让用户输入第一条消息时，所有依赖都已就绪"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "version": "s00",
+  "title": "AI API 入门",
+  "steps": [
+    { "type": "prompt", "text": "$" },
+    { "type": "input", "text": "npx tsx src/index.ts", "typeDelay": 40 },
+    { "type": "output", "text": "\n", "color": "white" },
+    { "type": "output", "text": "AI Agent 是一种能够感知环境、自主做出决策并采取行动来完成目标任务的智能系统。", "color": "white", "charDelay": 15 },
+    { "type": "output", "text": "\n\n--- 使用量 ---\n", "color": "cyan" },
+    { "type": "output", "text": "输入 tokens: 25\n输出 tokens: 42\n停止原因: end_turn\n", "color": "gray" }
+  ]
+}

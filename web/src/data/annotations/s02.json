@@ -1,0 +1,61 @@
+{
+  "version": "s02",
+  "architecture": {
+    "title": "安全执行架构",
+    "description": "s02 在 CLI 之上增加了 shell 执行能力。核心是 shell.ts 模块：先检查安全性，再 spawn 子进程，全程受超时和输出限制保护。",
+    "mermaid": "graph TD\n  cli[\"cli.ts\"] -->|exec cmd| shell[\"shell.ts\"]\n  shell -->|1. 先检查| safety[\"isDangerous()\"]\n  safety -->|2. 安全则执行| spawn[\"child_process.spawn\"]\n  spawn -->|3. 启动计时器| timeout[\"超时控制\"]\n  spawn -->|4. 流式收集| output[\"输出收集\"]\n  cli -->|chat 命令| main[\"main.ts\"]\n\n  style cli fill:#eff6ff,stroke:#93c5fd\n  style shell fill:#fffbeb,stroke:#fcd34d\n  style safety fill:#fef2f2,stroke:#fca5a5\n  style spawn fill:#ecfeff,stroke:#67e8f9\n  style timeout fill:#fef2f2,stroke:#fca5a5\n  style output fill:#ecfdf5,stroke:#6ee7b7\n  style main fill:#fffbeb,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "spawn vs exec",
+      "question": "为什么用 spawn 而不是更简单的 exec？",
+      "options": [
+        { "name": "child_process.exec", "pros": "API 简单，直接返回字符串", "cons": "全部输出缓冲在内存，大输出 OOM" },
+        { "name": "child_process.spawn", "pros": "流式输出，可限制大小，可控性强", "cons": "需要自己拼接输出" }
+      ],
+      "chosen": "spawn",
+      "reason": "Agent 可能执行 cat 大文件、npm install（输出巨大）等命令。exec 会把所有输出缓冲在内存里，超过 maxBuffer（默认 1MB）就会报错。spawn 的流式处理让我们可以主动截断，而不是崩溃。Claude Code 也用 spawn。"
+    },
+    {
+      "title": "安全策略层级",
+      "question": "为什么现阶段只用正则而不是更强的安全机制？",
+      "options": [
+        { "name": "正则匹配", "pros": "快速、零延迟、无网络调用", "cons": "可被绕过（如变量替换、编码）" },
+        { "name": "AI 分类器", "pros": "理解语义，难以绕过", "cons": "需要额外 API 调用，延迟高" },
+        { "name": "交互式确认", "pros": "用户把关，最安全", "cons": "每个命令都弹窗很烦" }
+      ],
+      "chosen": "正则匹配",
+      "reason": "教学按渐进式设计。s02 用正则做第一层，s32 课引入规则引擎（allow/deny/ask），s33 课加入交互式权限 UI。Claude Code 生产版是三层叠加：正则快速过滤 → AI 分类器语义判断 → 用户交互确认。"
+    },
+    {
+      "title": "两阶段终止",
+      "question": "为什么超时不直接 SIGKILL？",
+      "options": [
+        { "name": "直接 SIGKILL", "pros": "立即终止", "cons": "进程无法清理临时文件、关闭连接" },
+        { "name": "SIGTERM → SIGKILL", "pros": "给进程 3 秒清理机会", "cons": "多等 3 秒" }
+      ],
+      "chosen": "SIGTERM → SIGKILL",
+      "reason": "SIGTERM 是礼貌的终止请求，进程可以捕获信号做清理（删除临时文件、关闭数据库连接等）。只有当进程不响应 SIGTERM 时才用 SIGKILL 强杀。这是 Unix 的最佳实践，Claude Code 也是这样做的。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "命令执行",
+      "ourFile": "src/shell.ts",
+      "ourLines": "48-95",
+      "claudeCodeFile": "tools/BashTool/BashTool.tsx",
+      "claudeCodeConcept": "BashTool 完整实现",
+      "difference": "我们是简单的 spawn + 超时 + 截断；生产版有沙箱隔离、AI 安全分类器、进度 spinner、图片提取等",
+      "whyProduction": "macOS sandbox-exec 限制了进程能访问的文件路径范围，即使命令被执行也无法越界"
+    },
+    {
+      "concept": "安全检查",
+      "ourFile": "src/shell.ts",
+      "ourLines": "26-38",
+      "claudeCodeFile": "utils/permissions/permissions.ts",
+      "claudeCodeConcept": "多层权限系统",
+      "difference": "我们用 7 个正则做简单匹配；生产版是 allow/deny/ask 三级规则引擎 + AI 安全分类器 + 交互式确认",
+      "whyProduction": "正则无法覆盖所有攻击方式，多层防御让安全性指数级提升"
+    }
+  ]
+}
