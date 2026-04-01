@@ -5,6 +5,9 @@ node_modules/
 web/.next/
 web/out/
 
+# Generated (build-time extraction)
+web/src/data/generated/
+
 # Build
 dist/
 *.tsbuildinfo

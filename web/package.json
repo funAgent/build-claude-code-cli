@@ -3,13 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "extract": "tsx scripts/extract-content.ts",
+    "predev": "npm run extract",
     "dev": "next dev",
+    "prebuild": "npm run extract",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.564.0",
+    "mermaid": "^11.13.0",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
@@ -27,6 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
