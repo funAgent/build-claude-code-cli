@@ -1,0 +1,19 @@
+{
+  "version": "s29",
+  "title": "Subagent 工具过滤与深度控制演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "用只读子 Agent 分析 src/ 结构", "typeDelay": 30 },
+    { "type": "output", "text": "\n🤖 agent({task: \"分析 src/\", readOnly: true})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  🔒 工具过滤: 只读模式 → 5 个安全工具\n", "color": "yellow" },
+    { "type": "output", "text": "     glob, grep, ls, file_read, todo_write\n", "color": "gray" },
+    { "type": "output", "text": "  ✗ 已移除: bash, file_write, file_edit, agent, help\n", "color": "gray" },
+    { "type": "output", "text": "\n  ┌─ 子 Agent [agent_c3d4] (depth=1) ──┐\n", "color": "gray" },
+    { "type": "output", "text": "  │ 🔧 ls({path: \"src/\"})              │\n", "color": "gray" },
+    { "type": "output", "text": "  │ 🔧 glob({pattern: \"**/*.ts\"})      │\n", "color": "gray" },
+    { "type": "output", "text": "  │ 📊 分析完成: 45 个 TS 文件          │\n", "color": "white" },
+    { "type": "output", "text": "  └─ 完成 ─────────────────────────────┘\n", "color": "green" },
+    { "type": "output", "text": "\n  🧹 cleanupSubagent: 清理 todo + 资源\n", "color": "gray" },
+    { "type": "output", "text": "\nsrc/ 包含 3 个主要模块...\n", "color": "white" }
+  ]
+}

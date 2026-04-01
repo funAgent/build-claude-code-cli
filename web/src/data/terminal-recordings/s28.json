@@ -1,0 +1,18 @@
+{
+  "version": "s28",
+  "title": "Subagent 上下文隔离演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "分析代码质量，同时搜索 TODO", "typeDelay": 30 },
+    { "type": "output", "text": "\n🤖 agent({task: \"搜索所有 TODO 注释\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  ┌─ 子 Agent [agent_a1b2] ──────────┐\n", "color": "gray" },
+    { "type": "output", "text": "  │ 🔧 grep({pattern: \"TODO\"})       │\n", "color": "gray" },
+    { "type": "output", "text": "  │ 📄 找到 23 个 TODO 注释          │\n", "color": "white" },
+    { "type": "output", "text": "  └─ 完成 ──────────────────────────┘\n", "color": "green" },
+    { "type": "output", "text": "\n子 Agent 结果: 23 个 TODO 注释整理如下...\n", "color": "white" },
+    { "type": "output", "text": "\n现在我来分析代码质量...\n", "color": "white" },
+    { "type": "output", "text": "🔧 file_read({path: \"src/index.ts\"})\n", "color": "gray" },
+    { "type": "output", "text": "\n分析完成。代码质量评分: B+\n", "color": "white" },
+    { "type": "output", "text": "\n💡 子 Agent 使用独立上下文（干净的 messages），不会被主 Agent 的历史干扰\n", "color": "cyan" }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "version": "s31",
+  "architecture": {
+    "title": "Task System 架构",
+    "description": "s31 实现持久化任务管理：磁盘存储（JSON 文件），依赖图（blocks/blockedBy 双向边），4 个 CRUD 工具（task_create/update/list/get）。创建任务时自动建立双向边，更新状态时检查依赖约束（前置任务未完成不能开始）。支持多 Agent 通过共享 Task Store 协作。",
+    "mermaid": "graph TD\n  AGENT[\"Agent\"] --> CREATE[\"task_create\"]\n  AGENT --> UPDATE[\"task_update\"]\n  AGENT --> LIST[\"task_list\"]\n  AGENT --> GET[\"task_get\"]\n\n  subgraph store[\"Task Store (.agent-tasks/)\"]\n    T1[\"#1 设计 Schema\\nstatus: completed\"]\n    T2[\"#2 更新 API\\nstatus: in_progress\\nblockedBy: [1]\"]\n    T3[\"#3 重写前端\\nstatus: pending\\nblockedBy: [2]\"]\n  end\n\n  CREATE --> store\n  UPDATE --> CHECK{\"依赖已完成?\"}\n  CHECK -->|Yes| store\n  CHECK -->|No| REJECT[\"拒绝: 被阻塞\"]\n\n  T1 -->|blocks| T2\n  T2 -->|blocks| T3\n\n  style store fill:#eff6ff,stroke:#93c5fd\n  style REJECT fill:#fee2e2,stroke:#fca5a5"
+  },
+  "designDecisions": [
+    {
+      "title": "TodoWrite vs Task System",
+      "question": "为什么需要两套任务管理系统？",
+      "options": [
+        { "name": "只用 TodoWrite", "pros": "简单", "cons": "内存存储会丢失，无依赖关系" },
+        { "name": "只用 Task System", "pros": "功能完整", "cons": "简单任务太重量级" },
+        { "name": "两套系统互斥切换", "pros": "按需选择复杂度", "cons": "实现两套工具" }
+      ],
+      "chosen": "两套系统互斥切换",
+      "reason": "Claude Code 的策略。简单的单次对话用 TodoWrite（轻量级），复杂的跨会话项目用 Task System（持久化+依赖图）。通过 feature flag 控制启用哪一套。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Task System",
+      "ourFile": "src/task-store.ts + src/tools/task-{create,update,list,get}.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "utils/tasks.ts + tools/Task{Create,Update,Get,List}Tool/",
+      "claudeCodeConcept": "磁盘持久化 + 依赖图 + proper-lockfile + 单调递增 ID + high water mark + TaskOutput 结果报告",
+      "difference": "教学版无文件锁、无环检测、无 TaskOutput、无事件通知；ID 用简单自增",
+      "whyProduction": "proper-lockfile 支持多 Agent 并发操作；环检测防止死锁；TaskOutput 让子 Agent 报告结果；事件通知驱动 UI 更新"
+    }
+  ]
+}

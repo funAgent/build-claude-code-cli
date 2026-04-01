@@ -323,11 +323,11 @@
 >
 > Claude Code 源码参考：`src/tools/AgentTool/` + `src/tools/TodoWriteTool/` + `src/tasks/`
 
-- [ ] **F-s27** s27 TodoWrite — 参考 `TodoWriteTool/`
-- [ ] **F-s28** s28 Subagent 基础 — 参考 `AgentTool/runAgent.ts` + `forkedAgent.ts`
-- [ ] **F-s29** s29 Subagent 进阶 — 参考 `agentToolUtils.ts`（filterToolsForAgent）
-- [ ] **F-s30** s30 Skill 系统 — 参考 `SkillTool/` + `ToolSearchTool/`
-- [ ] **F-s31** s31 Task System — 参考 `tasks/` + `TaskCreateTool/`
+- [x] **F-s27** s27 TodoWrite — 参考 `TodoWriteTool/`
+- [x] **F-s28** s28 Subagent 基础 — 参考 `AgentTool/runAgent.ts` + `forkedAgent.ts`
+- [x] **F-s29** s29 Subagent 进阶 — 参考 `agentToolUtils.ts`（filterToolsForAgent）
+- [x] **F-s30** s30 Skill 系统 — 参考 `SkillTool/` + `ToolSearchTool/`
+- [x] **F-s31** s31 Task System — 参考 `tasks/` + `TaskCreateTool/`
 
 ---
 

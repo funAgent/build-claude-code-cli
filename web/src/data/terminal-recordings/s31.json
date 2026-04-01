@@ -1,0 +1,20 @@
+{
+  "version": "s31",
+  "title": "Task System 持久化任务演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "重构项目：Schema → API → 前端", "typeDelay": 30 },
+    { "type": "output", "text": "\n📋 task_create: 设计数据库 Schema\n", "color": "cyan" },
+    { "type": "output", "text": "  → #1 [pending] 设计数据库 Schema\n", "color": "white" },
+    { "type": "output", "text": "\n📋 task_create: 更新 API 接口 (blockedBy: [1])\n", "color": "cyan" },
+    { "type": "output", "text": "  → #2 [pending] 更新 API 接口 (blocked by: 1)\n", "color": "white" },
+    { "type": "output", "text": "\n📋 task_create: 重写前端 (blockedBy: [2])\n", "color": "cyan" },
+    { "type": "output", "text": "  → #3 [pending] 重写前端 (blocked by: 2)\n", "color": "white" },
+    { "type": "output", "text": "\n📋 task_update: #1 → in_progress\n", "color": "cyan" },
+    { "type": "output", "text": "  ◉ #1 [in_progress] 设计数据库 Schema\n  ○ #2 [pending] 更新 API 接口 ← 等待 #1\n  ○ #3 [pending] 重写前端 ← 等待 #2\n", "color": "white" },
+    { "type": "output", "text": "\n❌ task_update: #2 → in_progress\n", "color": "red" },
+    { "type": "output", "text": "  错误: 任务 2 被任务 1 阻塞，无法开始\n", "color": "red" },
+    { "type": "output", "text": "\n💡 依赖约束在代码层面强制执行顺序\n", "color": "cyan" },
+    { "type": "output", "text": "💾 任务持久化到 .agent-tasks/ 目录\n", "color": "cyan" }
+  ]
+}

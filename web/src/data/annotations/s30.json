@@ -1,0 +1,31 @@
+{
+  "version": "s30",
+  "architecture": {
+    "title": "Skill 系统架构",
+    "description": "s30 实现按需知识加载：SkillTool 从 .skills/ 目录发现 SKILL.md 文件，通过 tool_result 注入知识（不占 system prompt）。ToolSearchTool 搜索延迟加载的工具（deferred tools），让 Agent 按需发现更多工具能力。核心原则：按需加载，不提前消耗 token。",
+    "mermaid": "graph TD\n  AGENT[\"Agent 需要专业知识\"] --> SKILL_CALL[\"skill(name)\"]\n  SKILL_CALL --> DISCOVER[\"discoverSkills()\"]\n\n  subgraph skill_files[\".skills/ 目录\"]\n    S1[\"deploy/SKILL.md\"]\n    S2[\"code-review/SKILL.md\"]\n    S3[\"api-design/SKILL.md\"]\n  end\n\n  DISCOVER --> S1\n  DISCOVER --> S2\n  DISCOVER --> S3\n\n  S1 --> INJECT[\"通过 tool_result 注入\"]\n  INJECT --> CONTEXT[\"知识进入对话上下文\"]\n\n  AGENT --> SEARCH[\"tool_search(query)\"]\n  SEARCH --> DEFERRED[\"搜索 deferred tools\"]\n  DEFERRED --> FOUND[\"返回匹配的工具\"]\n\n  style skill_files fill:#eff6ff,stroke:#93c5fd\n  style INJECT fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "知识注入方式",
+      "question": "如何给 Agent 提供领域知识？",
+      "options": [
+        { "name": "全部放在 system prompt", "pros": "模型始终可见", "cons": "每次 API 调用都传，浪费 token" },
+        { "name": "通过 tool_result 按需注入", "pros": "按需加载，不用时不消耗", "cons": "需要 Agent 知道何时加载" }
+      ],
+      "chosen": "通过 tool_result 按需注入",
+      "reason": "Claude Code 的核心设计。system prompt 是全局的（每次都传），tool_result 是局部的（只在这一轮出现）。按需注入在长对话中节省大量 token。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Skill 系统",
+      "ourFile": "src/skill-loader.ts + src/tools/skill.ts + src/tools/tool-search.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/SkillTool/SkillTool.ts + tools/ToolSearchTool/ToolSearchTool.ts",
+      "claudeCodeConcept": "getAllCommands + processPromptSlashCommand + parseFrontmatter + isDeferredTool + select: + parseToolName 打分",
+      "difference": "教学版仅 inline 注入 + 简单关键词搜索；生产版支持 fork 模式（子 Agent 执行）、远程 skill 加载、YAML frontmatter、tool_reference blocks",
+      "whyProduction": "fork 模式让复杂 skill 在独立上下文中执行；远程 skill 支持组织级知识共享；tool_reference 是 API 原生的工具引用格式"
+    }
+  ]
+}

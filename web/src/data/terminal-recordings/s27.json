@@ -1,0 +1,16 @@
+{
+  "version": "s27",
+  "title": "TodoWrite 任务规划演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "帮我重构整个 auth 模块", "typeDelay": 30 },
+    { "type": "output", "text": "\n📋 todo_write: 创建任务计划\n", "color": "cyan" },
+    { "type": "output", "text": "\n  ◉ [in_progress] 分析现有 auth 架构\n  ○ [pending]     重构 OAuth 逻辑\n  ○ [pending]     更新 JWT 模块\n  ○ [pending]     重写权限检查\n", "color": "white" },
+    { "type": "output", "text": "\n🔧 file_read({path: \"src/auth/index.ts\"})\n", "color": "gray" },
+    { "type": "output", "text": "分析完成。现有架构使用 Passport.js...\n", "color": "white" },
+    { "type": "output", "text": "\n📋 todo_write: 更新状态 (merge)\n", "color": "cyan" },
+    { "type": "output", "text": "\n  ✓ [completed]   分析现有 auth 架构\n  ◉ [in_progress] 重构 OAuth 逻辑\n  ○ [pending]     更新 JWT 模块\n  ○ [pending]     重写权限检查\n", "color": "white" },
+    { "type": "output", "text": "\n  统计: 4 总计 | 1 完成 | 1 进行中 | 2 待做\n", "color": "gray" },
+    { "type": "output", "text": "\n开始重构 OAuth 逻辑...\n", "color": "white" }
+  ]
+}

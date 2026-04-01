@@ -1,0 +1,31 @@
+{
+  "version": "s29",
+  "architecture": {
+    "title": "Subagent 进阶架构",
+    "description": "s29 在 s28 基础上增加三层安全控制：(1) filterToolsForAgent 确保子 Agent 工具集是父 Agent 的严格子集；(2) canCreateSubagent 限制最大递归深度为 3；(3) cleanupSubagent 在 finally 块中清理资源（todo、shell、MCP）。readOnly 模式提供安全沙箱。",
+    "mermaid": "graph TD\n  CREATE[\"AgentTool.call(task)\"] --> DEPTH{\"canCreateSubagent?\"}\n  DEPTH -->|depth >= 3| REJECT[\"拒绝: 超过最大深度\"]\n  DEPTH -->|depth < 3| FILTER[\"filterToolsForAgent()\"]\n\n  FILTER --> RO{\"readOnly?\"}\n  RO -->|Yes| SAFE[\"安全工具子集\\nglob,grep,ls,file_read\"]\n  RO -->|No| FULL[\"标准工具子集\\n全部 - agent - help\"]\n\n  SAFE --> RUN[\"运行子 Agent Loop\"]\n  FULL --> RUN\n\n  RUN --> FINALLY[\"finally: cleanupSubagent()\"]\n  FINALLY --> CLEAN_TODO[\"clearTodos(agentId)\"]\n  FINALLY --> CLEAN_SHELL[\"killShellTasks\"]\n\n  style REJECT fill:#fee2e2,stroke:#fca5a5\n  style SAFE fill:#dcfce7,stroke:#86efac\n  style FINALLY fill:#fef3c7,stroke:#fcd34d"
+  },
+  "designDecisions": [
+    {
+      "title": "工具过滤策略",
+      "question": "如何限制子 Agent 的能力？",
+      "options": [
+        { "name": "信任 prompt（告诉子 Agent 不要用某些工具）", "pros": "简单", "cons": "模型可能忽略约束" },
+        { "name": "代码级过滤（不传递被禁工具）", "pros": "物理隔离，无法绕过", "cons": "需要额外过滤逻辑" }
+      ],
+      "chosen": "代码级过滤",
+      "reason": "Claude Code 的原则：安全靠代码隔离，不靠 prompt 约束。子 Agent 的 API 请求中根本没有 agent 工具的 schema，它不可能调用不存在的工具。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "子 Agent 工具限制与深度控制",
+      "ourFile": "src/agent-utils.ts + src/tools/agent-tool.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/AgentTool/agentToolUtils.ts + constants/tools.ts",
+      "claudeCodeConcept": "filterToolsForAgent + ALL_AGENT_DISALLOWED_TOOLS + ASYNC_AGENT_ALLOWED_TOOLS + resolveAgentTools + queryTracking.depth",
+      "difference": "教学版用简单的 Set 过滤；生产版支持通配符工具解析、per-agent disallowedTools、allowedAgentTypes、AsyncLocalStorage 深度追踪",
+      "whyProduction": "复杂的工具解析支持 MCP 工具（mcp__ 前缀始终允许）和自定义 Agent 定义的精细工具控制"
+    }
+  ]
+}

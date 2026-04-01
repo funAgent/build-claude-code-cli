@@ -1,0 +1,42 @@
+{
+  "version": "s27",
+  "description": "TodoWrite：Agent 先规划再执行，结构化任务管理",
+  "steps": [
+    {
+      "type": "user_message",
+      "content": "帮我重构整个 auth 模块，包括 OAuth、JWT、权限检查"
+    },
+    {
+      "type": "tool_call",
+      "content": "todo_write({ todos: [{id:\"1\", content:\"分析现有 auth 架构\", status:\"in_progress\"}, {id:\"2\", content:\"重构 OAuth 逻辑\", status:\"pending\"}, {id:\"3\", content:\"更新 JWT 模块\", status:\"pending\"}, {id:\"4\", content:\"重写权限检查\", status:\"pending\"}] })"
+    },
+    {
+      "type": "tool_result",
+      "content": "◉ [in_progress] 分析现有 auth 架构\n○ [pending] 重构 OAuth 逻辑\n○ [pending] 更新 JWT 模块\n○ [pending] 重写权限检查"
+    },
+    {
+      "type": "assistant_text",
+      "content": "我先分析现有的 auth 架构..."
+    },
+    {
+      "type": "tool_call",
+      "content": "file_read({ path: \"src/auth/index.ts\" })"
+    },
+    {
+      "type": "tool_result",
+      "content": "// auth 模块入口..."
+    },
+    {
+      "type": "tool_call",
+      "content": "todo_write({ todos: [{id:\"1\", content:\"分析现有 auth 架构\", status:\"completed\"}, {id:\"2\", content:\"重构 OAuth 逻辑\", status:\"in_progress\"}], merge: true })"
+    },
+    {
+      "type": "tool_result",
+      "content": "✓ [completed] 分析现有 auth 架构\n◉ [in_progress] 重构 OAuth 逻辑\n○ [pending] 更新 JWT 模块\n○ [pending] 重写权限检查\n\n统计: 4 总计 | 1 完成 | 1 进行中 | 2 待做"
+    },
+    {
+      "type": "assistant_text",
+      "content": "分析完成，开始重构 OAuth 逻辑..."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "version": "s28",
+  "description": "Subagent 基础：上下文隔离，独立 agentId，独立消息历史",
+  "steps": [
+    { "type": "user_message", "content": "分析项目代码质量，同时搜索所有 TODO 注释" },
+    { "type": "tool_call", "content": "agent({ task: \"搜索项目中所有 TODO 注释并整理成清单\" })" },
+    { "type": "system_event", "content": "【创建子 Agent】agentId: agent_a1b2c3d4, depth: 1" },
+    { "type": "system_event", "content": "【子 Agent】独立 messages: [{role: \"user\", content: \"搜索...\"}]" },
+    { "type": "system_event", "content": "【子 Agent】grep({pattern: \"TODO\", path: \"src/\"})" },
+    { "type": "system_event", "content": "【子 Agent】找到 23 个 TODO 注释" },
+    { "type": "system_event", "content": "【子 Agent 完成】返回结果给主 Agent" },
+    { "type": "tool_result", "content": "子 Agent 结果: 找到 23 个 TODO 注释...\n1. src/auth.ts:23 — 添加 OAuth 支持\n2. src/db.ts:67 — 连接池优化\n..." },
+    { "type": "assistant_text", "content": "子 Agent 找到了 23 个 TODO。现在我来分析代码质量..." },
+    { "type": "tool_call", "content": "file_read({ path: \"src/index.ts\" })" },
+    { "type": "assistant_text", "content": "代码质量分析完成。结合 TODO 清单，主要需要关注..." }
+  ]
+}

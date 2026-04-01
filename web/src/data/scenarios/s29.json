@@ -1,0 +1,16 @@
+{
+  "version": "s29",
+  "description": "Subagent 进阶：工具过滤 + 递归深度控制 + 生命周期清理",
+  "steps": [
+    { "type": "user_message", "content": "用只读子 Agent 分析 src/ 目录结构" },
+    { "type": "tool_call", "content": "agent({ task: \"分析 src/ 目录结构\", readOnly: true })" },
+    { "type": "system_event", "content": "【filterToolsForAgent】只读模式: glob, grep, ls, file_read, todo_write (5 个)" },
+    { "type": "system_event", "content": "【canCreateSubagent】depth=0 < MAX_DEPTH=3 → 允许" },
+    { "type": "system_event", "content": "【子 Agent】ls({path: \"src/\"}) → 12 个文件" },
+    { "type": "system_event", "content": "【子 Agent】glob({pattern: \"src/**/*.ts\"}) → 45 个 TS 文件" },
+    { "type": "system_event", "content": "【子 Agent 完成】返回目录结构分析" },
+    { "type": "system_event", "content": "【cleanupSubagent】清理 agentId=agent_c3d4 的 todo 和资源" },
+    { "type": "tool_result", "content": "src/ 目录包含 45 个 TypeScript 文件，分为 components/、utils/、tools/ 三个主要模块..." },
+    { "type": "assistant_text", "content": "子 Agent 以只读模式完成了分析。它只能读取文件，不能修改任何内容。" }
+  ]
+}

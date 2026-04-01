@@ -1,0 +1,32 @@
+{
+  "version": "s28",
+  "architecture": {
+    "title": "Subagent 基础架构",
+    "description": "s28 实现子 Agent 上下文隔离：AgentTool 创建独立的 SubagentContext（独立 agentId、独立 messages、共享 cwd），子 Agent 运行自己的 Agent Loop 完成子任务后返回结果。同步子 Agent 共享父级 AbortController，异步子 Agent 使用独立 controller。",
+    "mermaid": "graph TD\n  MAIN[\"主 Agent\"] --> AGENT_TOOL[\"AgentTool.call(task)\"]\n  AGENT_TOOL --> CTX[\"createSubagentContext()\"]\n\n  subgraph sub_ctx[\"子 Agent 上下文\"]\n    ID[\"agentId: agent_xxx\"]\n    MSG[\"messages: [task]\"]\n    CWD[\"cwd: /project (共享)\"]\n    ABORT[\"abortController\"]\n  end\n\n  CTX --> ID\n  CTX --> MSG\n  CTX --> CWD\n  CTX --> ABORT\n\n  MSG --> LOOP[\"子 Agent Loop\"]\n  LOOP --> API[\"Claude API\"]\n  API --> TOOL_USE{\"tool_use?\"}\n  TOOL_USE -->|Yes| EXEC[\"执行工具\"]\n  EXEC --> LOOP\n  TOOL_USE -->|No| RESULT[\"返回结果\"]\n\n  RESULT --> MAIN\n\n  style sub_ctx fill:#eff6ff,stroke:#93c5fd\n  style LOOP fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "子 Agent 隔离策略",
+      "question": "子 Agent 应该与父 Agent 共享什么？",
+      "options": [
+        { "name": "完全隔离（独立进程）", "pros": "最安全", "cons": "无法访问文件系统，通信开销大" },
+        { "name": "共享文件系统，隔离记忆", "pros": "子 Agent 可以读写文件，但不被父 Agent 的历史干扰", "cons": "文件修改没有通知机制" },
+        { "name": "共享一切", "pros": "简单", "cons": "子 Agent 会被父 Agent 的大量历史淹没" }
+      ],
+      "chosen": "共享文件系统，隔离记忆",
+      "reason": "Claude Code 的策略。子 Agent 需要访问文件来完成任务，但不需要知道父 Agent 的完整对话历史。隔离记忆让子 Agent 能聚焦于自己的任务。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Subagent",
+      "ourFile": "src/subagent.ts + src/tools/agent-tool.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/AgentTool/runAgent.ts + utils/forkedAgent.ts",
+      "claudeCodeConcept": "createSubagentContext + runAgent + agentId + abort control + 生命周期清理",
+      "difference": "教学版仅同步子 Agent，无 MCP 初始化、技能预加载、forked agent 优化；生产版支持 async agent、agent types、transcriptSubdir",
+      "whyProduction": "forked agent 复用 prompt cache 降低成本；async agent 支持后台长任务；生命周期清理防止资源泄漏"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "version": "s27",
+  "architecture": {
+    "title": "TodoWrite 架构",
+    "description": "s27 为 Agent 添加结构化任务规划能力：TodoWriteTool 接收 todos 数组（id/content/status），通过 updateTodos() 管理任务状态（pending → in_progress → completed）。存储按 agentId 隔离（子 Agent 独立列表）。全部完成时自动清空。merge 模式支持增量更新。",
+    "mermaid": "graph TD\n  USER[\"用户请求（复杂任务）\"] --> PLAN[\"Agent 思考: 先规划\"]\n  PLAN --> TW[\"TodoWrite（创建列表）\"]\n\n  subgraph todo_flow[\"任务执行流\"]\n    CREATE[\"创建 todos: 全部 pending\"]\n    EXEC[\"标记 in_progress 开始执行\"]\n    DONE[\"标记 completed\"]\n    NEXT[\"下一项 in_progress\"]\n  end\n\n  TW --> CREATE\n  CREATE --> EXEC\n  EXEC --> DONE\n  DONE --> NEXT\n  NEXT --> EXEC\n\n  DONE --> ALL_DONE{\"全部 completed?\"}\n  ALL_DONE -->|Yes| CLEAR[\"清空列表\"]\n  ALL_DONE -->|No| NEXT\n\n  subgraph storage[\"存储隔离\"]\n    MAIN[\"主 Agent: __main__\"]\n    SUB[\"子 Agent: agent_xxx\"]\n  end\n\n  style todo_flow fill:#eff6ff,stroke:#93c5fd\n  style storage fill:#dcfce7,stroke:#86efac"
+  },
+  "designDecisions": [
+    {
+      "title": "任务管理方式",
+      "question": "如何让 Agent 有序地执行复杂任务？",
+      "options": [
+        { "name": "自然语言记忆", "pros": "无额外工具", "cons": "模型容易遗漏步骤，无结构化跟踪" },
+        { "name": "结构化 todo 列表", "pros": "可见的执行计划，防止遗漏", "cons": "需要额外工具调用" },
+        { "name": "外部项目管理", "pros": "持久化", "cons": "过度工程化" }
+      ],
+      "chosen": "结构化 todo 列表（TodoWrite）",
+      "reason": "Claude Code 的实践证明，有规划的 Agent 完成率显著提升。TodoWrite 用最小的额外开销给 Agent 一个可见的执行路线图。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "TodoWrite",
+      "ourFile": "src/todo.ts + src/tools/todo-write.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "tools/TodoWriteTool/TodoWriteTool.ts + utils/todo/types.ts",
+      "claudeCodeConcept": "TodoWriteTool + TodoStatusSchema + agentId 隔离 + allDone 清空 + verification nudge",
+      "difference": "教学版无 verification nudge、无 activeForm 字段、无 Todo v2 切换逻辑",
+      "whyProduction": "verification nudge 在任务全部完成后自动建议启动验证子 Agent，提升代码质量；Todo v2 (Task System) 支持多 Agent 协作"
+    }
+  ]
+}

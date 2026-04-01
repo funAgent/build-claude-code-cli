@@ -1,0 +1,13 @@
+{
+  "version": "s30",
+  "description": "Skill 系统：SKILL.md 按需加载 + ToolSearch 工具发现",
+  "steps": [
+    { "type": "user_message", "content": "帮我按项目规范部署到生产环境" },
+    { "type": "tool_call", "content": "skill({ name: \"deploy\" })" },
+    { "type": "tool_result", "content": "已加载技能: 部署流程\n\n--- 技能内容 ---\n\n# 部署流程\n1. 运行 docker-compose build\n2. 执行数据库迁移\n3. 部署到 K8s 集群\n..." },
+    { "type": "assistant_text", "content": "我已加载部署流程指南。按照规范，步骤如下..." },
+    { "type": "tool_call", "content": "tool_search({ query: \"database\" })" },
+    { "type": "tool_result", "content": "找到 1 个匹配的工具:\n\n工具: mcp__database\n  描述: 执行数据库查询和迁移" },
+    { "type": "assistant_text", "content": "找到数据库工具，开始执行迁移..." }
+  ]
+}

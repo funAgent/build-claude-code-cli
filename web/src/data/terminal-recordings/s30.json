@@ -1,0 +1,15 @@
+{
+  "version": "s30",
+  "title": "Skill 系统演示",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "按项目规范部署到生产环境", "typeDelay": 30 },
+    { "type": "output", "text": "\n📚 skill({name: \"deploy\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  已加载技能: 部署流程\n  来源: .skills/deploy/SKILL.md\n", "color": "green" },
+    { "type": "output", "text": "\n  --- 技能内容 ---\n  # 部署流程\n  1. docker-compose build\n  2. 数据库迁移\n  3. K8s 部署\n  ...\n", "color": "white" },
+    { "type": "output", "text": "\n🔍 tool_search({query: \"database\"})\n", "color": "cyan" },
+    { "type": "output", "text": "\n  找到 1 个工具: mcp__database\n", "color": "green" },
+    { "type": "output", "text": "\n按照部署流程，我先执行数据库迁移...\n", "color": "white" },
+    { "type": "output", "text": "\n💡 知识通过 tool_result 注入，不占 system prompt\n", "color": "cyan" }
+  ]
+}

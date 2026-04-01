@@ -1,0 +1,17 @@
+{
+  "version": "s31",
+  "description": "Task System：持久化任务 + 依赖图 + 多 Agent 协作",
+  "steps": [
+    { "type": "user_message", "content": "重构项目架构：先重新设计 Schema，然后更新 API，最后重写前端" },
+    { "type": "tool_call", "content": "task_create({ title: \"设计数据库 Schema\", description: \"根据新需求重新设计数据模型\" })" },
+    { "type": "tool_result", "content": "已创建任务 #1: 设计数据库 Schema\n  状态: pending" },
+    { "type": "tool_call", "content": "task_create({ title: \"更新 API 接口\", description: \"根据新 Schema 更新 REST API\", blockedBy: [\"1\"] })" },
+    { "type": "tool_result", "content": "已创建任务 #2: 更新 API 接口\n  依赖: 1\n  状态: pending" },
+    { "type": "tool_call", "content": "task_create({ title: \"重写前端页面\", description: \"使用新 API 重写前端\", blockedBy: [\"2\"] })" },
+    { "type": "tool_result", "content": "已创建任务 #3: 重写前端页面\n  依赖: 2\n  状态: pending" },
+    { "type": "tool_call", "content": "task_update({ id: \"1\", status: \"in_progress\" })" },
+    { "type": "tool_result", "content": "任务 #1 已更新: [in_progress] 设计数据库 Schema" },
+    { "type": "assistant_text", "content": "已创建 3 个有依赖关系的任务。现在开始第一个：设计数据库 Schema..." },
+    { "type": "system_event", "content": "✗ 尝试 task_update({id:\"2\", status:\"in_progress\"}) → 错误: 被任务 1 阻塞" }
+  ]
+}
