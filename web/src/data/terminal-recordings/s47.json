@@ -1,0 +1,15 @@
+{
+  "version": "s47",
+  "title": "ripgrep 检测与能力列表",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "which rg && rg --version", "typeDelay": 30 },
+    { "type": "output", "text": "/opt/homebrew/bin/rg\nripgrep 14.1.0\n", "color": "cyan" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "claude-code --print-capabilities", "typeDelay": 32 },
+    { "type": "output", "text": "{\n", "color": "white" },
+    { "type": "output", "text": "  \"ripgrep\": true,\n  \"git\": true,\n  \"clipboard\": true,\n  \"watchFs\": true,\n  \"sandbox\": \"permissive\"\n", "color": "green" },
+    { "type": "output", "text": "}\n", "color": "white" },
+    { "type": "output", "text": "\n搜索走 system rg；无 rg 时回退内置扫描（较慢）。\n", "color": "gray" }
+  ]
+}

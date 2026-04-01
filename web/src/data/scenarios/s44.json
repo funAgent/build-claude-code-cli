@@ -1,0 +1,22 @@
+{
+  "version": "s44",
+  "description": "递进式错误恢复：API 失败 → classify → 退避重试 → 529 连续失败 → FallbackTriggeredError → 降级模型 → 成功",
+  "steps": [
+    { "type": "user_message", "content": "帮我把这个函数加上类型注解并跑一下测试" },
+    { "type": "system_event", "content": "【queryLLM】POST /v1/messages" },
+    { "type": "tool_call", "content": "call_api(model=claude-3-opus, messages=[...])" },
+    { "type": "tool_result", "content": "HTTP 503 Service Unavailable — connection reset" },
+    { "type": "system_event", "content": "【classifyAPIError】→ category: transient_network, retryable: true" },
+    { "type": "system_event", "content": "【withRetry】attempt 1/4, backoff 250ms (jitter)" },
+    { "type": "tool_result", "content": "HTTP 529 — overloaded" },
+    { "type": "system_event", "content": "【withRetry】attempt 2/4, backoff 500ms" },
+    { "type": "tool_result", "content": "HTTP 529 — overloaded" },
+    { "type": "system_event", "content": "【withRetry】attempt 3/4, backoff 1000ms" },
+    { "type": "tool_result", "content": "HTTP 529 — overloaded (连续 529 阈值命中)" },
+    { "type": "system_event", "content": "【throw FallbackTriggeredError】连续可重试失败，触发降级路径" },
+    { "type": "system_event", "content": "【降级】switchModel('claude-3-5-haiku') + 缩小 max_tokens" },
+    { "type": "tool_call", "content": "call_api(model=claude-3-5-haiku, messages=[...])" },
+    { "type": "tool_result", "content": "HTTP 200 — 响应完成" },
+    { "type": "assistant_text", "content": "上游短暂过载时，单次重试不够——先分类错误，再退避重试；529 连击则触发 FallbackTriggeredError，换轻量模型把请求走完。" }
+  ]
+}

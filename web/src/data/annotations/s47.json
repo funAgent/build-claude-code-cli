@@ -1,0 +1,33 @@
+{
+  "version": "s47",
+  "architecture": {
+    "title": "Native 能力四种策略",
+    "description": "s47 对比 ripgrep 子进程、Git 原生调用、剪贴板桥接与文件监听：在可用时走 system 路径，否则降级或提示；detectCapabilities 统一暴露能力矩阵。",
+    "mermaid": "graph TD\n  subgraph strategies[\"OS 集成策略\"]\n    A[\"A: 纯 JS 实现\"]\n    B[\"B: WASM 移植\"]\n    C[\"C: 子进程 + system 二进制\"]\n    D[\"D: 原生 addon / FFI\"]\n  end\n  CAP[\"detectCapabilities()\"] --> A\n  CAP --> B\n  CAP --> C\n  CAP --> D\n  C --> RG[\"ripgrep rg\"]\n  D --> CLIP[\"剪贴板 API\"]\n  style C fill:#d1fae5,stroke:#059669\n  style RG fill:#dbeafe,stroke:#2563eb"
+  },
+  "designDecisions": [
+    {
+      "title": "OS 集成策略",
+      "question": "搜索、剪贴板、文件监听用哪种集成方式？",
+      "options": [
+        { "name": "纯 JS 遍历", "pros": "无原生依赖", "cons": "大仓库极慢" },
+        { "name": "WASM ripgrep", "pros": "可移植", "cons": "内存与启动开销" },
+        { "name": "system 子进程 rg", "pros": "性能与功能完整", "cons": "需检测 PATH" },
+        { "name": "原生 addon", "pros": "最低延迟", "cons": "预编译矩阵与崩溃面" }
+      ],
+      "chosen": "system 子进程 rg + 剪贴板桥接 + 能力探测",
+      "reason": "CLI 场景优先吞吐与成熟工具链；detectCapabilities 在缺少 rg 时降级，避免 silent failure。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Native 能力",
+      "ourFile": "src/native-capabilities.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "ripgrep + clipboard + fs watchers",
+      "claudeCodeConcept": "spawn rg、pasteboard、chokidar",
+      "difference": "教学版用统一接口列举策略；生产版与沙箱、权限、远程路径耦合。",
+      "whyProduction": "不同 OS/安装方式能力差异大，探测后再选路径比假设环境更可靠。"
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "version": "s45",
+  "description": "Feature Flags：feature('coordinator_mode') → 编译期 DCE → 运行时环境变量门控 → 灰度 50% 用户",
+  "steps": [
+    { "type": "user_message", "content": "新 coordinator 模式什么时候对用户开放？" },
+    { "type": "system_event", "content": "【编译期】if (feature('coordinator_mode')) { ... } — 未启用分支被 esbuild define 折叠为 false，DCE 剔除死代码" },
+    { "type": "system_event", "content": "【运行时】process.env.CLAUDE_CODE_COORDINATOR_MODE === '1' → 环境变量门控（staging 可强开）" },
+    { "type": "tool_call", "content": "growthbook.getFeatureValue('coordinator_mode') || hashUserId(userId) % 100 < 50" },
+    { "type": "tool_result", "content": "灰度桶: enabled=true, rollout=50% — 用户落入实验组" },
+    { "type": "system_event", "content": "【合并策略】编译期关闭 = 包体零成本；运行时 + 灰度 = 可按用户逐步放量" },
+    { "type": "assistant_text", "content": "Feature flag 三层：编译期 DCE 砍掉用不到的代码路径，环境变量给运维/CI 一把开关，GrowthBook 灰度把 50% 用户放进新 coordinator 而不影响另一半。" }
+  ]
+}

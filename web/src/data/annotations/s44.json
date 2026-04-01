@@ -1,0 +1,31 @@
+{
+  "version": "s44",
+  "architecture": {
+    "title": "递进式错误恢复流水线",
+    "description": "s44 将 API 失败抽象为 classifyAPIError 分类，可重试错误进入 withRetry 指数退避；连续 529 等场景抛出 FallbackTriggeredError，切换到降级模型与更小预算，避免无限重试耗尽配额。",
+    "mermaid": "graph TD\n  REQ[\"API 请求\"] --> CALL[\"call_api()\"]\n  CALL -->|失败| CLASS[\"classifyAPIError()\"]\n  CLASS -->|transient| RETRY{\"withRetry\\n退避 + jitter\"}\n  RETRY -->|仍失败| COUNT{\"连续 529?\"}\n  COUNT -->|是| FB[\"FallbackTriggeredError\"]\n  FB --> DOWN[\"降级模型 / 压缩上下文\"]\n  DOWN --> OK[\"200 成功\"]\n  RETRY -->|成功| OK\n  CALL -->|成功| OK\n  style FB fill:#fef3c7,stroke:#f59e0b\n  style DOWN fill:#dbeafe,stroke:#3b82f6"
+  },
+  "designDecisions": [
+    {
+      "title": "错误恢复策略",
+      "question": "单次 retry 与递进策略栈如何取舍？",
+      "options": [
+        { "name": "固定 3 次 retry", "pros": "实现简单", "cons": "529 风暴时仍打满上游；无分类" },
+        { "name": "递进策略栈（分类 + 退避 + 降级）", "pros": "可区分可恢复/不可恢复；降级保可用性", "cons": "状态机与指标更复杂" }
+      ],
+      "chosen": "递进策略栈（分类 + 退避 + 降级）",
+      "reason": "生产流量需要区分网络抖动与过载：withRetry 处理短暂抖动，连续 529 触发 FallbackTriggeredError 换轻量模型，比盲目重试更省配额、更稳。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "错误恢复流水线",
+      "ourFile": "src/error-recovery.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "query.ts (API error handling + retry)",
+      "claudeCodeConcept": "classifyError、retry/backoff、model fallback、overloaded handling",
+      "difference": "教学版集中展示 classify → withRetry → FallbackTriggeredError → 降级；生产版与流式、配额、多模型路由耦合更深。",
+      "whyProduction": "线上错误形态多，需要分类与可观测性，避免把用户卡在无限重试或无声失败。"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "version": "s45",
+  "architecture": {
+    "title": "Feature Flag 决策树",
+    "description": "s45 串联编译期 define + DCE、进程内环境变量读取与远程/灰度服务。feature('coordinator_mode') 在 false 时整段被摇树删除；运行时 env 覆盖用于 CI；用户哈希实现 50% 灰度。",
+    "mermaid": "graph TD\n  START[\"feature('coordinator_mode')\"] --> COMPILE[\"编译期 define\"]\n  COMPILE -->|false| DCE[\"DCE 剔除死代码\"]\n  COMPILE -->|true| RUNTIME[\"运行时 env 门控\"]\n  RUNTIME --> ENV{\"CLAUDE_CODE_*\"}\n  ENV -->|staging 强开| ON1[\"启用\"]\n  ENV -->|未设置| GRAY[\"灰度服务 / hash(userId)\"]\n  GRAY -->|&lt; 50%| ON2[\"启用\"]\n  GRAY -->|≥ 50%| OFF[\"对照组\"]\n  style DCE fill:#e0e7ff,stroke:#6366f1\n  style ON1 fill:#d1fae5,stroke:#10b981\n  style ON2 fill:#d1fae5,stroke:#10b981"
+  },
+  "designDecisions": [
+    {
+      "title": "flag 实现方式",
+      "question": "纯 if/else 与「编译期 DCE + 运行时」如何组合？",
+      "options": [
+        { "name": "仅 if/else + 环境变量", "pros": "易读", "cons": "未用代码仍进包；无法做百分比灰度" },
+        { "name": "编译期 DCE + 运行时 + 灰度", "pros": "包体小、可灰度、可紧急 env 关闭", "cons": "构建矩阵与测试要覆盖多组合" }
+      ],
+      "chosen": "编译期 DCE + 运行时 + 灰度",
+      "reason": "DCE 砍掉实验代码减小攻击面与体积；运行时门控适配运维；灰度把风险限制在 50% 用户。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "Feature Flags",
+      "ourFile": "src/feature-flags.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "bun-shim.ts + services/analytics/growthbook.ts",
+      "claudeCodeConcept": "编译期常量、GrowthBook、USER_TYPE 分流",
+      "difference": "教学版用单一 feature() 串起三层；生产版与打包入口、遥测、A/B 平台绑定。",
+      "whyProduction": "发布需要可回滚、可灰度、可观测，而不是一个全局布尔变量。"
+    }
+  ]
+}

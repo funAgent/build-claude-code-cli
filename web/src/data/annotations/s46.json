@@ -1,0 +1,31 @@
+{
+  "version": "s46",
+  "architecture": {
+    "title": "构建与发布流程",
+    "description": "s46 从 esbuild 打包 CLI 到 npm registry：声明 bin、files、engines；publish 后用户全局安装；通过 --version 与 npm outdated 检查更新。",
+    "mermaid": "graph TD\n  SRC[\"src/cli.ts\"] --> ESB[\"esbuild bundle\"]\n  ESB --> DIST[\"dist/cli.js\"]\n  DIST --> PKG[\"package.json\\nbin / files / engines\"]\n  PKG --> NPM[\"npm publish\"]\n  NPM --> REG[\"registry\"]\n  REG --> USER[\"npm install -g\"]\n  USER --> CHECK[\"claude-code --version\\nnpm outdated\"]\n  style ESB fill:#dbeafe,stroke:#2563eb\n  style NPM fill:#fef3c7,stroke:#d97706"
+  },
+  "designDecisions": [
+    {
+      "title": "打包策略",
+      "question": "多文件分发与单文件 bundle 如何选？",
+      "options": [
+        { "name": "多文件 + node_modules", "pros": "调试映射清晰", "cons": "安装慢、路径 fragile" },
+        { "name": "单文件 bundle (esbuild)", "pros": "启动快、部署简单", "cons": "大文件、source map 需单独维护" }
+      ],
+      "chosen": "单文件 bundle (esbuild)",
+      "reason": "CLI 工具优先可移植与可预测：单入口、少 IO，适合全局安装与 CI 缓存。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "打包与分发",
+      "ourFile": "src/packaging.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "package.json + scripts/build + release",
+      "claudeCodeConcept": "esbuild、bin、signing、version bump",
+      "difference": "教学版聚焦 build→publish→install；生产版含签名、多平台 artifact、changelog。",
+      "whyProduction": "用户从 npm 拉取的是可验证、可版本化的产物，而不是裸源码。"
+    }
+  ]
+}

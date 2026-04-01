@@ -1,0 +1,14 @@
+{
+  "version": "s47",
+  "description": "Native 能力：检测 ripgrep → system 模式 → 剪贴板 → detectCapabilities 列表",
+  "steps": [
+    { "type": "user_message", "content": "在沙盒里能搜索项目文件吗？" },
+    { "type": "system_event", "content": "【which rg】/opt/homebrew/bin/rg — ripgrep 可用" },
+    { "type": "tool_call", "content": "spawn('rg', ['--json', 'pattern', '.'], { stdio: 'pipe' })" },
+    { "type": "tool_result", "content": "匹配 12 行（system 模式子进程，非 WASM）" },
+    { "type": "system_event", "content": "【clipboard】writeClipboard(selection) — 原生 pasteboard / xclip 回退" },
+    { "type": "tool_call", "content": "detectCapabilities()" },
+    { "type": "tool_result", "content": "{ ripgrep: true, git: true, clipboard: true, watchFs: true, sandbox: 'permissive' }" },
+    { "type": "assistant_text", "content": "优先用系统 ripgrep 做大规模搜索；剪贴板与文件监听走原生桥；detectCapabilities 把能力清单暴露给上层，避免在缺能力环境硬调。" }
+  ]
+}

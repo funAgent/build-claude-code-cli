@@ -1,0 +1,31 @@
+{
+  "version": "s48",
+  "architecture": {
+    "title": "遥测与诊断流程",
+    "description": "s48 用 profileCheckpoint 记录启动各阶段耗时，runDiagnostics 检查网络、磁盘与权限，输出结构化报告供用户或支持团队排查。",
+    "mermaid": "graph TD\n  BOOT[\"进程启动\"] --> PC1[\"profileCheckpoint: config\"]\n  PC1 --> PC2[\"profileCheckpoint: plugins\"]\n  PC2 --> PC3[\"profileCheckpoint: first_prompt\"]\n  PC3 --> DIAG[\"runDiagnostics()\"]\n  DIAG --> NET[\"网络 DNS / TLS\"]\n  DIAG --> DISK[\"缓存可写\"]\n  DIAG --> VER[\"版本与依赖\"]\n  NET --> RPT[\"格式化报告\"]\n  DISK --> RPT\n  VER --> RPT\n  style DIAG fill:#e0e7ff,stroke:#4f46e5\n  style RPT fill:#d1fae5,stroke:#059669"
+  },
+  "designDecisions": [
+    {
+      "title": "遥测采样策略",
+      "question": "全量上报与采样如何平衡？",
+      "options": [
+        { "name": "全量事件", "pros": "排障最细", "cons": "成本高、隐私/合规压力大" },
+        { "name": "采样 + 关键路径必发", "pros": "成本可控；启动/错误仍可见", "cons": "长尾问题可能漏采" }
+      ],
+      "chosen": "采样 + 关键路径必发",
+      "reason": "profileCheckpoint 与错误路径保留足够信号；常态交互采样降低带宽与存储压力。"
+    }
+  ],
+  "reference": [
+    {
+      "concept": "遥测与诊断",
+      "ourFile": "src/telemetry-diagnostics.ts",
+      "ourLines": "全文件",
+      "claudeCodeFile": "analytics + doctor / diagnostics",
+      "claudeCodeConcept": "checkpoint、metrics、health checks",
+      "difference": "教学版聚焦启动阶段与 runDiagnostics；生产版与退避、隐私开关、远程配置联动。",
+      "whyProduction": "可观测性是生产必备：先定位瓶颈再优化，而不是盲改代码。"
+    }
+  ]
+}

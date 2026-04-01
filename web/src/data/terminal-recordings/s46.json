@@ -1,0 +1,18 @@
+{
+  "version": "s46",
+  "title": "esbuild 构建与 npm publish",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "pnpm run build", "typeDelay": 35 },
+    { "type": "output", "text": "esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js\n", "color": "gray" },
+    { "type": "output", "text": "  dist/cli.js  4.2mb  ⚡ Done in 820ms\n", "color": "green" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "npm publish --access public", "typeDelay": 32 },
+    { "type": "output", "text": "npm notice Publishing to https://registry.npmjs.org/\n", "color": "cyan" },
+    { "type": "output", "text": "+ @anthropic-ai/claude-code@2.4.1\n", "color": "green" },
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "npm install -g @anthropic-ai/claude-code@latest", "typeDelay": 28 },
+    { "type": "output", "text": "added 1 package in 4s\n", "color": "white" },
+    { "type": "output", "text": "\n全局 CLI 已就绪；下次用 npm outdated -g 检查更新。\n", "color": "gray" }
+  ]
+}

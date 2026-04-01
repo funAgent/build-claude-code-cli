@@ -1,0 +1,14 @@
+{
+  "version": "s48",
+  "description": "遥测诊断：profileCheckpoint 启动阶段 → runDiagnostics 健康检查 → 格式化报告",
+  "steps": [
+    { "type": "user_message", "content": "启动很慢，帮我看看卡在哪？" },
+    { "type": "system_event", "content": "【profileCheckpoint】boot: config_load — 12ms" },
+    { "type": "system_event", "content": "【profileCheckpoint】boot: plugin_init — 340ms" },
+    { "type": "system_event", "content": "【profileCheckpoint】boot: first_prompt — 1200ms" },
+    { "type": "tool_call", "content": "runDiagnostics({ includeNetwork: true, includeDisk: true })" },
+    { "type": "tool_result", "content": "✓ Node 20.11 / ✓ 可写缓存 ~/.claude / ⚠ DNS 解析 api.anthropic.com 180ms" },
+    { "type": "system_event", "content": "【报告】瓶颈: plugin_init 与冷启动 DNS；建议: 插件懒加载 + 系统 DNS 缓存" },
+    { "type": "assistant_text", "content": "profileCheckpoint 记录各阶段耗时；runDiagnostics 汇总环境与网络；合并成可读报告，方便区分「代码慢」和「环境慢」。" }
+  ]
+}

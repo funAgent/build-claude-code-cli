@@ -1,0 +1,16 @@
+{
+  "version": "s46",
+  "description": "打包分发：esbuild 构建 → package.json → npm publish → 全局安装 → 检查更新",
+  "steps": [
+    { "type": "user_message", "content": "怎么发布 CLI 给 npm 用户？" },
+    { "type": "system_event", "content": "【esbuild】esbuild src/cli.ts --bundle --platform=node --outfile=dist/cli.js --external:fsevents" },
+    { "type": "tool_result", "content": "dist/cli.js 单文件 bundle 完成 (~4.2MB)" },
+    { "type": "system_event", "content": "【package.json】\"bin\": { \"claude-code\": \"dist/cli.js\" }, \"files\": [\"dist\"], \"engines\": { \"node\": \">=18\" }" },
+    { "type": "tool_call", "content": "npm publish --access public --tag latest" },
+    { "type": "tool_result", "content": "+ @anthropic-ai/claude-code@2.4.1" },
+    { "type": "system_event", "content": "【用户侧】npm install -g @anthropic-ai/claude-code" },
+    { "type": "tool_call", "content": "claude-code --version && npm outdated -g @anthropic-ai/claude-code" },
+    { "type": "tool_result", "content": "2.4.1 — Wanted: 2.4.2 (minor update available)" },
+    { "type": "assistant_text", "content": "发布链：esbuild 打出可执行 bundle，package.json 声明 bin 与 engines，npm publish 上架；用户全局安装后可用 npm outdated 或内置检查更新提示。" }
+  ]
+}

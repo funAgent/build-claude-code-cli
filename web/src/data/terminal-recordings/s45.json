@@ -1,0 +1,13 @@
+{
+  "version": "s45",
+  "title": "Feature flag 检查与环境门控",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "CLAUDE_CODE_COORDINATOR_MODE=1 claude-code doctor", "typeDelay": 28 },
+    { "type": "output", "text": "[feature] coordinator_mode: compile=true (DCE kept branch)\n", "color": "gray" },
+    { "type": "output", "text": "[runtime] env CLAUDE_CODE_COORDINATOR_MODE=1 → gate OPEN\n", "color": "cyan" },
+    { "type": "output", "text": "[gray] user hash 0x3a7f… mod 100 = 37 → cohort EXPERIMENT (50% rollout)\n", "color": "yellow" },
+    { "type": "output", "text": "✓ Coordinator path ENABLED (env override + gray bucket)\n", "color": "green" },
+    { "type": "output", "text": "\nunset env 时仅灰度用户进入实验组；staging 用 env 强开。\n", "color": "white" }
+  ]
+}

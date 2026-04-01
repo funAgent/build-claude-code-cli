@@ -1,0 +1,16 @@
+{
+  "version": "s48",
+  "title": "doctor 健康检查",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "claude-code doctor", "typeDelay": 35 },
+    { "type": "output", "text": "── Claude Code Diagnostics ──\n", "color": "cyan" },
+    { "type": "output", "text": "[profile] config_load: 12ms | plugin_init: 340ms | first_prompt: 1200ms\n", "color": "gray" },
+    { "type": "output", "text": "✓ Node.js 20.11.0 (supported)\n", "color": "green" },
+    { "type": "output", "text": "✓ Cache writable ~/.claude\n", "color": "green" },
+    { "type": "output", "text": "⚠ DNS api.anthropic.com: 180ms (high latency)\n", "color": "yellow" },
+    { "type": "output", "text": "✓ TLS handshake OK\n", "color": "green" },
+    { "type": "output", "text": "\nSummary: 环境正常；建议检查 DNS 或启用系统解析缓存。\n", "color": "white" },
+    { "type": "output", "text": "runDiagnostics() 与 profileCheckpoint 已写入最近一次会话日志。\n", "color": "gray" }
+  ]
+}

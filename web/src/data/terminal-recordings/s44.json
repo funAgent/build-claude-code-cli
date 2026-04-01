@@ -1,0 +1,16 @@
+{
+  "version": "s44",
+  "title": "API 失败 → 重试 → 529 降级 → 成功",
+  "steps": [
+    { "type": "prompt", "text": ">" },
+    { "type": "input", "text": "claude-code \"refactor utils\"", "typeDelay": 30 },
+    { "type": "output", "text": "POST /v1/messages ...\n", "color": "gray" },
+    { "type": "output", "text": "✗ HTTP 503 — connection reset\n", "color": "red" },
+    { "type": "output", "text": "[classifyAPIError] transient_network → retryable\n", "color": "yellow" },
+    { "type": "output", "text": "[withRetry] attempt 1 — HTTP 529 overloaded\n", "color": "yellow" },
+    { "type": "output", "text": "[withRetry] attempt 2 — HTTP 529 overloaded\n", "color": "yellow" },
+    { "type": "output", "text": "[FallbackTriggeredError] 连续 529 → 降级 claude-3-5-haiku\n", "color": "magenta" },
+    { "type": "output", "text": "✓ HTTP 200 — 响应完成 (3.2s)\n", "color": "green" },
+    { "type": "output", "text": "\n递进恢复：分类 → 退避 → 降级，而不是死磕同一模型。\n", "color": "cyan" }
+  ]
+}
