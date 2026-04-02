@@ -1,63 +1,133 @@
-# Build Claude Code
+<p align="center">
+  <h1 align="center">Build Claude Code</h1>
+  <p align="center">
+    <strong>从零构建企业级 AI Agent CLI — 逐课拆解 Claude Code 源码架构</strong>
+  </p>
+  <p align="center">
+    <a href="./README.en.md">English</a> · 中文
+  </p>
+</p>
 
-> 从零构建企业级 AI Agent CLI — 逐课拆解 Claude Code 源码架构
+<p align="center">
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/lessons-49-brightgreen.svg" alt="49 Lessons" />
+  <img src="https://img.shields.io/badge/TypeScript-100%25-3178C6.svg" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Next.js-16-000.svg" alt="Next.js 16" />
+</p>
 
-## 项目简介
+---
 
-这是一个 **49 课的渐进式教学项目**，教前端开发者从 `npm init` 开始，逐课构建出一个完整的、可安装分发的 AI Agent CLI 产品。
+## 这是什么？
 
-每一课都产出一个可独立运行的完整项目快照，从第一课的 API 调用到最后一课的遥测诊断，最终你会拥有一个架构对标 Claude Code 的企业级 CLI 工具。
+49 节渐进式课程，教你从 `npm init` 开始，逐课构建出一个架构对标 [Claude Code](https://github.com/anthropics/claude-code) 的完整 AI Agent CLI 产品。
 
-## 项目结构
+**核心模式只有一个 while 循环：**
 
+```typescript
+while (true) {
+  response = await client.messages.create({ messages, tools })
+  if (response.stop_reason !== "tool_use") break
+  for (const toolCall of response.content) {
+    result = await executeTool(toolCall.name, toolCall.input)
+    messages.push(result)
+  }
+}
 ```
-build-claude-code/
-├── agents/          # 49 课 TypeScript 实现（每课独立可运行）
-├── docs/            # 教学文档（Markdown）
-│   ├── zh/          # 中文
-│   └── en/          # English
-├── web/             # Next.js 教学网站
-├── data/            # 网站配套数据
-├── reference/       # 架构参考笔记
-└── PLAN.md          # 详细规划文档
-```
 
-## 技术栈
+每一课产出一个可独立运行的项目快照，从第一课的 API 调用到最后一课的遥测诊断，最终你会拥有一个完整的、可安装分发的 AI Agent CLI。
 
-**教学项目：** TypeScript · Node.js · Commander.js · React + Ink · Anthropic SDK · Zod · esbuild · MCP SDK
-
-**教学网站：** Next.js 16 · Tailwind CSS v4 · framer-motion · unified (Markdown)
-
-## 课程大纲
-
-| Phase | 主题 | 课程 |
-|-------|------|------|
-| 0 | 预备知识 | s00-s02（API、CLI、子进程） |
-| 1 | 最小 Agent | s03-s07（循环、消息、错误、配置、成本） |
-| 2 | 工具体系 | s08-s12（抽象、文件、编辑、搜索、注册表） |
-| 3 | 终端 UI | s13-s16（Ink、消息列表、输入框、REPL） |
-| 4 | Prompt 工程 | s17-s19（系统提示、项目规则、缓存） |
-| 5 | 流式与性能 | s20-s23（Streaming、并行、启动优化） |
-| 6 | 上下文管理 | s24-s26（压缩、多层策略、大输出） |
-| 7 | Agent 智能 | s27-s31（规划、子Agent、技能、任务） |
-| 8 | 安全与权限 | s32-s34（规则引擎、权限UI、继承） |
-| 9 | 扩展生态 | s35-s38（MCP、会话、插件） |
-| 10 | 多 Agent | s39-s43（定义、协调、团队、协议、隔离） |
-| 11 | 产品化 | s44-s48（恢复、Feature Flag、打包、Native、遥测） |
-
-## 开始学习
+## 快速开始
 
 ```bash
 # 克隆项目
-git clone https://github.com/xxx/build-claude-code.git
+git clone https://github.com/anthropics/build-claude-code.git
 cd build-claude-code
+
+# 运行任意一课的代码
+cd agents/s03-agent-loop
+npm install
+npx ts-node src/agent-loop.ts
 
 # 启动教学网站
 cd web
 npm install
 npm run dev
+# 访问 http://localhost:3000
 ```
+
+**前置要求：** Node.js ≥ 18 · npm ≥ 9 · Git
+
+## 课程大纲
+
+| # | 阶段 | 课程 | 关键能力 |
+|---|------|------|---------|
+| 0 | 预备知识 | s00 – s02 | API 调用、CLI 脚手架、子进程管理 |
+| 1 | 最小 Agent | s03 – s07 | Agent 循环、消息管理、错误处理、配置、成本追踪 |
+| 2 | 工具体系 | s08 – s12 | 工具抽象、文件读写、编辑、搜索、工具注册表 |
+| 3 | 终端 UI | s13 – s16 | Ink 组件、消息列表、输入框、完整 REPL |
+| 4 | Prompt 工程 | s17 – s19 | 系统提示词、CLAUDE.md 规则、Prompt Cache |
+| 5 | 流式与性能 | s20 – s23 | Streaming 解析、Token 流、并行工具、启动优化 |
+| 6 | 上下文管理 | s24 – s26 | 对话压缩、多层策略、大输出处理 |
+| 7 | Agent 智能 | s27 – s31 | 规划能力、子 Agent、技能系统、任务管理 |
+| 8 | 安全与权限 | s32 – s34 | 规则引擎、权限 UI、子 Agent 权限继承 |
+| 9 | 扩展生态 | s35 – s38 | MCP 协议、会话持久化、插件系统 |
+| 10 | 多 Agent | s39 – s43 | Agent 定义、协调器、团队协作、通信协议、Worktree 隔离 |
+| 11 | 产品化 | s44 – s48 | 渐进恢复、Feature Flag、打包分发、原生能力、遥测诊断 |
+
+## 项目结构
+
+```
+build-claude-code/
+├── agents/              # 49 课 TypeScript 实现（每课独立可运行）
+│   ├── s00-api-basics/
+│   ├── s01-cli-scaffold/
+│   ├── ...
+│   └── s48-telemetry-diagnostics/
+├── docs/                # 教学文档
+│   ├── zh/              # 中文（49 篇）
+│   └── en/              # English
+├── web/                 # Next.js 教学网站
+│   └── src/
+│       ├── app/         # 页面路由
+│       ├── components/  # UI 组件（源码查看器、Diff、终端播放器等）
+│       ├── data/        # 场景、注解、终端录制数据
+│       └── lib/         # 工具函数、常量、i18n
+├── data/                # 原始教学数据
+├── reference/           # Claude Code 架构参考笔记
+├── PLAN.md              # 详细规划文档
+├── TODO.md              # 开发进度追踪
+└── CONTRIBUTING.md      # 贡献指南
+```
+
+## 教学网站功能
+
+- **交互式源码查看器** — 语法高亮 + 逐课 Diff 对比
+- **终端录制播放器** — 模拟真实 CLI 交互过程
+- **架构全景图** — 可视化展示模块关系与分层结构
+- **深度注解** — 每课的架构决策与 Claude Code 源码映射
+- **学习进度追踪** — 本地持久化的完成状态
+- **中英文切换** — 完整的双语支持
+- **暗色模式** — 自动跟随系统偏好
+
+## 技术栈
+
+**教学项目：** TypeScript · Node.js · Commander.js · React + Ink · Anthropic SDK · Zod · esbuild · MCP SDK
+
+**教学网站：** Next.js 16 · React 19 · Tailwind CSS v4 · Framer Motion · unified (Markdown 渲染)
+
+## 贡献
+
+欢迎贡献！请阅读 [CONTRIBUTING.md](./CONTRIBUTING.md) 了解如何：
+
+- 修改现有课程内容
+- 添加新的知识内容
+- 确保课程间的一致性
+
+## 相关项目
+
+- [Claude Code](https://github.com/anthropics/claude-code) — 本项目的架构参考源
+- [learn-claude-code](https://github.com/anthropics/learn-claude-code) — Claude Code 学习资源
 
 ## 许可证
 
-MIT
+[MIT](./LICENSE)
