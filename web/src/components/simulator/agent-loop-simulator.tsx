@@ -7,59 +7,8 @@ import { useSimulator } from "@/hooks/useSimulator";
 import { SimulatorControls } from "./simulator-controls";
 import { SimulatorMessage } from "./simulator-message";
 import { TerminalPlayer } from "@/components/terminal/terminal-player";
+import { loadScenario } from "@/lib/session-loader";
 import type { Scenario } from "@/types/agent-data";
-
-const scenarioModules: Record<string, () => Promise<{ default: Scenario }>> = {
-  s00: () => import("@/data/scenarios/s00.json") as Promise<{ default: Scenario }>,
-  s01: () => import("@/data/scenarios/s01.json") as Promise<{ default: Scenario }>,
-  s02: () => import("@/data/scenarios/s02.json") as Promise<{ default: Scenario }>,
-  s03: () => import("@/data/scenarios/s03.json") as Promise<{ default: Scenario }>,
-  s04: () => import("@/data/scenarios/s04.json") as Promise<{ default: Scenario }>,
-  s05: () => import("@/data/scenarios/s05.json") as Promise<{ default: Scenario }>,
-  s06: () => import("@/data/scenarios/s06.json") as Promise<{ default: Scenario }>,
-  s07: () => import("@/data/scenarios/s07.json") as Promise<{ default: Scenario }>,
-  s08: () => import("@/data/scenarios/s08.json") as Promise<{ default: Scenario }>,
-  s09: () => import("@/data/scenarios/s09.json") as Promise<{ default: Scenario }>,
-  s10: () => import("@/data/scenarios/s10.json") as Promise<{ default: Scenario }>,
-  s11: () => import("@/data/scenarios/s11.json") as Promise<{ default: Scenario }>,
-  s12: () => import("@/data/scenarios/s12.json") as Promise<{ default: Scenario }>,
-  s13: () => import("@/data/scenarios/s13.json") as Promise<{ default: Scenario }>,
-  s14: () => import("@/data/scenarios/s14.json") as Promise<{ default: Scenario }>,
-  s15: () => import("@/data/scenarios/s15.json") as Promise<{ default: Scenario }>,
-  s16: () => import("@/data/scenarios/s16.json") as Promise<{ default: Scenario }>,
-  s17: () => import("@/data/scenarios/s17.json") as Promise<{ default: Scenario }>,
-  s18: () => import("@/data/scenarios/s18.json") as Promise<{ default: Scenario }>,
-  s19: () => import("@/data/scenarios/s19.json") as Promise<{ default: Scenario }>,
-  s20: () => import("@/data/scenarios/s20.json") as Promise<{ default: Scenario }>,
-  s21: () => import("@/data/scenarios/s21.json") as Promise<{ default: Scenario }>,
-  s22: () => import("@/data/scenarios/s22.json") as Promise<{ default: Scenario }>,
-  s23: () => import("@/data/scenarios/s23.json") as Promise<{ default: Scenario }>,
-  s24: () => import("@/data/scenarios/s24.json") as Promise<{ default: Scenario }>,
-  s25: () => import("@/data/scenarios/s25.json") as Promise<{ default: Scenario }>,
-  s26: () => import("@/data/scenarios/s26.json") as Promise<{ default: Scenario }>,
-  s27: () => import("@/data/scenarios/s27.json") as Promise<{ default: Scenario }>,
-  s28: () => import("@/data/scenarios/s28.json") as Promise<{ default: Scenario }>,
-  s29: () => import("@/data/scenarios/s29.json") as Promise<{ default: Scenario }>,
-  s30: () => import("@/data/scenarios/s30.json") as Promise<{ default: Scenario }>,
-  s31: () => import("@/data/scenarios/s31.json") as Promise<{ default: Scenario }>,
-  s32: () => import("@/data/scenarios/s32.json") as Promise<{ default: Scenario }>,
-  s33: () => import("@/data/scenarios/s33.json") as Promise<{ default: Scenario }>,
-  s34: () => import("@/data/scenarios/s34.json") as Promise<{ default: Scenario }>,
-  s35: () => import("@/data/scenarios/s35.json") as Promise<{ default: Scenario }>,
-  s36: () => import("@/data/scenarios/s36.json") as Promise<{ default: Scenario }>,
-  s37: () => import("@/data/scenarios/s37.json") as Promise<{ default: Scenario }>,
-  s38: () => import("@/data/scenarios/s38.json") as Promise<{ default: Scenario }>,
-  s39: () => import("@/data/scenarios/s39.json") as Promise<{ default: Scenario }>,
-  s40: () => import("@/data/scenarios/s40.json") as Promise<{ default: Scenario }>,
-  s41: () => import("@/data/scenarios/s41.json") as Promise<{ default: Scenario }>,
-  s42: () => import("@/data/scenarios/s42.json") as Promise<{ default: Scenario }>,
-  s43: () => import("@/data/scenarios/s43.json") as Promise<{ default: Scenario }>,
-  s44: () => import("@/data/scenarios/s44.json") as Promise<{ default: Scenario }>,
-  s45: () => import("@/data/scenarios/s45.json") as Promise<{ default: Scenario }>,
-  s46: () => import("@/data/scenarios/s46.json") as Promise<{ default: Scenario }>,
-  s47: () => import("@/data/scenarios/s47.json") as Promise<{ default: Scenario }>,
-  s48: () => import("@/data/scenarios/s48.json") as Promise<{ default: Scenario }>,
-};
 
 interface AgentLoopSimulatorProps {
   version: string;
@@ -71,10 +20,9 @@ export function AgentLoopSimulator({ version }: AgentLoopSimulatorProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const loader = scenarioModules[version];
-    if (loader) {
-      loader().then((mod) => setScenario(mod.default));
-    }
+    loadScenario<Scenario>(version)
+      .then(setScenario)
+      .catch(() => {});
   }, [version]);
 
   const sim = useSimulator(scenario?.steps ?? []);

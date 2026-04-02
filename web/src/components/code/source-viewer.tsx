@@ -3,53 +3,17 @@
 import React, { useMemo, useState } from "react";
 import versionsData from "@/data/generated/versions.json";
 import { VERSION_META } from "@/lib/constants";
-import { computeFileDiffs, type FileDiff, type DiffLine } from "@/lib/diff";
+import { computeFileDiffs, type DiffLine } from "@/lib/diff";
 import { cn } from "@/lib/utils";
-import { FilePlus, FileCode, ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
+import { FolderOpen, ChevronDown } from "lucide-react";
+import { highlightLine } from "./syntax-highlight";
+import { renderFileList, type FileEntry } from "./file-list";
 
 interface SourceViewerProps {
   version: string;
 }
 
 type ViewMode = "source" | "diff";
-
-interface FileEntry {
-  name: string;
-  content: string;
-  status: "added" | "modified" | "unchanged";
-  diff?: FileDiff;
-}
-
-// --- Syntax highlighting ---
-
-const TS_KEYWORDS = new Set([
-  "import", "export", "from", "const", "let", "var", "function", "return",
-  "if", "else", "while", "for", "of", "in", "new", "class", "extends",
-  "async", "await", "try", "catch", "throw", "switch", "case", "break",
-  "continue", "default", "type", "interface", "typeof", "instanceof",
-  "true", "false", "null", "undefined", "void", "this", "super",
-]);
-
-function highlightLine(line: string): React.ReactNode[] {
-  const trimmed = line.trimStart();
-  if (trimmed.startsWith("//") || trimmed.startsWith("*") || trimmed.startsWith("/**")) {
-    return [<span key={0} className="text-zinc-500 italic">{line}</span>];
-  }
-  const parts = line.split(
-    /(\b(?:import|export|from|const|let|var|function|return|if|else|while|for|of|in|new|class|extends|async|await|try|catch|throw|switch|case|break|continue|default|type|interface|typeof|instanceof|true|false|null|undefined|void|this|super)\b|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`|\/\/.*$|\b\d+(?:\.\d+)?\b)/
-  );
-  return parts.map((part, idx) => {
-    if (!part) return null;
-    if (TS_KEYWORDS.has(part)) return <span key={idx} className="text-blue-400 font-medium">{part}</span>;
-    if (part.startsWith("//")) return <span key={idx} className="text-zinc-500 italic">{part}</span>;
-    if ((part.startsWith('"') && part.endsWith('"')) || (part.startsWith("'") && part.endsWith("'")) || (part.startsWith("`") && part.endsWith("`")))
-      return <span key={idx} className="text-emerald-400">{part}</span>;
-    if (/^\d+(?:\.\d+)?$/.test(part)) return <span key={idx} className="text-orange-400">{part}</span>;
-    return <span key={idx}>{part}</span>;
-  });
-}
-
-// --- Diff line renderer ---
 
 function DiffLineRow({ line }: { line: DiffLine }) {
   const bg = line.type === "add" ? "bg-emerald-950/40" : line.type === "remove" ? "bg-red-950/40" : "";
@@ -64,8 +28,6 @@ function DiffLineRow({ line }: { line: DiffLine }) {
     </div>
   );
 }
-
-// --- Main component ---
 
 export function SourceViewer({ version }: SourceViewerProps) {
   const meta = VERSION_META[version];
@@ -144,7 +106,6 @@ export function SourceViewer({ version }: SourceViewerProps) {
 
   return (
     <div className="space-y-3">
-      {/* Segmented control */}
       {hasPrev && (
         <div className="flex items-center gap-3">
           <div className="inline-flex rounded-lg border border-zinc-200 p-0.5 dark:border-zinc-700">
@@ -181,16 +142,13 @@ export function SourceViewer({ version }: SourceViewerProps) {
         </div>
       )}
 
-      {/* Editor chrome */}
       <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
-        {/* Title bar */}
         <div className="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
           <div className="hidden gap-1.5 sm:flex">
             <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
           </div>
-          {/* Mobile file selector toggle */}
           <button
             onClick={() => setSidebarOpen((p) => !p)}
             className="flex items-center gap-1.5 sm:hidden"
@@ -213,7 +171,6 @@ export function SourceViewer({ version }: SourceViewerProps) {
           )}
         </div>
 
-        {/* Mobile file dropdown */}
         {sidebarOpen && (
           <div className="max-h-48 overflow-y-auto border-b border-zinc-200 bg-zinc-50 sm:hidden dark:border-zinc-700 dark:bg-zinc-900/80">
             {renderFileList(
@@ -226,7 +183,6 @@ export function SourceViewer({ version }: SourceViewerProps) {
         )}
 
         <div className="flex">
-          {/* Desktop file sidebar */}
           <div className="hidden w-52 shrink-0 overflow-y-auto border-r border-zinc-200 bg-zinc-50/50 sm:block dark:border-zinc-700 dark:bg-zinc-900/50">
             {renderFileList(
               addedFiles, modifiedFiles, unchangedFiles, files,
@@ -236,7 +192,6 @@ export function SourceViewer({ version }: SourceViewerProps) {
             )}
           </div>
 
-          {/* Code area */}
           <div className="min-w-0 flex-1 overflow-x-auto bg-zinc-950">
             {currentFile && viewMode === "diff" && currentFile.diff && currentFile.diff.lines.length > 0 ? (
               <pre className="p-0 text-[10px] leading-4 sm:text-xs sm:leading-5">
@@ -268,104 +223,5 @@ export function SourceViewer({ version }: SourceViewerProps) {
         </div>
       </div>
     </div>
-  );
-}
-
-// --- Shared file list renderer (used by both desktop sidebar and mobile dropdown) ---
-
-function renderFileList(
-  addedFiles: FileEntry[],
-  modifiedFiles: FileEntry[],
-  unchangedFiles: FileEntry[],
-  allFiles: FileEntry[],
-  visibleFiles: FileEntry[],
-  activeIdx: number,
-  hasPrev: boolean,
-  viewMode: ViewMode,
-  showUnchanged: boolean,
-  setShowUnchanged: React.Dispatch<React.SetStateAction<boolean>>,
-  onSelect: (idx: number) => void,
-) {
-  return (
-    <>
-      {addedFiles.length > 0 && (
-        <div>
-          <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-emerald-500">
-            本课新增
-          </div>
-          {addedFiles.map((f) => {
-            const idx = visibleFiles.indexOf(f);
-            if (idx === -1) return null;
-            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
-          })}
-        </div>
-      )}
-      {modifiedFiles.length > 0 && (
-        <div>
-          <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-amber-500">
-            本课修改
-          </div>
-          {modifiedFiles.map((f) => {
-            const idx = visibleFiles.indexOf(f);
-            if (idx === -1) return null;
-            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
-          })}
-        </div>
-      )}
-      {viewMode === "source" && unchangedFiles.length > 0 && (
-        <div>
-          <button
-            onClick={() => setShowUnchanged((p) => !p)}
-            className="flex w-full items-center gap-1 px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-zinc-400 transition-colors hover:text-zinc-600"
-          >
-            {showUnchanged ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-            未变更 ({unchangedFiles.length})
-          </button>
-          {showUnchanged && unchangedFiles.map((f) => {
-            const idx = visibleFiles.indexOf(f);
-            if (idx === -1) return null;
-            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
-          })}
-        </div>
-      )}
-      {!hasPrev && allFiles.map((f, i) => (
-        <FileButton key={f.name} file={f} active={activeIdx === i} onClick={() => onSelect(i)} />
-      ))}
-    </>
-  );
-}
-
-// --- File sidebar button ---
-
-function FileButton({ file, active, onClick }: { file: FileEntry; active: boolean; onClick: () => void }) {
-  const Icon = file.status === "added" ? FilePlus : FileCode;
-  const iconColor =
-    file.status === "added" ? "text-emerald-500"
-    : file.status === "modified" ? "text-amber-500"
-    : "text-zinc-500";
-
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex w-full items-center gap-1.5 px-2 py-1 text-left font-mono text-[10px] transition-colors sm:text-[11px]",
-        active
-          ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-white"
-          : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-      )}
-    >
-      <Icon size={11} className={cn("shrink-0", iconColor)} />
-      <span className="truncate">{file.name}</span>
-      {file.status === "added" && (
-        <span className="ml-auto shrink-0 rounded bg-emerald-500/15 px-1 text-[8px] font-semibold text-emerald-500">NEW</span>
-      )}
-      {file.status === "modified" && file.diff && (
-        <span className="ml-auto shrink-0 text-[8px] text-zinc-400">
-          <span className="text-emerald-500">+{file.diff.addCount}</span>
-          {" "}
-          <span className="text-red-500">-{file.diff.removeCount}</span>
-        </span>
-      )}
-    </button>
   );
 }

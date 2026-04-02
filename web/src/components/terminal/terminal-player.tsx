@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Play, Pause, RotateCcw, Copy, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { loadRecording } from "@/lib/session-loader";
 
 interface TerminalStep {
   type: "prompt" | "input" | "output";
@@ -29,58 +30,6 @@ const COLOR_MAP: Record<string, string> = {
   magenta: "text-purple-400",
 };
 
-const recordingModules: Record<string, () => Promise<{ default: TerminalRecording }>> = {
-  s00: () => import("@/data/terminal-recordings/s00.json") as Promise<{ default: TerminalRecording }>,
-  s01: () => import("@/data/terminal-recordings/s01.json") as Promise<{ default: TerminalRecording }>,
-  s02: () => import("@/data/terminal-recordings/s02.json") as Promise<{ default: TerminalRecording }>,
-  s03: () => import("@/data/terminal-recordings/s03.json") as Promise<{ default: TerminalRecording }>,
-  s04: () => import("@/data/terminal-recordings/s04.json") as Promise<{ default: TerminalRecording }>,
-  s05: () => import("@/data/terminal-recordings/s05.json") as Promise<{ default: TerminalRecording }>,
-  s06: () => import("@/data/terminal-recordings/s06.json") as Promise<{ default: TerminalRecording }>,
-  s07: () => import("@/data/terminal-recordings/s07.json") as Promise<{ default: TerminalRecording }>,
-  s08: () => import("@/data/terminal-recordings/s08.json") as Promise<{ default: TerminalRecording }>,
-  s09: () => import("@/data/terminal-recordings/s09.json") as Promise<{ default: TerminalRecording }>,
-  s10: () => import("@/data/terminal-recordings/s10.json") as Promise<{ default: TerminalRecording }>,
-  s11: () => import("@/data/terminal-recordings/s11.json") as Promise<{ default: TerminalRecording }>,
-  s12: () => import("@/data/terminal-recordings/s12.json") as Promise<{ default: TerminalRecording }>,
-  s13: () => import("@/data/terminal-recordings/s13.json") as Promise<{ default: TerminalRecording }>,
-  s14: () => import("@/data/terminal-recordings/s14.json") as Promise<{ default: TerminalRecording }>,
-  s15: () => import("@/data/terminal-recordings/s15.json") as Promise<{ default: TerminalRecording }>,
-  s16: () => import("@/data/terminal-recordings/s16.json") as Promise<{ default: TerminalRecording }>,
-  s17: () => import("@/data/terminal-recordings/s17.json") as Promise<{ default: TerminalRecording }>,
-  s18: () => import("@/data/terminal-recordings/s18.json") as Promise<{ default: TerminalRecording }>,
-  s19: () => import("@/data/terminal-recordings/s19.json") as Promise<{ default: TerminalRecording }>,
-  s20: () => import("@/data/terminal-recordings/s20.json") as Promise<{ default: TerminalRecording }>,
-  s21: () => import("@/data/terminal-recordings/s21.json") as Promise<{ default: TerminalRecording }>,
-  s22: () => import("@/data/terminal-recordings/s22.json") as Promise<{ default: TerminalRecording }>,
-  s23: () => import("@/data/terminal-recordings/s23.json") as Promise<{ default: TerminalRecording }>,
-  s24: () => import("@/data/terminal-recordings/s24.json") as Promise<{ default: TerminalRecording }>,
-  s25: () => import("@/data/terminal-recordings/s25.json") as Promise<{ default: TerminalRecording }>,
-  s26: () => import("@/data/terminal-recordings/s26.json") as Promise<{ default: TerminalRecording }>,
-  s27: () => import("@/data/terminal-recordings/s27.json") as Promise<{ default: TerminalRecording }>,
-  s28: () => import("@/data/terminal-recordings/s28.json") as Promise<{ default: TerminalRecording }>,
-  s29: () => import("@/data/terminal-recordings/s29.json") as Promise<{ default: TerminalRecording }>,
-  s30: () => import("@/data/terminal-recordings/s30.json") as Promise<{ default: TerminalRecording }>,
-  s31: () => import("@/data/terminal-recordings/s31.json") as Promise<{ default: TerminalRecording }>,
-  s32: () => import("@/data/terminal-recordings/s32.json") as Promise<{ default: TerminalRecording }>,
-  s33: () => import("@/data/terminal-recordings/s33.json") as Promise<{ default: TerminalRecording }>,
-  s34: () => import("@/data/terminal-recordings/s34.json") as Promise<{ default: TerminalRecording }>,
-  s35: () => import("@/data/terminal-recordings/s35.json") as Promise<{ default: TerminalRecording }>,
-  s36: () => import("@/data/terminal-recordings/s36.json") as Promise<{ default: TerminalRecording }>,
-  s37: () => import("@/data/terminal-recordings/s37.json") as Promise<{ default: TerminalRecording }>,
-  s38: () => import("@/data/terminal-recordings/s38.json") as Promise<{ default: TerminalRecording }>,
-  s39: () => import("@/data/terminal-recordings/s39.json") as Promise<{ default: TerminalRecording }>,
-  s40: () => import("@/data/terminal-recordings/s40.json") as Promise<{ default: TerminalRecording }>,
-  s41: () => import("@/data/terminal-recordings/s41.json") as Promise<{ default: TerminalRecording }>,
-  s42: () => import("@/data/terminal-recordings/s42.json") as Promise<{ default: TerminalRecording }>,
-  s43: () => import("@/data/terminal-recordings/s43.json") as Promise<{ default: TerminalRecording }>,
-  s44: () => import("@/data/terminal-recordings/s44.json") as Promise<{ default: TerminalRecording }>,
-  s45: () => import("@/data/terminal-recordings/s45.json") as Promise<{ default: TerminalRecording }>,
-  s46: () => import("@/data/terminal-recordings/s46.json") as Promise<{ default: TerminalRecording }>,
-  s47: () => import("@/data/terminal-recordings/s47.json") as Promise<{ default: TerminalRecording }>,
-  s48: () => import("@/data/terminal-recordings/s48.json") as Promise<{ default: TerminalRecording }>,
-};
-
 interface RenderedChunk {
   text: string;
   color: string;
@@ -94,20 +43,29 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
   const [recording, setRecording] = useState<TerminalRecording | null>(null);
   const [chunks, setChunks] = useState<RenderedChunk[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
   const [copied, setCopied] = useState(false);
   const [speed, setSpeed] = useState(1);
 
   const termRef = useRef<HTMLDivElement>(null);
   const cancelRef = useRef(false);
   const playingRef = useRef(false);
+  const sleepTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const sleepResolveRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
-    const loader = recordingModules[version];
-    if (loader) {
-      loader().then((mod) => setRecording(mod.default));
-    }
+    loadRecording<TerminalRecording>(version)
+      .then(setRecording)
+      .catch(() => {});
   }, [version]);
+
+  useEffect(() => {
+    return () => {
+      cancelRef.current = true;
+      if (sleepTimerRef.current) clearTimeout(sleepTimerRef.current);
+      sleepResolveRef.current?.();
+      sleepResolveRef.current = null;
+    };
+  }, []);
 
   const scrollToBottom = useCallback(() => {
     if (termRef.current) {
@@ -118,14 +76,12 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
   const sleep = useCallback(
     (ms: number) =>
       new Promise<void>((resolve) => {
-        const id = setTimeout(resolve, ms / speed);
-        const check = setInterval(() => {
-          if (cancelRef.current) {
-            clearTimeout(id);
-            clearInterval(check);
-            resolve();
-          }
-        }, 50);
+        sleepResolveRef.current = resolve;
+        sleepTimerRef.current = setTimeout(() => {
+          sleepTimerRef.current = null;
+          sleepResolveRef.current = null;
+          resolve();
+        }, ms / speed);
       }),
     [speed]
   );
@@ -136,7 +92,6 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
     playingRef.current = true;
     cancelRef.current = false;
     setIsPlaying(true);
-    setIsComplete(false);
     setChunks([]);
 
     for (const step of recording.steps) {
@@ -188,15 +143,16 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
 
     playingRef.current = false;
     setIsPlaying(false);
-    setIsComplete(true);
   }, [recording, sleep, scrollToBottom]);
 
   const handleReset = useCallback(() => {
     cancelRef.current = true;
+    if (sleepTimerRef.current) clearTimeout(sleepTimerRef.current);
+    sleepResolveRef.current?.();
+    sleepResolveRef.current = null;
     playingRef.current = false;
     setChunks([]);
     setIsPlaying(false);
-    setIsComplete(false);
     setTimeout(() => {
       cancelRef.current = false;
     }, 100);
@@ -231,7 +187,6 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Speed */}
           <div className="flex items-center gap-1">
             {[1, 2, 4].map((s) => (
               <button
@@ -249,7 +204,6 @@ export function TerminalPlayer({ version }: TerminalPlayerProps) {
             ))}
           </div>
 
-          {/* Controls */}
           {!isPlaying ? (
             <button
               onClick={playRecording}

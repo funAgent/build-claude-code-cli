@@ -201,6 +201,21 @@ export const VERSION_META: Record<string, VersionMeta> = {
   s48: { title: "遥测与诊断", subtitle: "知道产品怎么被使用", motto: "A product without metrics is flying blind", coreAddition: "OpenTelemetry + profileCheckpoint + logEvent + Doctor 命令 + 最终架构回顾", keyInsight: "遥测是产品闭环的最后一环——没有数据就没有迭代方向", phase: "production", prevVersion: "s47", toolCount: 25, loc: 300, claudeCodeRef: "utils/startupProfiler.ts + screens/Doctor.tsx" },
 };
 
+export const PHASE_BG_CLASS: Record<PhaseId, string> = {
+  preparation: "bg-gray-500",
+  "minimal-agent": "bg-blue-500",
+  "tool-system": "bg-emerald-500",
+  "terminal-ui": "bg-purple-500",
+  "prompt-engineering": "bg-pink-500",
+  "streaming-perf": "bg-amber-500",
+  "context-mgmt": "bg-teal-500",
+  "agent-intelligence": "bg-indigo-500",
+  security: "bg-red-500",
+  ecosystem: "bg-cyan-500",
+  "multi-agent": "bg-orange-500",
+  production: "bg-lime-500",
+};
+
 export function getPhaseForSession(sessionId: string): PhaseDefinition | undefined {
   return PHASES.find((p) => p.sessions.includes(sessionId));
 }

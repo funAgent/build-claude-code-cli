@@ -2,28 +2,10 @@
 
 import Link from "next/link";
 import { useTranslations, useLocale } from "@/lib/i18n";
-import { PHASES, VERSION_META } from "@/lib/constants";
-import { PhaseBadge } from "@/components/ui/badge";
+import { PHASES } from "@/lib/constants";
 import { ProgressBar } from "@/components/ui/progress";
 import { useProgress } from "@/hooks/useProgress";
-import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
-
-const PHASE_BAR_COLORS: Record<string, string> = {
-  preparation: "bg-gray-500",
-  "minimal-agent": "bg-blue-500",
-  "tool-system": "bg-emerald-500",
-  "terminal-ui": "bg-purple-500",
-  "prompt-engineering": "bg-pink-500",
-  "streaming-perf": "bg-amber-500",
-  "context-mgmt": "bg-teal-500",
-  "agent-intelligence": "bg-indigo-500",
-  security: "bg-red-500",
-  ecosystem: "bg-cyan-500",
-  "multi-agent": "bg-orange-500",
-  production: "bg-lime-500",
-};
+import { PhaseAccordion } from "@/components/home/phase-accordion";
 
 export default function HomePage() {
   const t = useTranslations("home");
@@ -68,7 +50,7 @@ export default function HomePage() {
           )}
         </div>
 
-        {/* Code preview — replaces the old standalone Core Pattern section */}
+        {/* Code preview */}
         <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
           <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-2.5">
             <span className="h-3 w-3 rounded-full bg-red-500/70" />
@@ -126,7 +108,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Learning Path — unified accordion replaces both Learning Path Preview + Phase Overview */}
+      {/* Learning Path */}
       <section className="mt-16">
         <div className="mb-8">
           <h2 className="text-2xl font-bold sm:text-3xl">{t("learning_path")}</h2>
@@ -158,87 +140,6 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-    </div>
-  );
-}
-
-function PhaseAccordion({
-  phase,
-  locale,
-  tPhase,
-  tSession,
-  t,
-  defaultOpen = false,
-}: {
-  phase: (typeof PHASES)[number];
-  locale: string;
-  tPhase: (key: string) => string;
-  tSession: (key: string) => string;
-  t: (key: string) => string;
-  defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-
-  return (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
-      <button
-        onClick={() => setOpen(!open)}
-        className="flex w-full items-center gap-4 p-4 text-left"
-        aria-expanded={open}
-      >
-        <div
-          className={cn("h-full w-1.5 self-stretch rounded-full", PHASE_BAR_COLORS[phase.id])}
-          style={{ minHeight: 24 }}
-        />
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold">{tPhase(phase.id)}</h3>
-            <span className="text-xs text-[var(--color-text-secondary)]">
-              {phase.sessions.length} {t("sessions_in_phase")}
-            </span>
-          </div>
-          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] truncate">
-            {phase.description}
-          </p>
-        </div>
-        <ChevronRight
-          size={16}
-          className={cn(
-            "shrink-0 text-zinc-400 transition-transform duration-200",
-            open && "rotate-90"
-          )}
-        />
-      </button>
-
-      {open && (
-        <div className="border-t border-[var(--color-border)] px-4 py-3">
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {phase.sessions.map((vId) => {
-              const meta = VERSION_META[vId];
-              if (!meta) return null;
-              return (
-                <Link
-                  key={vId}
-                  href={`/${locale}/${vId}`}
-                  className="group flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                >
-                  <span className="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs font-medium dark:bg-zinc-800">
-                    {vId}
-                  </span>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium group-hover:underline">
-                      {tSession(vId) || meta.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] line-clamp-2">
-                      {meta.keyInsight}
-                    </p>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
