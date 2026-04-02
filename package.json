@@ -1,0 +1,10 @@
+{
+  "name": "build-claude-code",
+  "private": true,
+  "scripts": {
+    "check": "node scripts/check-consistency.mjs",
+    "check:verbose": "node scripts/check-consistency.mjs --verbose",
+    "sync": "node scripts/sync-lessons.mjs",
+    "setup-hooks": "node scripts/setup-hooks.mjs"
+  }
+}
