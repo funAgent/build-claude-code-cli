@@ -382,7 +382,7 @@ export function ArchMap({ compact }: ArchMapProps) {
                   width={node.width}
                   height={node.height}
                   rx={6}
-                  fill={isHovered ? node.color : "var(--color-background, #fff)"}
+                  fill={isHovered ? node.color : "var(--color-bg)"}
                   fillOpacity={dimmed ? 0.3 : 1}
                   stroke={node.color}
                   strokeWidth={isHovered ? 2 : 1}
@@ -399,7 +399,7 @@ export function ArchMap({ compact }: ArchMapProps) {
                   dominantBaseline="middle"
                   fontSize={10}
                   fontWeight={isHovered ? 600 : 400}
-                  fill={isHovered ? "#fff" : dimmed ? "#A1A1AA" : "currentColor"}
+                  fill={isHovered ? "#fff" : dimmed ? "#A1A1AA" : "var(--color-text)"}
                   className="pointer-events-none select-none"
                 >
                   {node.label}

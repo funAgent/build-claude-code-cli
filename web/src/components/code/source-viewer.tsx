@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import versionsData from "@/data/generated/versions.json";
 import { VERSION_META } from "@/lib/constants";
 import { computeFileDiffs, type FileDiff, type DiffLine } from "@/lib/diff";
 import { cn } from "@/lib/utils";
-import { FilePlus, FileCode, ChevronDown, ChevronRight } from "lucide-react";
+import { FilePlus, FileCode, ChevronDown, ChevronRight, FolderOpen } from "lucide-react";
 
 interface SourceViewerProps {
   version: string;
@@ -111,6 +111,7 @@ export function SourceViewer({ version }: SourceViewerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("source");
   const [activeFile, setActiveFile] = useState(0);
   const [showUnchanged, setShowUnchanged] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const addedFiles = files.filter((f) => f.status === "added");
   const modifiedFiles = files.filter((f) => f.status === "modified");
@@ -184,95 +185,55 @@ export function SourceViewer({ version }: SourceViewerProps) {
       <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-700">
         {/* Title bar */}
         <div className="flex items-center gap-2 border-b border-zinc-200 bg-zinc-50 px-3 py-1.5 dark:border-zinc-700 dark:bg-zinc-900">
-          <div className="flex gap-1.5">
+          <div className="hidden gap-1.5 sm:flex">
             <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
             <span className="h-2.5 w-2.5 rounded-full bg-green-400/80" />
           </div>
-          <span className="ml-1 font-mono text-[10px] text-zinc-400">
+          {/* Mobile file selector toggle */}
+          <button
+            onClick={() => setSidebarOpen((p) => !p)}
+            className="flex items-center gap-1.5 sm:hidden"
+            aria-expanded={sidebarOpen}
+            aria-label="Toggle file list"
+          >
+            <FolderOpen size={14} className="text-zinc-400" />
+            <span className="max-w-[180px] truncate font-mono text-[11px] font-medium text-zinc-300">
+              {currentFile?.name ?? ""}
+            </span>
+            <ChevronDown size={12} className={cn("text-zinc-500 transition-transform", sidebarOpen && "rotate-180")} />
+          </button>
+          <span className="ml-1 hidden font-mono text-[10px] text-zinc-400 sm:inline">
             agents/{version}/src/
           </span>
+          {currentFile && (
+            <span className="ml-auto font-mono text-[10px] text-zinc-500 sm:hidden">
+              {currentFile.status === "added" ? "NEW" : currentFile.status === "modified" ? "MOD" : ""}
+            </span>
+          )}
         </div>
 
+        {/* Mobile file dropdown */}
+        {sidebarOpen && (
+          <div className="max-h-48 overflow-y-auto border-b border-zinc-200 bg-zinc-50 sm:hidden dark:border-zinc-700 dark:bg-zinc-900/80">
+            {renderFileList(
+              addedFiles, modifiedFiles, unchangedFiles, files,
+              visibleFiles, safeIndex, hasPrev, viewMode,
+              showUnchanged, setShowUnchanged,
+              (idx) => { setActiveFile(idx); setSidebarOpen(false); }
+            )}
+          </div>
+        )}
+
         <div className="flex">
-          {/* File sidebar */}
-          <div className="w-44 shrink-0 overflow-y-auto border-r border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-900/50 sm:w-52">
-            {/* New files group */}
-            {addedFiles.length > 0 && (
-              <div>
-                <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-emerald-500">
-                  本课新增
-                </div>
-                {addedFiles.map((f) => {
-                  const idx = visibleFiles.indexOf(f);
-                  if (idx === -1) return null;
-                  return (
-                    <FileButton
-                      key={f.name}
-                      file={f}
-                      active={safeIndex === idx}
-                      onClick={() => setActiveFile(idx)}
-                    />
-                  );
-                })}
-              </div>
+          {/* Desktop file sidebar */}
+          <div className="hidden w-52 shrink-0 overflow-y-auto border-r border-zinc-200 bg-zinc-50/50 sm:block dark:border-zinc-700 dark:bg-zinc-900/50">
+            {renderFileList(
+              addedFiles, modifiedFiles, unchangedFiles, files,
+              visibleFiles, safeIndex, hasPrev, viewMode,
+              showUnchanged, setShowUnchanged,
+              (idx) => setActiveFile(idx)
             )}
-
-            {/* Modified files group */}
-            {modifiedFiles.length > 0 && (
-              <div>
-                <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-amber-500">
-                  本课修改
-                </div>
-                {modifiedFiles.map((f) => {
-                  const idx = visibleFiles.indexOf(f);
-                  if (idx === -1) return null;
-                  return (
-                    <FileButton
-                      key={f.name}
-                      file={f}
-                      active={safeIndex === idx}
-                      onClick={() => setActiveFile(idx)}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* Unchanged files group */}
-            {viewMode === "source" && unchangedFiles.length > 0 && (
-              <div>
-                <button
-                  onClick={() => setShowUnchanged((p) => !p)}
-                  className="flex w-full items-center gap-1 px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-zinc-400 transition-colors hover:text-zinc-600"
-                >
-                  {showUnchanged ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
-                  未变更 ({unchangedFiles.length})
-                </button>
-                {showUnchanged && unchangedFiles.map((f) => {
-                  const idx = visibleFiles.indexOf(f);
-                  if (idx === -1) return null;
-                  return (
-                    <FileButton
-                      key={f.name}
-                      file={f}
-                      active={safeIndex === idx}
-                      onClick={() => setActiveFile(idx)}
-                    />
-                  );
-                })}
-              </div>
-            )}
-
-            {/* No prev version — all files flat */}
-            {!hasPrev && files.map((f, i) => (
-              <FileButton
-                key={f.name}
-                file={f}
-                active={safeIndex === i}
-                onClick={() => setActiveFile(i)}
-              />
-            ))}
           </div>
 
           {/* Code area */}
@@ -307,6 +268,70 @@ export function SourceViewer({ version }: SourceViewerProps) {
         </div>
       </div>
     </div>
+  );
+}
+
+// --- Shared file list renderer (used by both desktop sidebar and mobile dropdown) ---
+
+function renderFileList(
+  addedFiles: FileEntry[],
+  modifiedFiles: FileEntry[],
+  unchangedFiles: FileEntry[],
+  allFiles: FileEntry[],
+  visibleFiles: FileEntry[],
+  activeIdx: number,
+  hasPrev: boolean,
+  viewMode: ViewMode,
+  showUnchanged: boolean,
+  setShowUnchanged: React.Dispatch<React.SetStateAction<boolean>>,
+  onSelect: (idx: number) => void,
+) {
+  return (
+    <>
+      {addedFiles.length > 0 && (
+        <div>
+          <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-emerald-500">
+            本课新增
+          </div>
+          {addedFiles.map((f) => {
+            const idx = visibleFiles.indexOf(f);
+            if (idx === -1) return null;
+            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
+          })}
+        </div>
+      )}
+      {modifiedFiles.length > 0 && (
+        <div>
+          <div className="px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-amber-500">
+            本课修改
+          </div>
+          {modifiedFiles.map((f) => {
+            const idx = visibleFiles.indexOf(f);
+            if (idx === -1) return null;
+            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
+          })}
+        </div>
+      )}
+      {viewMode === "source" && unchangedFiles.length > 0 && (
+        <div>
+          <button
+            onClick={() => setShowUnchanged((p) => !p)}
+            className="flex w-full items-center gap-1 px-2 pb-0.5 pt-2 text-[9px] font-semibold uppercase tracking-wider text-zinc-400 transition-colors hover:text-zinc-600"
+          >
+            {showUnchanged ? <ChevronDown size={10} /> : <ChevronRight size={10} />}
+            未变更 ({unchangedFiles.length})
+          </button>
+          {showUnchanged && unchangedFiles.map((f) => {
+            const idx = visibleFiles.indexOf(f);
+            if (idx === -1) return null;
+            return <FileButton key={f.name} file={f} active={activeIdx === idx} onClick={() => onSelect(idx)} />;
+          })}
+        </div>
+      )}
+      {!hasPrev && allFiles.map((f, i) => (
+        <FileButton key={f.name} file={f} active={activeIdx === i} onClick={() => onSelect(i)} />
+      ))}
+    </>
   );
 }
 

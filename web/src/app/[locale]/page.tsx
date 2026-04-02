@@ -2,28 +2,13 @@
 
 import Link from "next/link";
 import { useTranslations, useLocale } from "@/lib/i18n";
-import { LEARNING_PATH, VERSION_META, PHASES } from "@/lib/constants";
+import { PHASES, VERSION_META } from "@/lib/constants";
 import { PhaseBadge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { ProgressBar } from "@/components/ui/progress";
-import { ArchMap } from "@/components/architecture/arch-map";
 import { useProgress } from "@/hooks/useProgress";
 import { cn } from "@/lib/utils";
-
-const PHASE_BORDER_COLORS: Record<string, string> = {
-  preparation: "border-gray-500/30 hover:border-gray-500/60",
-  "minimal-agent": "border-blue-500/30 hover:border-blue-500/60",
-  "tool-system": "border-emerald-500/30 hover:border-emerald-500/60",
-  "terminal-ui": "border-purple-500/30 hover:border-purple-500/60",
-  "prompt-engineering": "border-pink-500/30 hover:border-pink-500/60",
-  "streaming-perf": "border-amber-500/30 hover:border-amber-500/60",
-  "context-mgmt": "border-teal-500/30 hover:border-teal-500/60",
-  "agent-intelligence": "border-indigo-500/30 hover:border-indigo-500/60",
-  security: "border-red-500/30 hover:border-red-500/60",
-  ecosystem: "border-cyan-500/30 hover:border-cyan-500/60",
-  "multi-agent": "border-orange-500/30 hover:border-orange-500/60",
-  production: "border-lime-500/30 hover:border-lime-500/60",
-};
+import { ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const PHASE_BAR_COLORS: Record<string, string> = {
   preparation: "bg-gray-500",
@@ -43,49 +28,53 @@ const PHASE_BAR_COLORS: Record<string, string> = {
 export default function HomePage() {
   const t = useTranslations("home");
   const tPhase = useTranslations("phase_labels");
+  const tSession = useTranslations("sessions");
   const locale = useLocale();
   const { completedCount, totalCount, nextSession } = useProgress();
 
   return (
-    <div className="flex flex-col gap-20 pb-16">
-      {/* Hero */}
-      <section className="flex flex-col items-center px-2 pt-8 text-center sm:pt-20">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-          {t("hero_title")}
-        </h1>
-        <p className="mt-4 max-w-2xl text-base text-[var(--color-text-secondary)] sm:text-xl">
-          {t("hero_subtitle")}
-        </p>
-        <div className="mt-8 flex items-center gap-4">
-          <Link
-            href={`/${locale}/${nextSession ?? "s00"}`}
-            className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            {completedCount > 0 ? t("continue_learning") : t("start")}
-            <span aria-hidden="true">&rarr;</span>
-          </Link>
-        </div>
-        {completedCount > 0 && (
-          <div className="mt-4 w-full max-w-xs">
-            <ProgressBar value={completedCount} max={totalCount} />
-          </div>
-        )}
-      </section>
-
-      {/* Core Pattern */}
-      <section>
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">{t("core_pattern")}</h2>
-          <p className="mt-2 text-[var(--color-text-secondary)]">
-            {t("core_pattern_desc")}
+    <div className="flex flex-col pb-16">
+      {/* Hero — split layout */}
+      <section className="grid items-center gap-8 py-8 sm:py-16 lg:grid-cols-2 lg:gap-12">
+        <div className="max-w-xl">
+          <p className="text-sm font-semibold tracking-widest text-zinc-400 uppercase">
+            Build Claude Code
           </p>
+          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+            {t("hero_title")}
+          </h1>
+          <p className="mt-4 text-base leading-relaxed text-[var(--color-text-secondary)] sm:text-lg">
+            {t("hero_subtitle")}
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-4">
+            <Link
+              href={`/${locale}/${nextSession ?? "s00"}`}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-zinc-900 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+            >
+              {completedCount > 0 ? t("continue_learning") : t("start")}
+              <span aria-hidden="true">&rarr;</span>
+            </Link>
+            <Link
+              href={`/${locale}/architecture`}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-[var(--color-border)] px-6 py-3 text-sm font-medium transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800"
+            >
+              {t("view_all_sessions")}
+            </Link>
+          </div>
+          {completedCount > 0 && (
+            <div className="mt-6 w-full max-w-xs">
+              <ProgressBar value={completedCount} max={totalCount} />
+            </div>
+          )}
         </div>
-        <div className="mx-auto max-w-2xl overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
+
+        {/* Code preview — replaces the old standalone Core Pattern section */}
+        <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-950">
           <div className="flex items-center gap-2 border-b border-zinc-800 px-4 py-2.5">
             <span className="h-3 w-3 rounded-full bg-red-500/70" />
             <span className="h-3 w-3 rounded-full bg-yellow-500/70" />
             <span className="h-3 w-3 rounded-full bg-green-500/70" />
-            <span className="ml-3 text-xs text-zinc-500">agent.ts</span>
+            <span className="ml-3 text-xs text-zinc-500">agent.ts — {t("core_pattern")}</span>
           </div>
           <pre className="overflow-x-auto p-4 text-sm leading-relaxed">
             <code>
@@ -137,67 +126,30 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Architecture Overview */}
-      <section>
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">系统架构</h2>
-          <p className="mt-2 text-[var(--color-text-secondary)]">
-            12 个阶段、40+ 模块构成完整的 Agent CLI 产品
-          </p>
-        </div>
-        <ArchMap compact />
-        <div className="mt-4 text-center">
-          <Link
-            href={`/${locale}/architecture`}
-            className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white"
-          >
-            查看完整架构图 &rarr;
-          </Link>
-        </div>
-      </section>
-
-      {/* Learning Path Preview */}
-      <section>
-        <div className="mb-6 text-center">
+      {/* Learning Path — unified accordion replaces both Learning Path Preview + Phase Overview */}
+      <section className="mt-16">
+        <div className="mb-8">
           <h2 className="text-2xl font-bold sm:text-3xl">{t("learning_path")}</h2>
           <p className="mt-2 text-[var(--color-text-secondary)]">
             {t("learning_path_desc")}
           </p>
         </div>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {LEARNING_PATH.slice(0, 12).map((versionId) => {
-            const meta = VERSION_META[versionId];
-            if (!meta) return null;
-            return (
-              <Link
-                key={versionId}
-                href={`/${locale}/${versionId}`}
-                className="group block"
-              >
-                <Card
-                  className={cn(
-                    "h-full border transition-all duration-200",
-                    PHASE_BORDER_COLORS[meta.phase]
-                  )}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <PhaseBadge phase={meta.phase}>{versionId}</PhaseBadge>
-                    <span className="text-xs tabular-nums text-[var(--color-text-secondary)]">
-                      ~{meta.loc} {t("loc")}
-                    </span>
-                  </div>
-                  <h3 className="mt-3 text-sm font-semibold group-hover:underline">
-                    {meta.title}
-                  </h3>
-                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                    {meta.keyInsight}
-                  </p>
-                </Card>
-              </Link>
-            );
-          })}
+
+        <div className="flex flex-col gap-2">
+          {PHASES.map((phase, idx) => (
+            <PhaseAccordion
+              key={phase.id}
+              phase={phase}
+              locale={locale}
+              tPhase={tPhase}
+              tSession={tSession}
+              t={t}
+              defaultOpen={idx === 0}
+            />
+          ))}
         </div>
-        <div className="mt-6 text-center">
+
+        <div className="mt-6">
           <Link
             href={`/${locale}/timeline`}
             className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:hover:text-white"
@@ -206,57 +158,87 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+    </div>
+  );
+}
 
-      {/* Phase Overview */}
-      <section>
-        <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold sm:text-3xl">{t("phases_title")}</h2>
-          <p className="mt-2 text-[var(--color-text-secondary)]">
-            {t("phases_desc")}
+function PhaseAccordion({
+  phase,
+  locale,
+  tPhase,
+  tSession,
+  t,
+  defaultOpen = false,
+}: {
+  phase: (typeof PHASES)[number];
+  locale: string;
+  tPhase: (key: string) => string;
+  tSession: (key: string) => string;
+  t: (key: string) => string;
+  defaultOpen?: boolean;
+}) {
+  const [open, setOpen] = useState(defaultOpen);
+
+  return (
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)]">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex w-full items-center gap-4 p-4 text-left"
+        aria-expanded={open}
+      >
+        <div
+          className={cn("h-full w-1.5 self-stretch rounded-full", PHASE_BAR_COLORS[phase.id])}
+          style={{ minHeight: 24 }}
+        />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold">{tPhase(phase.id)}</h3>
+            <span className="text-xs text-[var(--color-text-secondary)]">
+              {phase.sessions.length} {t("sessions_in_phase")}
+            </span>
+          </div>
+          <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] truncate">
+            {phase.description}
           </p>
         </div>
-        <div className="flex flex-col gap-3">
-          {PHASES.map((phase) => (
-            <div
-              key={phase.id}
-              className="flex items-center gap-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] p-4"
-            >
-              <div
-                className={cn(
-                  "h-full w-1.5 self-stretch rounded-full",
-                  PHASE_BAR_COLORS[phase.id]
-                )}
-              />
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold">{tPhase(phase.id)}</h3>
-                  <span className="text-xs text-[var(--color-text-secondary)]">
-                    {phase.sessions.length} {t("sessions_in_phase")}
+        <ChevronRight
+          size={16}
+          className={cn(
+            "shrink-0 text-zinc-400 transition-transform duration-200",
+            open && "rotate-90"
+          )}
+        />
+      </button>
+
+      {open && (
+        <div className="border-t border-[var(--color-border)] px-4 py-3">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+            {phase.sessions.map((vId) => {
+              const meta = VERSION_META[vId];
+              if (!meta) return null;
+              return (
+                <Link
+                  key={vId}
+                  href={`/${locale}/${vId}`}
+                  className="group flex items-start gap-3 rounded-lg p-2 transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                >
+                  <span className="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs font-medium dark:bg-zinc-800">
+                    {vId}
                   </span>
-                </div>
-                <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-                  {phase.description}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {phase.sessions.map((vid) => {
-                    const meta = VERSION_META[vid];
-                    return (
-                      <Link key={vid} href={`/${locale}/${vid}`}>
-                        <PhaseBadge
-                          phase={phase.id}
-                          className="cursor-pointer transition-opacity hover:opacity-80"
-                        >
-                          {vid}: {meta?.title}
-                        </PhaseBadge>
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-          ))}
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium group-hover:underline">
+                      {tSession(vId) || meta.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-[var(--color-text-secondary)] line-clamp-2">
+                      {meta.keyInsight}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </section>
+      )}
     </div>
   );
 }

@@ -4,14 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTranslations, useLocale } from "@/lib/i18n";
 import { Github, Menu, X, Sun, Moon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { key: "timeline", href: "/timeline" },
   { key: "architecture", href: "/architecture" },
   { key: "compare", href: "/compare" },
-  { key: "layers", href: "/layers" },
 ] as const;
 
 const LOCALES = [
@@ -24,14 +23,23 @@ export function Header() {
   const pathname = usePathname();
   const locale = useLocale();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dark, setDark] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("theme");
-      if (stored) return stored === "dark";
-      return window.matchMedia("(prefers-color-scheme: dark)").matches;
-    }
-    return false;
-  });
+  const [dark, setDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const stored = localStorage.getItem("theme");
+    const isDark =
+      stored === "dark" ||
+      (!stored && window.matchMedia("(prefers-color-scheme: dark)").matches);
+    setDark(isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, []);
+
+  function isActive(href: string) {
+    const fullPath = `/${locale}${href}`;
+    return pathname === fullPath || pathname.startsWith(fullPath + "/");
+  }
 
   function toggleDark() {
     const next = !dark;
@@ -52,27 +60,33 @@ export function Header() {
           Build Claude Code
         </Link>
 
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.key}
               href={`/${locale}${item.href}`}
               className={cn(
                 "text-sm font-medium transition-colors hover:text-zinc-900 dark:hover:text-white",
-                pathname.includes(item.href)
+                isActive(item.href)
                   ? "text-zinc-900 dark:text-white"
                   : "text-zinc-500 dark:text-zinc-400"
               )}
+              aria-current={isActive(item.href) ? "page" : undefined}
             >
               {t(item.key)}
             </Link>
           ))}
 
-          <div className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] p-0.5">
+          <div
+            className="flex items-center gap-1 rounded-lg border border-[var(--color-border)] p-0.5"
+            role="group"
+            aria-label={locale === "zh" ? "语言切换" : "Language"}
+          >
             {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => switchLocale(l.code)}
+                aria-pressed={locale === l.code}
                 className={cn(
                   "rounded-md px-2 py-1 text-xs font-medium transition-colors",
                   locale === l.code
@@ -87,15 +101,17 @@ export function Header() {
 
           <button
             onClick={toggleDark}
+            aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
             className="rounded-md p-1.5 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
           >
-            {dark ? <Sun size={16} /> : <Moon size={16} />}
+            {mounted ? (dark ? <Sun size={16} /> : <Moon size={16} />) : <span className="inline-block h-4 w-4" />}
           </button>
 
           <a
-            href="https://github.com/"
+            href="https://github.com/anthropics/claude-code"
             target="_blank"
             rel="noopener"
+            aria-label="GitHub repository"
             className="text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
           >
             <Github size={18} />
@@ -104,6 +120,8 @@ export function Header() {
 
         <button
           onClick={() => setMobileOpen(!mobileOpen)}
+          aria-label={mobileOpen ? "Close menu" : "Open menu"}
+          aria-expanded={mobileOpen}
           className="flex min-h-[44px] min-w-[44px] items-center justify-center md:hidden"
         >
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
@@ -111,23 +129,44 @@ export function Header() {
       </div>
 
       {mobileOpen && (
-        <div className="border-t border-[var(--color-border)] bg-[var(--color-bg)] p-4 md:hidden">
+        <nav
+          className="border-t border-[var(--color-border)] bg-[var(--color-bg)] p-4 md:hidden"
+          aria-label="Mobile navigation"
+        >
+          <Link
+            href={`/${locale}`}
+            className={cn(
+              "flex min-h-[44px] items-center text-sm font-medium",
+              pathname === `/${locale}` || pathname === `/${locale}/`
+                ? "text-zinc-900 dark:text-white"
+                : "text-zinc-500"
+            )}
+            onClick={() => setMobileOpen(false)}
+          >
+            {t("home")}
+          </Link>
           {NAV_ITEMS.map((item) => (
             <Link
               key={item.key}
               href={`/${locale}${item.href}`}
-              className="flex min-h-[44px] items-center text-sm"
+              className={cn(
+                "flex min-h-[44px] items-center text-sm",
+                isActive(item.href)
+                  ? "font-medium text-zinc-900 dark:text-white"
+                  : "text-zinc-500"
+              )}
               onClick={() => setMobileOpen(false)}
             >
               {t(item.key)}
             </Link>
           ))}
           <div className="mt-3 flex items-center justify-between border-t border-[var(--color-border)] pt-3">
-            <div className="flex gap-2">
+            <div className="flex gap-2" role="group" aria-label="Language">
               {LOCALES.map((l) => (
                 <button
                   key={l.code}
                   onClick={() => switchLocale(l.code)}
+                  aria-pressed={locale === l.code}
                   className={cn(
                     "min-h-[44px] min-w-[44px] rounded-md px-3 text-xs font-medium",
                     locale === l.code
@@ -142,21 +181,23 @@ export function Header() {
             <div className="flex items-center gap-2">
               <button
                 onClick={toggleDark}
+                aria-label={dark ? "Switch to light mode" : "Switch to dark mode"}
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
               >
-                {dark ? <Sun size={18} /> : <Moon size={18} />}
+                {mounted ? (dark ? <Sun size={18} /> : <Moon size={18} />) : <span className="inline-block h-[18px] w-[18px]" />}
               </button>
               <a
-                href="https://github.com/"
+                href="https://github.com/anthropics/claude-code"
                 target="_blank"
                 rel="noopener"
+                aria-label="GitHub repository"
                 className="flex min-h-[44px] min-w-[44px] items-center justify-center text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-white"
               >
                 <Github size={18} />
               </a>
             </div>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );

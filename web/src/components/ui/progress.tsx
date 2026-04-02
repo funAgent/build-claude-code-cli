@@ -14,7 +14,14 @@ export function ProgressBar({ value, max, className, color }: ProgressBarProps) 
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700">
+      <div
+        className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-200 dark:bg-zinc-700"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${pct}% complete`}
+      >
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{
@@ -24,7 +31,7 @@ export function ProgressBar({ value, max, className, color }: ProgressBarProps) 
         />
       </div>
       <span className="text-xs tabular-nums text-[var(--color-text-secondary)]">
-        {value}/{max}
+        {value}/{max} ({pct}%)
       </span>
     </div>
   );

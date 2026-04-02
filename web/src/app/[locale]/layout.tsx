@@ -35,7 +35,7 @@ export default async function RootLayout({
   const { locale } = await params;
 
   return (
-    <html lang={locale} suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning className="font-sans">
       <head>
         <script dangerouslySetInnerHTML={{ __html: `
           (function() {
@@ -48,8 +48,14 @@ export default async function RootLayout({
       </head>
       <body className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] antialiased">
         <I18nProvider locale={locale}>
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-zinc-900 focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white dark:focus:bg-white dark:focus:text-zinc-900"
+          >
+            Skip to main content
+          </a>
           <Header />
-          <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <main id="main-content" className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             {children}
           </main>
         </I18nProvider>
