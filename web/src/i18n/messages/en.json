@@ -5,27 +5,27 @@
   },
   "nav": {
     "home": "Home",
-    "timeline": "Timeline",
+    "timeline": "Learning Path",
     "compare": "Compare",
-    "layers": "Layers",
     "architecture": "Architecture",
     "github": "GitHub"
   },
   "home": {
-    "hero_title": "Build Claude Code",
-    "hero_subtitle": "Build an enterprise-grade AI Agent CLI from scratch, lesson by lesson",
+    "hero_title": "Build an Enterprise AI Agent CLI from Scratch",
+    "hero_subtitle": "49 progressive lessons that reverse-engineer Claude Code's architecture — from a single while loop to a production-grade product",
     "start": "Start Learning",
     "core_pattern": "The Core Pattern",
     "core_pattern_desc": "Every AI Agent shares the same loop: call the model, execute tools, feed results back. Production systems add policy, permissions, and lifecycle layers on top.",
     "learning_path": "Learning Path",
-    "learning_path_desc": "49 progressive lessons, from a simple loop to an enterprise-grade AI Agent CLI",
+    "learning_path_desc": "12 phases covering every engineering concern of an Agent product",
     "phases_title": "Course Phases",
     "phases_desc": "12 phases covering every engineering concern of an Agent product",
     "loc": "LOC",
-    "learn_more": "Learn More",
+    "learn_more": "View Full Path",
     "sessions_in_phase": "lessons",
     "continue_learning": "Continue Learning",
-    "progress": "Progress"
+    "progress": "Progress",
+    "view_all_sessions": "View all 49 lessons"
   },
   "version": {
     "loc": "lines of code",
@@ -75,6 +75,12 @@
     "loc_delta": "LOC Delta",
     "lines": "lines",
     "empty_hint": "Select two versions above to compare them."
+  },
+  "architecture": {
+    "title": "Architecture",
+    "subtitle": "Full module composition and layered structure of the Agent CLI",
+    "tab_map": "Architecture Map",
+    "tab_layers": "Architecture Layers"
   },
   "phase_labels": {
     "preparation": "Preparation",

@@ -5,27 +5,27 @@
   },
   "nav": {
     "home": "首页",
-    "timeline": "时间线",
+    "timeline": "学习路径",
     "compare": "版本对比",
-    "layers": "架构层级",
-    "architecture": "架构全景",
+    "architecture": "架构",
     "github": "GitHub"
   },
   "home": {
-    "hero_title": "Build Claude Code",
-    "hero_subtitle": "从零构建企业级 AI Agent CLI，逐课拆解 Claude Code 源码架构",
+    "hero_title": "从零构建企业级 AI Agent CLI",
+    "hero_subtitle": "49 节渐进式课程，逐课拆解 Claude Code 源码架构，从一个 while 循环到完整产品",
     "start": "开始学习",
     "core_pattern": "核心模式",
     "core_pattern_desc": "所有 AI Agent 共享同一个循环：调用模型、执行工具、将结果反馈。生产系统在此之上叠加策略、权限和生命周期管理。",
     "learning_path": "学习路径",
-    "learning_path_desc": "49 节渐进式课程，从一个简单循环到企业级 AI Agent CLI 产品",
+    "learning_path_desc": "12 个阶段，覆盖 Agent 产品的所有工程关注点",
     "phases_title": "课程阶段",
     "phases_desc": "12 个阶段，覆盖 Agent 产品的所有工程关注点",
     "loc": "行代码",
-    "learn_more": "了解更多",
+    "learn_more": "查看完整路径",
     "sessions_in_phase": "课",
     "continue_learning": "继续学习",
-    "progress": "学习进度"
+    "progress": "学习进度",
+    "view_all_sessions": "查看全部 49 课"
   },
   "version": {
     "loc": "行代码",
@@ -75,6 +75,12 @@
     "loc_delta": "代码量变化",
     "lines": "行",
     "empty_hint": "选择上方两个版本进行对比"
+  },
+  "architecture": {
+    "title": "架构",
+    "subtitle": "Agent CLI 的完整模块组成与分层结构",
+    "tab_map": "架构全景",
+    "tab_layers": "架构层级"
   },
   "phase_labels": {
     "preparation": "预备知识",
