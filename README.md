@@ -143,8 +143,8 @@ build-claude-code-cli/
 
 ## 相关项目
 
-- [Claude Code](https://github.com/anthropics/claude-code) — 本项目的架构参考源
-- [learn-claude-code](https://github.com/anthropics/learn-claude-code) — Claude Code 学习资源
+- [Claude Code](https://github.com/anthropics/claude-code) — 本项目的架构参考 claude-code-cli 源码
+- [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) — 学习 agent 构建
 
 ## 许可证
 
