@@ -4,9 +4,13 @@ node_modules/
 # Next.js
 web/.next/
 web/out/
+web/next-env.d.ts
 
 # Generated (build-time extraction)
 web/src/data/generated/
+
+# Agent lock files (generated on install)
+agents/*/package-lock.json
 
 # Build
 dist/

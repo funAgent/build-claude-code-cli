@@ -1,0 +1,65 @@
+name: Bug 反馈
+description: 报告课程代码或教学网站中的问题
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢反馈！请尽可能详细地描述问题，以便我们快速定位和修复。
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 问题所在区域
+      options:
+        - 课程源码 (agents/)
+        - 教学文档 (docs/)
+        - 教学网站 (web/)
+        - 构建脚本 (scripts/)
+        - 其他
+    validations:
+      required: true
+
+  - type: input
+    id: lesson
+    attributes:
+      label: 涉及课程
+      description: 如果与特定课程有关，请填写课程编号
+      placeholder: "例如：s06"
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述
+      description: 清晰地描述遇到的问题
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 如何复现这个问题？
+      placeholder: |
+        1. 进入 agents/s06-configuration 目录
+        2. 运行 npm install
+        3. 运行 npx ts-node src/cli.ts
+        4. 看到错误 ...
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望行为
+      description: 你期望发生什么？
+
+  - type: input
+    id: node-version
+    attributes:
+      label: Node.js 版本
+      placeholder: "例如：20.11.0"
+
+  - type: input
+    id: os
+    attributes:
+      label: 操作系统
+      placeholder: "例如：macOS 15.3 / Ubuntu 24.04 / Windows 11"

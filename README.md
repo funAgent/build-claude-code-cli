@@ -4,11 +4,14 @@
     <strong>从零构建企业级 AI Agent CLI — 逐课拆解 Claude Code 源码架构</strong>
   </p>
   <p align="center">
-    <a href="./README.en.md">English</a> · 中文
+    🌐 <a href="https://build.funagent.app">官网</a> · 📖 <a href="./CONTRIBUTING.md">贡献指南</a> · 🐛 <a href="https://github.com/funAgent/build-claude-code-cli/issues">反馈问题</a>
   </p>
 </p>
 
 <p align="center">
+  <a href="https://github.com/funAgent/build-claude-code-cli/stargazers"><img src="https://img.shields.io/github/stars/funAgent/build-claude-code-cli?style=flat&color=FFD700" alt="GitHub Stars" /></a>
+  <a href="https://github.com/funAgent/build-claude-code-cli/network/members"><img src="https://img.shields.io/github/forks/funAgent/build-claude-code-cli?style=flat" alt="GitHub Forks" /></a>
+  <a href="https://github.com/funAgent/build-claude-code-cli/commits"><img src="https://img.shields.io/github/last-commit/funAgent/build-claude-code-cli" alt="Last Commit" /></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/lessons-49-brightgreen.svg" alt="49 Lessons" />
   <img src="https://img.shields.io/badge/TypeScript-100%25-3178C6.svg" alt="TypeScript" />
@@ -40,8 +43,8 @@ while (true) {
 
 ```bash
 # 克隆项目
-git clone https://github.com/anthropics/build-claude-code.git
-cd build-claude-code
+git clone https://github.com/funAgent/build-claude-code-cli.git
+cd build-claude-code-cli
 
 # 运行任意一课的代码
 cd agents/s03-agent-loop
@@ -77,7 +80,7 @@ npm run dev
 ## 项目结构
 
 ```
-build-claude-code/
+build-claude-code-cli/
 ├── agents/              # 49 课 TypeScript 实现（每课独立可运行）
 │   ├── s00-api-basics/
 │   ├── s01-cli-scaffold/
@@ -92,7 +95,6 @@ build-claude-code/
 │       ├── components/  # UI 组件（源码查看器、Diff、终端播放器等）
 │       ├── data/        # 场景、注解、终端录制数据
 │       └── lib/         # 工具函数、常量、i18n
-├── data/                # 原始教学数据
 ├── reference/           # Claude Code 架构参考笔记
 ├── PLAN.md              # 详细规划文档
 ├── TODO.md              # 开发进度追踪
@@ -123,6 +125,22 @@ build-claude-code/
 - 添加新的知识内容
 - 确保课程间的一致性
 
+## 贡献者
+
+<a href="https://github.com/funAgent/build-claude-code-cli/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=funAgent/build-claude-code-cli" />
+</a>
+
+## Star History
+
+<a href="https://star-history.com/#funAgent/build-claude-code-cli&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=funAgent/build-claude-code-cli&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=funAgent/build-claude-code-cli&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=funAgent/build-claude-code-cli&type=Date" />
+ </picture>
+</a>
+
 ## 相关项目
 
 - [Claude Code](https://github.com/anthropics/claude-code) — 本项目的架构参考源
@@ -130,4 +148,4 @@ build-claude-code/
 
 ## 许可证
 
-[MIT](./LICENSE)
+[MIT](./LICENSE) © [funAgent](https://github.com/funAgent)
