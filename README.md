@@ -20,7 +20,15 @@
 
 ---
 
+## ⚠️ 免责声明
+
+本项目**仅用于学习交流**，内容基于互联网上公开的 Claude Code 技术分析资料及[learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) 项目提供的灵感整理构建而成。所有课程代码均为独立编写，仅供教学演示，不建议直接用于生产环境。
+
+> "Claude Code" is a trademark of Anthropic. This project is not affiliated with or endorsed by Anthropic.
+
 ## 这是什么？
+
+![网站首页](.github/screenshot.jpg)
 
 49 节渐进式课程，教你从 `npm init` 开始，逐课构建出一个架构对标 [Claude Code](https://github.com/anthropics/claude-code) 的完整 AI Agent CLI 产品。
 
@@ -61,6 +69,8 @@ npm run dev
 **前置要求：** Node.js ≥ 18 · npm ≥ 9 · Git
 
 ## 课程大纲
+
+现在 [开始学习](https://build.funagent.app/)
 
 | # | 阶段 | 课程 | 关键能力 |
 |---|------|------|---------|
@@ -131,6 +141,12 @@ build-claude-code-cli/
   <img src="https://contrib.rocks/image?repo=funAgent/build-claude-code-cli" />
 </a>
 
+## 关于我
+
+![公众号](.github/wechat-qr.jpg)
+
+欢迎👏扫码关注我！
+
 ## Star History
 
 <a href="https://star-history.com/#funAgent/build-claude-code-cli&Date">
@@ -140,11 +156,6 @@ build-claude-code-cli/
    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=funAgent/build-claude-code-cli&type=Date" />
  </picture>
 </a>
-
-## 相关项目
-
-- [Claude Code](https://github.com/anthropics/claude-code) — 本项目的架构参考 claude-code-cli 源码
-- [learn-claude-code](https://github.com/shareAI-lab/learn-claude-code) — 学习 agent 构建
 
 ## 许可证
 
