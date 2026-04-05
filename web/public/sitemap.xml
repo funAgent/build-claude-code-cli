@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <!-- Homepage -->
+  <url>
+    <loc>https://build.funagent.app/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://build.funagent.app/en/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/"/>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Timeline -->
+  <url>
+    <loc>https://build.funagent.app/zh/timeline/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/timeline/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/timeline/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://build.funagent.app/en/timeline/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/timeline/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/timeline/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Architecture -->
+  <url>
+    <loc>https://build.funagent.app/zh/architecture/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/architecture/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/architecture/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://build.funagent.app/en/architecture/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/architecture/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/architecture/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Compare -->
+  <url>
+    <loc>https://build.funagent.app/zh/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/compare/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/compare/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://build.funagent.app/en/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="zh" href="https://build.funagent.app/zh/compare/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://build.funagent.app/en/compare/"/>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Lessons s00-s48 (zh) -->
+  <url><loc>https://build.funagent.app/zh/s00/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s01/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s02/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s03/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s04/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s05/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s06/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s07/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s08/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s09/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s10/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s11/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s12/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s13/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s14/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s15/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s16/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s17/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s18/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s19/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s20/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s21/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s22/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s23/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s24/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s25/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s26/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s27/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s28/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s29/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s30/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s31/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s32/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s33/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s34/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s35/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s36/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s37/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s38/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s39/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s40/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s41/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s42/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s43/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s44/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s45/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s46/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s47/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/zh/s48/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+
+  <!-- Lessons s00-s48 (en) -->
+  <url><loc>https://build.funagent.app/en/s00/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s01/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s02/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s03/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s04/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s05/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s06/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s07/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s08/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s09/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s10/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s11/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s12/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s13/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s14/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s15/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s16/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s17/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s18/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s19/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s20/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s21/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s22/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s23/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s24/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s25/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s26/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s27/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s28/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s29/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s30/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s31/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s32/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s33/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s34/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s35/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s36/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s37/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s38/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s39/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s40/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s41/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s42/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s43/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s44/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s45/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s46/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s47/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://build.funagent.app/en/s48/</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+</urlset>
