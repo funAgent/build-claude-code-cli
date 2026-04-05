@@ -39,8 +39,17 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href={`/${locale}`} className="text-lg font-bold">
-          Build Claude Code
+        <Link href={`/${locale}`} className="flex items-center gap-2 text-lg font-bold">
+          <img
+            src="/logo.svg"
+            width={24}
+            height={24}
+            alt=""
+            aria-hidden="true"
+            className="shrink-0 dark:invert"
+          />
+          <span className="hidden sm:inline">Build Claude Code</span>
+          <span className="sm:hidden">BCC</span>
         </Link>
 
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main navigation">
@@ -91,7 +100,7 @@ export function Header() {
           </button>
 
           <a
-            href="https://github.com/anthropics/claude-code"
+            href="https://github.com/funAgent/build-claude-code-cli"
             target="_blank"
             rel="noopener"
             aria-label="GitHub repository"
@@ -170,7 +179,7 @@ export function Header() {
                 {mounted ? (dark ? <Sun size={18} /> : <Moon size={18} />) : <span className="inline-block h-[18px] w-[18px]" />}
               </button>
               <a
-                href="https://github.com/anthropics/claude-code"
+                href="https://github.com/funAgent/build-claude-code-cli"
                 target="_blank"
                 rel="noopener"
                 aria-label="GitHub repository"
