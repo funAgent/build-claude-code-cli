@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npx tsx src/index.ts",
-    "chat": "npx tsx src/chat.ts"
+    "dev": "npx tsx --env-file=.env src/index.ts",
+    "chat": "npx tsx --env-file=.env src/chat.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.39.0"

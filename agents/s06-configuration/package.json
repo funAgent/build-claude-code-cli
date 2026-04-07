@@ -7,7 +7,7 @@
     "mycli": "./dist/cli.mjs"
   },
   "scripts": {
-    "dev": "npx tsx src/cli.ts",
+    "dev": "npx tsx --env-file=.env src/cli.ts",
     "build": "npx esbuild src/cli.ts --bundle --platform=node --format=esm --outfile=dist/cli.mjs --external:@anthropic-ai/sdk",
     "start": "node dist/cli.mjs"
   },
