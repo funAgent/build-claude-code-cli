@@ -17,6 +17,8 @@ import { startChat } from "./main.js";
 const require = createRequire(import.meta.url);
 const pkg = require("../package.json");
 
+const DEFAULT_MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
+
 const program = new Command();
 
 program
@@ -27,7 +29,7 @@ program
 program
   .command("chat")
   .description("启动交互式对话")
-  .option("-m, --model <model>", "模型名称", "claude-sonnet-4-20250514")
+  .option("-m, --model <model>", "模型名称", DEFAULT_MODEL)
   .option("-s, --system <prompt>", "系统提示词")
   .action(async (options) => {
     await startChat({
@@ -39,7 +41,7 @@ program
 program
   .command("ask <question>")
   .description("单次提问")
-  .option("-m, --model <model>", "模型名称", "claude-sonnet-4-20250514")
+  .option("-m, --model <model>", "模型名称", DEFAULT_MODEL)
   .action(async (question, options) => {
     const { ask } = await import("./main.js");
     await ask(question, { model: options.model });

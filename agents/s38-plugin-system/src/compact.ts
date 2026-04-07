@@ -21,6 +21,8 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { microcompactMessages, estimateMessageTokens } from "./micro-compact.js";
 
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
+
 // ── 阈值常量 ────────────────────────────────────────────────
 const CONTEXT_WINDOW_TOKENS = 200_000;
 const MAX_OUTPUT_TOKENS = 16_384;
@@ -196,7 +198,7 @@ export async function compactConversation(
     ];
 
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: MODEL,
       max_tokens: MAX_SUMMARY_TOKENS,
       system: "你是一个对话摘要助手。请准确、简洁地总结对话内容。",
       messages: compactMessages,

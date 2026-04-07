@@ -18,7 +18,7 @@ import { assembleToolPool } from "../tools.js";
 
 // 子 Agent 的最大轮次（比主 Agent 少，防止失控）
 const SUBAGENT_MAX_TURNS = 8;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export const agentTool = buildTool({
   name: "agent",

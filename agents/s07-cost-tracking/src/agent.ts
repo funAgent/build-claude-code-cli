@@ -29,7 +29,7 @@ const SYSTEM_PROMPT =
   "You are a helpful CLI assistant. Execute shell commands as needed. Be concise.";
 
 const MAX_TURNS = 10;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export class Agent {
   private tracker: CostTracker;

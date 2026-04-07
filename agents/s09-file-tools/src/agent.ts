@@ -14,7 +14,7 @@ import { fileWriteTool } from "./tools/file-write.js";
 const client = new Anthropic();
 const SYSTEM_PROMPT = "You are a helpful CLI assistant. Use tools as needed. Be concise.";
 const MAX_TURNS = 10;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export class Agent {
   private tools: Tool[];

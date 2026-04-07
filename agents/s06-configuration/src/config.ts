@@ -21,7 +21,7 @@ export interface AppConfig {
 }
 
 const DEFAULTS: AppConfig = {
-  model: "claude-sonnet-4-20250514",
+  model: process.env.MODEL_NAME ?? "claude-sonnet-4-20250514",
   maxTurns: 10,
   timeout: 30_000,
   maxOutput: 1024 * 1024,

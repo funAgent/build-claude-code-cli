@@ -11,7 +11,10 @@
 import Anthropic from "@anthropic-ai/sdk";
 import * as readline from "node:readline";
 
+// SDK 自动读取环境变量：ANTHROPIC_API_KEY / ANTHROPIC_BASE_URL
 const client = new Anthropic();
+
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 type Message = Anthropic.MessageParam;
 
@@ -41,7 +44,7 @@ async function chat() {
     // 2. 把完整的 messages 历史发给 API
     // 注意：随着对话增长，input_tokens 会越来越多（成本递增）
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: MODEL,
       max_tokens: 1024,
       messages,
     });

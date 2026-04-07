@@ -23,7 +23,7 @@ export interface AgentOutput {
 }
 
 const MAX_TURNS = 15;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export class Agent {
   private registry: ToolRegistry;

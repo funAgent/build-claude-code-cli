@@ -16,6 +16,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { execShell } from "./tools/bash.js";
 
 const client = new Anthropic();
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -59,7 +60,7 @@ export async function runAgent(userMessage: string): Promise<void> {
 
     // 每次循环就是一次 API 调用——整个 messages 历史都发过去
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: MODEL,
       max_tokens: 4096,
       system: SYSTEM_PROMPT,
       // tools 参数告诉模型它可以使用哪些工具

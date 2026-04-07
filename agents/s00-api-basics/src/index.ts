@@ -7,12 +7,15 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 
+// SDK 自动读取环境变量：ANTHROPIC_API_KEY / ANTHROPIC_BASE_URL
 const client = new Anthropic();
+
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 async function main() {
   // Messages API 的最小调用：model + max_tokens + messages 三要素
   const response = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: MODEL,
     max_tokens: 1024,
     // messages 是一个数组，每个元素有 role 和 content
     // 这个数组就是 Agent 的"记忆"——后续我们会不断往里 push

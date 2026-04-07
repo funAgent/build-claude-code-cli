@@ -16,6 +16,7 @@ import { execShell } from "./tools/bash.js";
 import { withRetry } from "./retry.js";
 
 const client = new Anthropic();
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -54,7 +55,7 @@ export async function runAgent(userMessage: string): Promise<void> {
     try {
       response = await withRetry(() =>
         client.messages.create({
-          model: "claude-sonnet-4-20250514",
+          model: MODEL,
           max_tokens: 4096,
           system: SYSTEM_PROMPT,
           tools: TOOLS,

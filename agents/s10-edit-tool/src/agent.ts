@@ -12,7 +12,7 @@ import { fileEditTool } from "./tools/file-edit.js";
 const client = new Anthropic();
 const SYSTEM_PROMPT = "You are a helpful CLI assistant. Prefer file_edit over file_write when modifying existing files. Be concise.";
 const MAX_TURNS = 12;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export class Agent {
   private tools: Tool[];

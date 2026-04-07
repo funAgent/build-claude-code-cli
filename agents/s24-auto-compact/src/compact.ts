@@ -16,6 +16,8 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
+
 // ── 阈值常量 ────────────────────────────────────────────────
 // 模型 context window（Claude Sonnet 的实际值是 200K，教学用 200K）
 const CONTEXT_WINDOW_TOKENS = 200_000;
@@ -163,7 +165,7 @@ export async function compactConversation(
     ];
 
     const response = await client.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: MODEL,
       max_tokens: MAX_SUMMARY_TOKENS,
       // 压缩请求用极简 system prompt，避免浪费 token
       system: "你是一个对话摘要助手。请准确、简洁地总结对话内容。",

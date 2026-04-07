@@ -14,7 +14,7 @@ import { assembleToolPool, type ToolRegistry } from "./tools.js";
 const client = new Anthropic();
 const SYSTEM_PROMPT = "You are a helpful CLI assistant. Use glob/grep to find files before editing. Prefer file_edit over file_write for existing files. Be concise.";
 const MAX_TURNS = 15;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export class Agent {
   private registry: ToolRegistry;

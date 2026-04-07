@@ -23,7 +23,7 @@ import {
 } from "../agent-utils.js";
 
 const SUBAGENT_MAX_TURNS = 8;
-const MODEL = "claude-sonnet-4-20250514";
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 export const agentTool = buildTool({
   name: "agent",

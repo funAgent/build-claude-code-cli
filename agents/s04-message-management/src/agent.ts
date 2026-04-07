@@ -27,6 +27,7 @@ import {
 } from "./messages.js";
 
 const client = new Anthropic();
+const MODEL = process.env.MODEL_NAME ?? "claude-sonnet-4-20250514";
 
 const TOOLS: Anthropic.Tool[] = [
   {
@@ -63,7 +64,7 @@ export class Agent {
       turnCount++;
 
       const response = await client.messages.create({
-        model: "claude-sonnet-4-20250514",
+        model: MODEL,
         max_tokens: 4096,
         system: SYSTEM_PROMPT,
         tools: TOOLS,
