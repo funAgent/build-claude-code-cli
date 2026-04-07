@@ -10,7 +10,7 @@
 
 - 熟悉 TypeScript / JavaScript
 - 有 Node.js 开发环境
-- 有 Anthropic API Key（[获取地址](https://console.anthropic.com/)）
+- 有 Anthropic API Key（[获取地址](https://console.anthropic.com/)），或智谱 GLM API Key（[获取地址](https://open.bigmodel.cn/)）作为替代
 
 ## 你将学到
 
@@ -70,6 +70,20 @@ cd agents/s00-api-basics
 npm install
 cp .env.example .env
 ```
+
+编辑 `.env` 文件，填入你的 API Key。如果没有 Anthropic API Key，可以使用智谱 GLM 作为替代：
+
+```bash
+# 使用 Anthropic（默认）
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxx
+
+# 使用智谱 GLM（替代方案）
+ANTHROPIC_API_KEY=your-glm-api-key
+ANTHROPIC_BASE_URL=https://open.bigmodel.cn/api/anthropic
+MODEL_NAME=glm-4.7
+```
+
+> 智谱 GLM 提供兼容 Anthropic 的 API 接口，Anthropic SDK 的 `ANTHROPIC_BASE_URL` 环境变量会自动切换请求地址，代码无需任何修改。
 
 ### 步骤 2: 单次调用
 
