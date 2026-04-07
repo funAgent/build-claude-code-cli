@@ -143,14 +143,11 @@ build-claude-code-cli/
 
 ## 关于我
 
-![微信公众号](.github/wechat-qr.jpg)
+|                            公众号                            |                            微信（加我注明：来自 github）                          |
+| :--------------------------------------------------------: | :--------------------------------------------------------: | 
+| <img src=".github/wechat-qr.jpg" width="128" /> | <img src=".github/wechat.jpg" width="128" /> |
 
-欢迎👏扫码关注我！
-
-![微信](.github/wechat.jpg)
-
-欢迎👏扫码加我！注明 github。
-
+欢迎👏扫码关注我。
 
 ## Star History
 
