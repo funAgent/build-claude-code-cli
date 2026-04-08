@@ -4,6 +4,9 @@
     <strong>从零构建企业级 AI Agent CLI — 逐课拆解 Claude Code 源码架构</strong>
   </p>
   <p align="center">
+    <a href="./README.md">中文</a> · <a href="./README_en.md">English</a>
+  </p>
+  <p align="center">
     🌐 <a href="https://build.funagent.app">官网</a> · 📖 <a href="./CONTRIBUTING.md">贡献指南</a> · 🐛 <a href="https://github.com/funAgent/build-claude-code-cli/issues">反馈问题</a>
   </p>
 </p>
