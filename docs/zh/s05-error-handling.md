@@ -72,7 +72,7 @@ async function withRetry<T>(fn: () => Promise<T>): Promise<T> {
 }
 ```
 
-> 完整实现见 **Code** 标签页的 `retry.ts`
+> 完整实现见 **源码** 标签页的 `retry.ts`
 
 ### 步骤 2: 工具错误作为 tool_result 返回
 
@@ -99,7 +99,7 @@ try {
 }
 ```
 
-> 完整实现见 **Code** 标签页的 `agent.ts`
+> 完整实现见 **源码** 标签页的 `agent.ts`
 
 ## 运行验证
 
@@ -108,7 +108,7 @@ npm run dev "查看一个不存在的文件 /tmp/nonexistent.txt 的内容"
 # 观察：模型会收到错误，尝试换个方式（比如先 ls 看看有什么文件）
 ```
 
-> 点击 **Simulate** 标签页查看错误恢复的动画演示
+> 点击 **模拟器** 标签页查看错误恢复的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -119,7 +119,7 @@ npm run dev "查看一个不存在的文件 /tmp/nonexistent.txt 的内容"
 | prompt-too-long | 未处理 | 自动压缩上下文后重试 |
 | 最终兜底 | throw 然后停止 | circuit breaker + 恢复消息 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

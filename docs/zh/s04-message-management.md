@@ -63,7 +63,7 @@ interface AgentMessage {
 }
 ```
 
-> 完整类型定义和工厂函数见 **Code** 标签页的 `types.ts`
+> 完整类型定义和工厂函数见 **源码** 标签页的 `types.ts`
 
 ### 步骤 2: 消息截断
 
@@ -88,7 +88,7 @@ class Agent {
 }
 ```
 
-> 完整实现见 **Code** 标签页
+> 完整实现见 **源码** 标签页
 
 ## 运行验证
 
@@ -97,7 +97,7 @@ npm run dev "帮我看看 package.json 的内容"
 npm run dev   # 交互模式，输入 /stats 查看统计
 ```
 
-> 点击 **Simulate** 标签页查看消息流转的动画演示
+> 点击 **模拟器** 标签页查看消息流转的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -109,7 +109,7 @@ npm run dev   # 交互模式，输入 /stats 查看统计
 | API 转换 | `toApiMessages()` | `normalizeMessagesForAPI()` — 合并、去重、验证 |
 | UI 格式化 | `formatMessage()` | `reorderMessagesInUI()` — 工具使用分组 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

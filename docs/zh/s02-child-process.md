@@ -65,7 +65,7 @@ export function isDangerous(command: string): string | null {
 }
 ```
 
-> 完整的危险模式列表见 **Code** 标签页
+> 完整的危险模式列表见 **源码** 标签页
 
 ### 步骤 2: spawn 封装
 
@@ -89,13 +89,13 @@ export async function execShell(command: string, options = {}): Promise<ShellRes
 2. `stdio: ["ignore", "pipe", "pipe"]` — 不接受 stdin，捕获 stdout/stderr
 3. **两阶段 kill**：SIGTERM 给进程清理机会，3 秒后 SIGKILL 强制终止
 
-> 完整实现见 **Code** 标签页的 `shell.ts`
+> 完整实现见 **源码** 标签页的 `shell.ts`
 
 ### 步骤 3: 添加 exec 子命令
 
 在 CLI 中注册 `exec <command>` 子命令，接收 `--timeout` 参数。
 
-> 完整源码见 **Code** 标签页的 `cli.ts`
+> 完整代码见 **源码** 标签页的 `cli.ts`
 
 ## 运行验证
 
@@ -105,7 +105,7 @@ npm run dev -- exec "rm -rf /"        # 被拦截
 npm run dev -- exec "sleep 60" -t 3000  # 超时
 ```
 
-> 点击 **Simulate** 标签页查看安全拦截和超时控制的动画演示
+> 点击 **模拟器** 标签页查看安全拦截和超时控制的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -116,7 +116,7 @@ npm run dev -- exec "sleep 60" -t 3000  # 超时
 | 超时 | SIGTERM → SIGKILL | 同样的两阶段 kill |
 | 输出限制 | 1MB 截断 | token 预算 + 磁盘替换 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

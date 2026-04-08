@@ -75,7 +75,7 @@ const TOOLS: Anthropic.Tool[] = [
 ];
 ```
 
-> 完整的工具定义和 system prompt 见 **Code** 标签页
+> 完整的工具定义和 system prompt 见 **源码** 标签页
 
 ### 步骤 2: 核心循环
 
@@ -119,7 +119,7 @@ toolResults.push({
 
 关键细节：`is_error: true` 不会导致 Agent 崩溃。相反，模型会看到错误，尝试修正或换一种方式。这就是 Agent 的"自我修正"能力。
 
-> 完整实现见 **Code** 标签页的 `agent.ts`
+> 完整实现见 **源码** 标签页的 `agent.ts`
 
 ## 运行验证
 
@@ -128,7 +128,7 @@ npm run dev "帮我看看当前目录有什么文件"
 npm run dev   # 进入交互模式
 ```
 
-> 点击 **Simulate** 标签页查看 Agent 循环的完整动画演示
+> 点击 **模拟器** 标签页查看 Agent 循环的完整动画演示
 
 ## 对照 Claude Code 架构
 
@@ -140,7 +140,7 @@ npm run dev   # 进入交互模式
 | 轮次限制 | MAX_TURNS=10 | token 预算 + maxTurns |
 | 错误处理 | 传 is_error | 分级恢复策略栈 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

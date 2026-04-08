@@ -59,7 +59,7 @@ function loadConfig(cliOverrides = {}): AppConfig {
 }
 ```
 
-> 完整实现见 **Code** 标签页
+> 完整实现见 **源码** 标签页
 
 ## 运行验证
 
@@ -70,7 +70,7 @@ MYCLI_MAX_TURNS=5 npm run dev            # 环境变量覆盖轮次
 npm run dev                              # 交互式，输入 /config 查看
 ```
 
-> 点击 **Simulate** 标签页查看配置加载流程的动画演示
+> 点击 **模拟器** 标签页查看配置加载流程的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -81,7 +81,7 @@ npm run dev                              # 交互式，输入 /config 查看
 | 向上查找 | 简单 while 循环 | 同 + git root 限制 |
 | 验证 | 无 | JSON Schema 校验 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

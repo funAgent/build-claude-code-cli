@@ -59,7 +59,7 @@ program
 
 注意第一行 `#!/usr/bin/env node` 是 shebang，让操作系统知道用 node 来执行。
 
-> 完整源码见 **Code** 标签页的 `cli.ts`
+> 完整代码见 **源码** 标签页的 `cli.ts`
 
 ### 步骤 2: 分离业务逻辑到 main.ts
 
@@ -71,7 +71,7 @@ export async function startChat(options: ChatOptions): Promise<void> {
 
 为什么要分离？因为 `main.ts` 可以被其他模块导入（比如测试、SDK），而 `cli.ts` 只是一个入口壳。Claude Code 也是这么做的：`cli.tsx` 极薄，`main.tsx` 厚。
 
-> 完整源码见 **Code** 标签页的 `main.ts`
+> 完整代码见 **源码** 标签页的 `main.ts`
 
 ### 步骤 3: 配置 bin 字段和 esbuild 打包
 
@@ -90,7 +90,7 @@ npm run dev -- chat
 npm run dev -- --help
 ```
 
-> 点击 **Simulate** 标签页查看终端运行效果的动画演示
+> 点击 **模拟器** 标签页查看终端运行效果的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -101,7 +101,7 @@ npm run dev -- --help
 | 参数解析 | Commander.js | Commander.js（同） |
 | 打包工具 | esbuild | esbuild（同） |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 

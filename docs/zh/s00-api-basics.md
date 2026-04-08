@@ -104,7 +104,7 @@ const textBlock = response.content.find((b) => b.type === "text");
 - `response.content` 是一个数组，需要找到 `type === "text"` 的内容块
 - `stop_reason` 这里是 `end_turn`，因为模型只是回答问题，没有工具调用
 
-> 完整源码见 **Code** 标签页的 `index.ts`
+> 完整代码见 **源码** 标签页的 `index.ts`
 
 ### 步骤 3: 多轮对话
 
@@ -118,7 +118,7 @@ messages.push({ role: "assistant", content: assistantText });
 
 每轮对话后，`messages` 数组增长两条（一条 user，一条 assistant）。模型每次都能看到完整的对话历史。
 
-> 完整源码见 **Code** 标签页的 `chat.ts`
+> 完整代码见 **源码** 标签页的 `chat.ts`
 
 ## 运行验证
 
@@ -127,7 +127,7 @@ npm run dev    # 单次调用
 npm run chat   # 多轮对话
 ```
 
-> 点击 **Simulate** 标签页查看终端运行效果的动画演示
+> 点击 **模拟器** 标签页查看终端运行效果的动画演示
 
 ## 对照 Claude Code 架构
 
@@ -137,7 +137,7 @@ npm run chat   # 多轮对话
 | 消息格式 | 直接使用 SDK 类型 | 自定义 `Message` 类型封装 |
 | 错误处理 | `.catch(console.error)` | 重试 + 流式回退 + 降级 |
 
-> 更详细的架构对照见 **Deep Dive** 标签页
+> 更详细的架构对照见 **深入** 标签页
 
 ## 深入思考
 
