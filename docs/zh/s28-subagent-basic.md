@@ -129,7 +129,7 @@ export const agentTool = buildTool({
 
 ```bash
 cd agents/s28-subagent-basic
-npx tsx src/cli.tsx
+npm run dev
 
 > 分析 src/ 目录的代码质量，同时搜索所有 TODO 注释
 # Agent 会创建子 Agent 来独立执行子任务

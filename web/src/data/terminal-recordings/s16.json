@@ -3,7 +3,7 @@
   "title": "REPL 主屏完整演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.16.0  (REPL)       │\n╰─────────────────────────────────╯\n\n📁 my-project/ — /Users/me/my-project\n🤖 claude-sonnet-4 │ 9 tools\n\nEnter 发送 │ ↑↓ 历史 │ /help 帮助 │ ESC 退出\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "/help", "typeDelay": 40 },

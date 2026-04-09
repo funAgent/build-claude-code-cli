@@ -6,7 +6,7 @@
     { "type": "input", "text": "echo '- Always use TypeScript strict mode' > RULES.md", "typeDelay": 25 },
     { "type": "output", "text": "", "color": "white" },
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.18.0  (REPL)       │\n╰─────────────────────────────────╯\n\n📁 s18-claude-md/\n🤖 claude-sonnet-4 │ 9 tools\n📜 RULES.md loaded (project)\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "写一个 hello world", "typeDelay": 35 },

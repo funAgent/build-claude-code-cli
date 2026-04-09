@@ -160,7 +160,7 @@ export class PermissionManager {
 
 ```bash
 cd agents/s33-permission-ui
-npx tsx src/cli.tsx
+npm run dev
 
 > 帮我安装依赖并创建一个新文件
 # bash("npm install") → 弹出权限对话框

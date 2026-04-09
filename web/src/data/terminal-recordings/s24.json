@@ -3,7 +3,7 @@
   "title": "自动压缩演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 25 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 25 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.24.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
     { "type": "prompt", "text": ">" },
     { "type": "input", "text": "帮我重构 src/utils.ts", "typeDelay": 30 },

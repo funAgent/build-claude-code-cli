@@ -3,7 +3,7 @@
   "title": "Streaming 进阶演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.21.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "analyze the project structure", "typeDelay": 25 },

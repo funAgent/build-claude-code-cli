@@ -144,7 +144,7 @@ function resolveSubagentMode(
 
 ```bash
 cd agents/s34-subagent-permissions
-npx tsx src/cli.tsx
+npm run dev
 
 # 1. 批准 Always Allow bash
 # 2. 让 Agent 创建子 Agent

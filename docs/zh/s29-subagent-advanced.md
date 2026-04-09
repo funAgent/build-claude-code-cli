@@ -138,7 +138,7 @@ async call(input, context) {
 
 ```bash
 cd agents/s29-subagent-advanced
-npx tsx src/cli.tsx
+npm run dev
 
 > 用只读子 Agent 分析 src/ 目录结构
 # 子 Agent 只有读操作工具，不能修改文件

@@ -153,7 +153,7 @@ cd agents/s30-skill-system
 mkdir -p .skills/deploy
 echo "# 部署流程\n使用 Docker Compose 部署..." > .skills/deploy/SKILL.md
 
-npx tsx src/cli.tsx
+npm run dev
 > 加载部署技能
 # Agent 会调用 skill("deploy") 加载 SKILL.md 内容
 ```

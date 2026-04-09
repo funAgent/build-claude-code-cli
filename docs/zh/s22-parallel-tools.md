@@ -177,7 +177,7 @@ const toolResults = await executor.executeAll();
 ## 验证
 
 ```bash
-cd agents/s22-parallel-tools && npx tsx src/cli.tsx
+cd agents/s22-parallel-tools && npm run dev
 ```
 
 1. 发送 "read package.json and tsconfig.json at the same time" → 观察两个 file_read 并行执行

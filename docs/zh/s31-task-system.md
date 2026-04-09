@@ -151,7 +151,7 @@ task_get({ id: "1" })
 
 ```bash
 cd agents/s31-task-system
-npx tsx src/cli.tsx
+npm run dev
 
 > 我要重构整个项目架构，帮我规划任务
 # Agent 会使用 task_create 创建有依赖关系的任务图

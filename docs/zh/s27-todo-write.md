@@ -167,7 +167,7 @@ export const todoWriteTool = buildTool({
 
 ```bash
 cd agents/s27-todo-write
-npx tsx src/cli.tsx
+npm run dev
 
 # Agent 会在处理复杂任务时自动使用 TodoWrite
 # 观察任务状态从 pending → in_progress → completed 的流转

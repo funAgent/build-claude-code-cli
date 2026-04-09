@@ -3,7 +3,7 @@
   "title": "Ink 基础渲染演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\nmycli v0.13.0 [Ink Basics] ESC 退出\n\n", "color": "cyan" },
     { "type": "prompt", "text": "you>" },
     { "type": "input", "text": "列出当前目录", "typeDelay": 40 },

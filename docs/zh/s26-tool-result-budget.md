@@ -175,7 +175,7 @@ this.applyBudget(onOutput);  // 确保不超预算
 cd agents/s26-tool-result-budget
 
 # 启动 Agent
-npx tsx src/cli.tsx
+npm run dev
 
 # 让 Agent 读取一个大文件
 > 读取 node_modules/typescript/lib/typescript.d.ts

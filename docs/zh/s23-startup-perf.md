@@ -227,10 +227,10 @@ export function startPrefetch(cwd: string) {
 cd agents/s23-startup-perf
 
 # 快速路径测试
-npx tsx src/cli.tsx --version  # 应该立即输出版本号
+npm run dev -- --version  # 应该立即输出版本号
 
 # 性能分析
-npx tsx src/cli.tsx --profile  # 启动后查看 stderr 的性能报告
+npm run dev -- --profile  # 启动后查看 stderr 的性能报告
 ```
 
 ## 对照 Claude Code
@@ -269,6 +269,6 @@ cli.tsx (bootstrap)
 
 ## 练习
 
-1. 在你的机器上实际测量：`time npx tsx src/cli.tsx --version`，然后对比 `time npx tsx src/cli.tsx`（完整启动）
+1. 在你的机器上实际测量：`time npm run dev -- --version`，然后对比 `time npm run dev`（完整启动）
 2. 实现 `startDeferredPrefetches()`：在首次渲染 200ms 后执行一些低优先级初始化
 3. 添加一个缓存层：把 `detectProjectRoot` 的结果缓存到 `/tmp`，下次启动直接读取

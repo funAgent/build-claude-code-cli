@@ -3,7 +3,7 @@
   "title": "Prompt Cache 效果演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.19.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "你好", "typeDelay": 40 },

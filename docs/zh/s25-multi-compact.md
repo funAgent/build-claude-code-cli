@@ -179,7 +179,7 @@ await this.maybeAutoCompact(onOutput);
 cd agents/s25-multi-compact
 
 # 启动 Agent
-npx tsx src/cli.tsx
+npm run dev
 
 # 多次读取大文件，观察微压缩行为
 # 当工具结果数量超过 5 个时，旧的会被替换为占位符

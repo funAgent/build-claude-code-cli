@@ -172,7 +172,7 @@ function checkBashPermissions(input): PermissionDecision {
 
 ```bash
 cd agents/s32-permission-engine
-npx tsx src/cli.tsx
+npm run dev
 
 # 尝试：
 > 执行 ls -la   # → 自动 allow（安全命令）

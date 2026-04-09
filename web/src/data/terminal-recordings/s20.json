@@ -3,7 +3,7 @@
   "title": "基础 Streaming 演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.20.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "explain streaming in 2 sentences", "typeDelay": 25 },

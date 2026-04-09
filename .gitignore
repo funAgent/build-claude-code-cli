@@ -11,6 +11,9 @@ web/src/data/generated/
 
 # Agent lock files (generated on install)
 agents/*/package-lock.json
+agents/*/pnpm-lock.yaml
+agents/*/yarn.lock
+agents/*/bun.lockb
 
 # Build
 dist/

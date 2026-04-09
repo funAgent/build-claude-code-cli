@@ -178,7 +178,7 @@ function ThinkingMessage({ content, streaming }) {
 ## 验证
 
 ```bash
-cd agents/s21-advanced-streaming && npx tsx src/cli.tsx
+cd agents/s21-advanced-streaming && npm run dev
 ```
 
 1. 发送一个复杂问题 → 观察 💭 thinking 实时显示

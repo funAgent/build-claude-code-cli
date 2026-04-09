@@ -3,7 +3,7 @@
   "title": "输入框与 Spinner 演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\nmycli v0.15.0 [Input Box]\n\n输入问题开始对话…\n\n───────────────────────────────────────\nclaude-sonnet-4 │ 0 msgs │ ↑↓ history │ Enter send │ ESC quit\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "查找所有 .ts 文件", "typeDelay": 35 },

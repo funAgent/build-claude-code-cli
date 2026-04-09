@@ -3,10 +3,10 @@
   "title": "启动性能优化演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "time npx tsx src/cli.tsx --version", "typeDelay": 25 },
+    { "type": "input", "text": "time npm run dev -- --version", "typeDelay": 25 },
     { "type": "output", "text": "\nmycli 0.23.0\n\nreal  0m0.012s  ← 快速路径: 零 import, 12ms 退出\n", "color": "green" },
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx --profile", "typeDelay": 25 },
+    { "type": "input", "text": "npm run dev -- --profile", "typeDelay": 25 },
     { "type": "output", "text": "\n╭─────────────────────────────────╮\n│     mycli v0.23.0  (REPL)       │\n╰─────────────────────────────────╯\n", "color": "cyan" },
     { "type": "output", "text": "\n⏱  Startup Profile:", "color": "yellow" },
     { "type": "output", "text": "\n────────────────────────────────────────", "color": "gray" },

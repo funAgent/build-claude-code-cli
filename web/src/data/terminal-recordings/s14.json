@@ -3,7 +3,7 @@
   "title": "消息列表渲染演示",
   "steps": [
     { "type": "prompt", "text": "$" },
-    { "type": "input", "text": "npx tsx src/cli.tsx", "typeDelay": 30 },
+    { "type": "input", "text": "npm run dev", "typeDelay": 30 },
     { "type": "output", "text": "\nmycli v0.14.0 [Message List] ESC 退出\n\n输入问题开始对话…\n", "color": "cyan" },
     { "type": "prompt", "text": "❯" },
     { "type": "input", "text": "用 ts 写 hello world", "typeDelay": 35 },

@@ -210,7 +210,7 @@ private async maybeCompact(onOutput): Promise<void> {
 cd agents/s24-auto-compact
 
 # 启动 Agent
-npx tsx src/cli.tsx
+npm run dev
 
 # 进行多轮对话，观察当 token 数接近阈值时自动压缩的行为
 # 压缩状态会通过 compact_status 类型输出显示
