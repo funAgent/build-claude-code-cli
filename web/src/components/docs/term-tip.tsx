@@ -24,6 +24,10 @@ export function TermTip({ children }: { children: React.ReactNode }) {
   });
   const [coords, setCoords] = useState({ top: 0, left: 0 });
   const [placement, setPlacement] = useState<Placement>("bottom");
+  // Whether position has been finalized after measuring the tooltip size.
+  // Prevents the tooltip from flashing at a guessed position before the real
+  // coordinates are computed.
+  const [positioned, setPositioned] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -73,13 +77,17 @@ export function TermTip({ children }: { children: React.ReactNode }) {
 
       clearTimeout(hideTimerRef.current);
       triggerRef.current = el;
+      setPositioned(false);
 
       const rect = el.getBoundingClientRect();
       setCoords({ top: rect.bottom + 10, left: rect.left });
       setPlacement("bottom");
       setTooltip({ visible: true, text: tip });
 
-      requestAnimationFrame(() => updatePosition());
+      requestAnimationFrame(() => {
+        updatePosition();
+        setPositioned(true);
+      });
     },
     [updatePosition],
   );
@@ -87,7 +95,10 @@ export function TermTip({ children }: { children: React.ReactNode }) {
   const hide = useCallback(() => {
     hideTimerRef.current = setTimeout(() => {
       setTooltip({ visible: false, text: "" });
+      setCoords({ top: 0, left: 0 });
+      setPlacement("bottom");
       triggerRef.current = null;
+      setPositioned(false);
     }, 150);
   }, []);
 
@@ -141,9 +152,14 @@ export function TermTip({ children }: { children: React.ReactNode }) {
                   position: "fixed",
                   top: coords.top,
                   left: coords.left,
+                  visibility: positioned ? "visible" : "hidden",
                 }}
                 initial={{ opacity: 0, y: placement === "bottom" ? -4 : 4 }}
-                animate={{ opacity: 1, y: 0 }}
+                animate={
+                  positioned
+                    ? { opacity: 1, y: 0 }
+                    : { opacity: 0, y: placement === "bottom" ? -4 : 4 }
+                }
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15, ease: "easeOut" }}
                 onMouseEnter={() => clearTimeout(hideTimerRef.current)}
