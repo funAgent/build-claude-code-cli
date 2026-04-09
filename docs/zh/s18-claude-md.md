@@ -63,7 +63,7 @@ cd agents/s18-claude-md
 npm install
 # 在当前目录创建 RULES.md
 echo "- Always use TypeScript strict mode\n- Respond in Chinese" > RULES.md
-npx tsx src/cli.tsx
+npm run dev
 # Agent 应遵循规则文件中的约定
 ```
 

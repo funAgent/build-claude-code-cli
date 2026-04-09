@@ -49,7 +49,7 @@ const header = `找到 ${matched.length} 个文件${truncated ? ` (显示前 ${M
 ```bash
 cd agents/s11-search-tools
 cp .env.example .env
-npx tsx src/cli.ts "用 glob 找所有 ts 文件，再用 grep 搜索 buildTool"
+npx tsx --env-file=.env src/cli.ts "用 glob 找所有 ts 文件，再用 grep 搜索 buildTool"
 ```
 
 观察输出是否在大量匹配时被截断并提示。

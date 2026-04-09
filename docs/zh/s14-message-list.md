@@ -60,7 +60,7 @@ function parseCodeBlocks(text: string): TextPart[] {
 ```bash
 cd agents/s14-message-list
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # 输入"用 typescript 写一个 hello world"
 # 观察：AI 回复中的代码块被 border 包裹
 # 工具调用显示 ⚡ 前缀，结果显示 ← 前缀

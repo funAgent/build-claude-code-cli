@@ -61,7 +61,7 @@ export function buildSystemPrompt(tools: Tool[], cwd: string): PromptSection[] {
 ```bash
 cd agents/s17-system-prompt
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # Agent 现在知道当前操作系统、工作目录和日期
 # 输入"你知道哪些工具？" — 回复应与 /tools 列表一致
 ```

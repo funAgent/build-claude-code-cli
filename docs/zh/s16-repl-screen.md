@@ -71,7 +71,7 @@ export function ReplScreen(): React.ReactElement {
 ```bash
 cd agents/s16-repl-screen
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # 1. 看到欢迎页（品牌框 + 目录 + 模型 + 快捷键）
 # 2. 输入 /help 测试内置命令
 # 3. 输入问题，欢迎页消失，进入对话模式

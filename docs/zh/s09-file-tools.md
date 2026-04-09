@@ -61,7 +61,7 @@ function validatePath(filePath: string, cwd: string): string | null {
 ```bash
 cd agents/s09-file-tools
 cp .env.example .env
-npx tsx src/cli.ts "请读取 package.json 的前 20 行并总结 name 字段"
+npx tsx --env-file=.env src/cli.ts "请读取 package.json 的前 20 行并总结 name 字段"
 ```
 
 可再试：在工作区外路径写入，应得到越权错误信息。

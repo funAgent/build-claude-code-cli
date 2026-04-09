@@ -65,7 +65,7 @@ await agent.run(input, (out) => {
 ```bash
 cd agents/s13-ink-basics
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # 看到 Ink 渲染的彩色终端界面
 # 输入问题，观察消息以 React 组件形式渲染
 # ESC 退出

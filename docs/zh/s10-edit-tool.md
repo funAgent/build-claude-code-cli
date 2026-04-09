@@ -61,7 +61,7 @@ const updated = content.replace(oldStr, newStr);
 ```bash
 cd agents/s10-edit-tool
 cp .env.example .env
-npx tsx src/cli.ts "把 src/cli.ts 里的版本号字符串改成一个明显的新版本（用 file_edit）"
+npx tsx --env-file=.env src/cli.ts "把 src/cli.ts 里的版本号字符串改成一个明显的新版本（用 file_edit）"
 ```
 
 人工检查：仅应改动目标片段，而非整文件重写。

@@ -67,7 +67,7 @@ const result = await tool.call(block.input, this.context);
 ```bash
 cd agents/s08-tool-abstraction
 cp .env.example .env   # 填入 API Key
-npx tsx src/cli.ts "列出当前目录"
+npx tsx --env-file=.env src/cli.ts "列出当前目录"
 ```
 
 ## 对照 Claude Code

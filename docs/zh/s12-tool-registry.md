@@ -57,7 +57,7 @@ CLI 增加 `--read-only` 与交互命令 `/tools`，调用 `listTools()` 遍历�
 ```bash
 cd agents/s12-tool-registry
 cp .env.example .env
-npx tsx src/cli.ts --read-only
+npx tsx --env-file=.env src/cli.ts --read-only
 # 交互式里输入 /tools 查看当前可用工具列表
 ```
 

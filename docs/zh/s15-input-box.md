@@ -51,7 +51,7 @@ useEffect(() => {
 ```bash
 cd agents/s15-input-box
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # 输入几条消息后按 ↑↓ 浏览历史
 # 观察 Agent 执行时的 Spinner 旋转动画
 # 底部状态栏实时更新消息计数

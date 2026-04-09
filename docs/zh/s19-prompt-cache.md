@@ -61,7 +61,7 @@ Agent 构造时调用 `splitPromptForCache`，每次请求用 `buildSystemParam(
 ```bash
 cd agents/s19-prompt-cache
 npm install
-npx tsx src/cli.tsx
+npm run dev
 # 连续发送几条消息
 # 观察 API 响应中的 usage.cache_creation_input_tokens 和 cache_read_input_tokens
 # 第二次请求应该有 cache_read > 0
