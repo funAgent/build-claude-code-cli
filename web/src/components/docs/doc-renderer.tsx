@@ -28,6 +28,49 @@ function renderMarkdown(md: string): string {
   return String(result);
 }
 
+function relocateExerciseDetails(html: string): string {
+  const detailsPattern =
+    /<details>\s*<summary>(练习\s*(\d+)\s*([^<]*))<\/summary>([\s\S]*?)<\/details>/g;
+
+  const detailsMap = new Map<number, { label: string; content: string; full: string }>();
+
+  let m: RegExpExecArray | null;
+  while ((m = detailsPattern.exec(html)) !== null) {
+    const num = parseInt(m[2], 10);
+    const label = m[3].trim();
+    detailsMap.set(num, { label, content: m[4], full: m[0] });
+  }
+
+  if (detailsMap.size === 0) return html;
+
+  for (const { full } of detailsMap.values()) {
+    html = html.replace(full, "");
+  }
+
+  const exerciseHeadingIdx = html.search(/<h2>动手练习<\/h2>/);
+  if (exerciseHeadingIdx === -1) return html;
+
+  const olStart = html.indexOf("<ol>", exerciseHeadingIdx);
+  if (olStart === -1) return html;
+  const olEnd = html.indexOf("</ol>", olStart);
+  if (olEnd === -1) return html;
+
+  const olBlock = html.slice(olStart, olEnd + 5);
+  let liIdx = 0;
+  const newOlBlock = olBlock.replace(/<\/li>/g, (tag) => {
+    liIdx++;
+    const detail = detailsMap.get(liIdx);
+    if (detail) {
+      return `${tag}\n<details><summary>${detail.label}</summary>${detail.content}</details>`;
+    }
+    return tag;
+  });
+
+  html = html.slice(0, olStart) + newOlBlock + html.slice(olEnd + 5);
+
+  return html;
+}
+
 function postProcessHtml(html: string): string {
   html = html.replace(
     /<pre><code class="hljs language-(\w+)">/g,
@@ -49,6 +92,8 @@ function postProcessHtml(html: string): string {
     /<ol start="(\d+)">/g,
     (_, start) => `<ol style="counter-reset:step-counter ${parseInt(start) - 1}">`
   );
+
+  html = relocateExerciseDetails(html);
 
   return html;
 }

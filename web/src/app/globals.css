@@ -470,6 +470,88 @@ pre, code, kbd, samp, .font-mono {
   background-color: #111113;
 }
 
+.prose-custom details {
+  margin-top: 1rem;
+  margin-bottom: 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  counter-increment: none;
+}
+
+.prose-custom ol > details {
+  margin-left: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.dark .prose-custom details {
+  border-color: #27272a;
+}
+
+.prose-custom details > summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #f8fafc;
+  list-style: none;
+  user-select: none;
+  transition: background-color 0.15s;
+}
+
+.prose-custom details > summary:hover {
+  background: #f1f5f9;
+}
+
+.dark .prose-custom details > summary {
+  color: #60a5fa;
+  background: #18181b;
+}
+
+.dark .prose-custom details > summary:hover {
+  background: #1f1f23;
+}
+
+.prose-custom details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.prose-custom details > summary::before {
+  content: '▶';
+  display: inline-block;
+  font-size: 0.625rem;
+  transition: transform 0.2s;
+  color: #94a3b8;
+}
+
+.prose-custom details[open] > summary::before {
+  transform: rotate(90deg);
+}
+
+.prose-custom details[open] > summary {
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .prose-custom details[open] > summary {
+  border-bottom-color: #27272a;
+}
+
+.prose-custom details > :not(summary) {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.prose-custom details > pre {
+  margin-left: 1rem;
+  margin-right: 1rem;
+  width: auto;
+}
+
 .prose-custom hr {
   margin-top: 2rem;
   margin-bottom: 2rem;

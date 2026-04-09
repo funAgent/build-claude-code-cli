@@ -141,24 +141,23 @@ export default function GuidePage() {
 
     if (headingEls.length === 0) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+    const threshold = HEADER_OFFSET + 20;
 
-        if (visible.length > 0) {
-          setActiveId(visible[0].target.id);
+    function handleScroll() {
+      let currentId = headingEls[0]?.id ?? "";
+      for (const el of headingEls) {
+        if (el.getBoundingClientRect().top <= threshold) {
+          currentId = el.id;
+        } else {
+          break;
         }
-      },
-      {
-        rootMargin: `-${HEADER_OFFSET}px 0px -60% 0px`,
-        threshold: 0,
       }
-    );
+      setActiveId(currentId);
+    }
 
-    headingEls.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [toc]);
 
   useEffect(() => {
