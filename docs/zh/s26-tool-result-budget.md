@@ -1,5 +1,22 @@
 # s26 — 大输出处理：工具结果的预算与替换
 
+> **Don't let one tool result eat the whole context.**
+
+`[ Phase 6: 上下文管理 ]` · 工具数: 9 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s25 [多层压缩策略]
+
+## 你将学到
+
+- 单工具结果大小限制与磁盘<abbr data-tip="将数据从内存写入磁盘文件，使其在程序重启后仍然存在">持久化</abbr>
+- 预览替换格式：保留前 2000 字符预览
+- 消息组<abbr data-tip="为单条 user 消息中所有 tool_result 设定的总大小上限，超出时自动替换最大的结果">预算</abbr>（per-message budget）与最大优先替换算法
+- ContentReplacementState 保证 <abbr data-tip="API 服务端缓存已发送的 prompt 前缀，相同前缀的后续请求只需支付 cache read 费用（便宜 90%）">prompt cache</abbr> 稳定性
+
 ## 问题场景
 
 用户让 Agent 读取一个大文件：
@@ -238,5 +255,42 @@ npm run dev
 ## 练习
 
 1. 修改 `MAX_RESULT_SIZE_CHARS` 为 5000，用 Agent 读取一个中等大小的文件，观察持久化行为
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+调整单结果阈值观察持久化：
+
+```typescript
+const MAX_RESULT_SIZE_CHARS = 5_000; // 从 50K 降到 5K（测试用）
+```
+
+然后让 Agent 读取一个超过 5K 字符的文件（如 package-lock.json）：
+
+```
+> 读取 package-lock.json
+```
+
+**预期观察**：
+1. 文件内容超过 5000 字符
+2. 完整内容被写入 `.agent-sessions/{id}/tool-results/toolu_xxx.txt`
+3. messages 中只保留前 2000 字符预览 + 磁盘路径
+4. 如果 Agent 需要查看完整内容，它可以调用 file_read 读取持久化路径
+
+</details>
 2. 实现 `readPersistedResult(toolUseId)`：让模型可以通过工具调用重新读取完整的持久化内容
 3. 添加清理机制：会话结束时删除 `.agent-sessions` 目录
+
+## Phase 6 总结
+
+恭喜！完成 s24-s26，你的 Agent 已经有了**完整的上下文管理能力**：
+
+- ✅ 自动压缩：用摘要替换历史，保留记忆骨架（s24）
+- ✅ 多层压缩策略：微压缩 + 自动压缩 + 响应式压缩 + 熔断（s25）
+- ✅ 工具结果预算：持久化大输出，预览替换 + 最大优先清理（s26）
+
+下一个 Phase 将让 Agent 从"被动执行"进化为"主动思考"。Agent 如何规划任务？如何创建子 Agent？**s27 TodoWrite** 开始。
+
+## 下一课预告
+
+Agent 拿到一个复杂任务时，如果没有规划，就会混乱执行。下一课 **s27 TodoWrite** 将实现任务规划工具，让 Agent 先拆解任务、再逐项执行。

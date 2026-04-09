@@ -1,5 +1,22 @@
 # s39 — Agent 定义：声明式配置
 
+> **Agents should be configured, not hardcoded.**
+
+`[ Phase 10: 多 Agent ]` · 工具数: 3 · 代码量: ~80 行
+
+---
+
+## 前置知识
+
+- 需要完成: s38 Plugin System：第三方扩展
+
+## 你将学到
+
+- <abbr data-tip="描述'想要什么'而非'怎么做'的配置方式，如 YAML/JSON 定义配置，而非编写代码逻辑">声明式</abbr> Agent 定义：Markdown frontmatter + body 格式零代码扩展
+- 多来源合并：built-in / plugin / user / project 四层优先级覆盖
+- AgentDefinition 类型：agentType、tools、model、isolation 等字段设计
+- Markdown 解析：<abbr data-tip="Markdown 文件顶部用 --- 分隔的 YAML 元数据区域，常用于静态站点生成器（如 Jekyll、Hugo）中定义页面属性">frontmatter</abbr> 提取与 body 转 systemPrompt
+
 ## 问题场景
 
 你想创建一个专注于代码审查的 Agent，一个专注于测试的 Agent。每次都要改代码？
@@ -130,5 +147,44 @@ npm run dev
 ## 练习
 
 1. 创建 `.agents/` 目录，定义一个 "test-writer" Agent
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+创建 `.agents/test-writer.md`：
+
+```markdown
+---
+name: test-writer
+whenToUse: 需要为代码编写单元测试时使用
+tools:
+  - file_read
+  - file_write
+  - file_edit
+  - bash
+  - grep
+  - glob
+model: claude-sonnet
+maxTurns: 15
+---
+
+你是一个测试编写专家。你的工作是为给定的代码编写全面的单元测试。
+
+规则：
+1. 先阅读源代码理解功能和边界条件
+2. 使用项目已有的测试框架（Jest/Vitest）
+3. 覆盖正常路径、边界情况和错误处理
+4. 每个 test case 的描述要清晰表达预期行为
+5. 不要修改源代码，只添加测试文件
+```
+
+启动后 Agent 会在处理"帮我写测试"类请求时自动加载这个定义，使用指定的工具集和 system prompt。
+
+</details>
+
 2. 实现 JSON 格式的 Agent 定义（parseAgentFromJson）
 3. 添加 shadowed 检测：当高优先级覆盖低优先级时提示用户
+
+## 下一课预告
+
+**s40 — Coordinator**：Leader-Worker 编排模式——工具池分裂、系统提示策略、并行任务调度。

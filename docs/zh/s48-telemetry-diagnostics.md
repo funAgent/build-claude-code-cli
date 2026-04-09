@@ -1,10 +1,22 @@
 # s48 — 遥测与诊断
 
-> **Motto:** You can't optimize what you don't measure
+> **You can't optimize what you don't measure.**
 
-`[ Phase 4: 可观测性 ]` · 主题：启动剖析、Doctor、采样遥测与诊断报告
+`[ Phase 11: 生产功能 ]` · 主题：启动剖析、Doctor、采样遥测与诊断报告
 
 ---
+
+## 前置知识
+
+- 需要完成: s47 Native 能力
+
+## 你将学到
+
+- 启动剖析：profileCheckpoint 阶段计时与 PHASE_DEFINITIONS 定义
+- Doctor 健康检查：getDoctorDiagnostic 聚合环境/工具/配置检查
+- <abbr data-tip="只收集部分用户（如 0.5%）的行为数据而非全量，在获取产品洞察与保护用户隐私之间取得平衡">采样遥测</abbr>：internal 全量 vs external 低采样的合规平衡
+- 结构化诊断报告：时间线格式、敏感信息<abbr data-tip="移除或掩盖敏感信息（如 API Key 中间字符替换为 ***），确保日志和报告中不泄露机密数据">脱敏</abbr>、可复制模板
+- 性能优化循环：先 Statsig 看 P95 → 针对性 profiling → 验证回归
 
 ## 问题场景
 
@@ -108,7 +120,77 @@ npm run dev -- doctor
 ## 练习
 
 1. 实现 `profileCheckpoint` + `printStartupReport`，仅在 `PROFILE=1` 时打印 `import_time` / `total_time`。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+启动剖析实现：
+
+```typescript
+const checkpoints: Array<{ name: string; time: number }> = [];
+const startTime = performance.now();
+
+export function profileCheckpoint(name: string): void {
+  if (process.env.PROFILE !== "1") return;
+  checkpoints.push({ name, time: performance.now() - startTime });
+}
+
+export function printStartupReport(): void {
+  if (process.env.PROFILE !== "1") return;
+
+  console.log("\n⏱  Startup Profile:");
+  console.log("─".repeat(40));
+
+  let prevTime = 0;
+  for (const cp of checkpoints) {
+    const delta = cp.time - prevTime;
+    console.log(`  ${cp.name.padEnd(24)} ${cp.time.toFixed(1)}ms  (+${delta.toFixed(1)}ms)`);
+    prevTime = cp.time;
+  }
+
+  console.log("─".repeat(40));
+  console.log(`  ${"Total".padEnd(24)} ${prevTime.toFixed(1)}ms\n`);
+}
+
+// 使用方式
+profileCheckpoint("cli_entry");
+// ... 加载模块 ...
+profileCheckpoint("imports_done");
+// ... 初始化 ...
+profileCheckpoint("ready");
+
+printStartupReport();
+```
+
+**输出示例**：
+```
+⏱  Startup Profile:
+────────────────────────────────────────
+  cli_entry                  0.1ms  (+0.1ms)
+  imports_done             142.5ms  (+142.4ms)
+  ready                    198.3ms  (+55.8ms)
+────────────────────────────────────────
+  Total                    198.3ms
+```
+
+</details>
 2. 用数学证明：0.5% 采样下，约需多少日活才能以 95% 置信度发现占 1% 会话的启动回归（简化为二项近似，写出思路即可）。
 3. 为 Doctor 写 `DiagnosticInfo` 类型：包含 `checks: Array<{ id: string; ok: boolean; detail?: string }>`。
 4. 阅读 `startupProfiler.ts` 中 `PHASE_DEFINITIONS`，说明 `total_time` 的起止 mark 为何选 `cli_entry` → `main_after_run`。
 5. 设计一个「用户可复制」的诊断模板（Markdown），包含版本、OS、Node、失败项与脱敏后的配置来源。
+
+## Phase 11 总结
+
+恭喜完成 **生产功能** 阶段！你现在掌握了：
+
+- [x] s44 递进式错误恢复：错误分类、指数退避重试、递进恢复链、熔断器
+- [x] s45 Feature Flags：编译期 DCE、运行时 env、灰度 hash 分桶、用户类型分流
+- [x] s46 打包与分发：esbuild 单文件打包、package.json 发布配置、npm publish 流程
+- [x] s47 Native 能力：四种策略对比、ripgrep 三档降级、detectCapabilities
+- [x] s48 遥测与诊断：启动剖析、Doctor 健康检查、采样遥测、诊断报告
+
+> 从错误恢复到可观测性，你的 Agent 已具备生产级韧性、发布管控与运维诊断能力。
+
+---
+
+**全课程完成！** 从 s01 的第一条用户消息，到 s48 的遥测诊断——你已经从零构建了一个完整的 AI 编程助手。

@@ -1,6 +1,21 @@
 # s20 — 基础 Streaming：逐 token 显示
 
-## 问题场景
+> **Don't make the user stare at a blank screen**
+
+`[ Phase 5: 流式与性能 ]` · 工具数: 9 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s19 [Prompt Cache]
+
+## 你将学到
+
+- `messages.stream()` 替代 `messages.create()`
+- 流式事件类型（text_delta、content_block_start 等）
+- streamingText buffer 的 UI 状态管理
+- 光标闪烁效果和 Spinner 智能隐藏
 
 到 s19 为止，我们的 Agent 调用 `messages.create()` 获得完整响应后才开始显示。用户发送一个复杂问题后，屏幕可能空白 10-30 秒——这在 CLI 产品中是不可接受的体验。
 
@@ -173,3 +188,33 @@ SDK 的 `BetaMessageStream` 在每个 `input_json_delta` 事件上调用 `partia
 1. 在 `stream.on("text")` 回调中加一个 token 计数器，在 StatusBar 显示实时 token 数
 2. 尝试给流式文本加上打字机音效（终端 bell: `\x07`）
 3. 实现一个"停止生成"功能：用户按 Esc 时调用 `stream.abort()`
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+在 StatusBar 中显示实时 token 计数：
+
+```typescript
+// 在 REPL 组件中维护 token 计数
+const [streamTokenCount, setStreamTokenCount] = useState(0);
+
+// Agent 输出回调中
+case "text_delta":
+  setStreamTokenCount(prev => prev + 1); // 每次 delta 约等于 1 token
+  // ... 原有 buffer 逻辑 ...
+  break;
+case "text_done":
+  setStreamTokenCount(0); // 重置
+  break;
+
+// StatusBar 组件中
+<Text>{streamTokenCount > 0 ? `streaming: ~${streamTokenCount} tokens` : ""}</Text>
+```
+
+**注意**：这是粗略估算。精确计数需要从 API 响应的 `usage` 字段获取，但流式过程中 usage 只在最终 `message_stop` 事件中才可用。
+
+</details>
+
+## 下一课预告
+
+s20 实现了基础文本流式输出，但 Agent 还有 thinking block 和工具调用需要流式处理。下一课 **s21 Streaming 进阶** 将处理 thinking 块流式、工具 JSON 增量解析和流式容错。

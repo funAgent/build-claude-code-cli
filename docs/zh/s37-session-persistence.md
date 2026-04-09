@@ -1,5 +1,22 @@
 # s37 — 会话持久化：断点续做
 
+> **A professional tool never loses your work.**
+
+`[ Phase 9: 扩展与集成 ]` · 工具数: 3 · 代码量: ~90 行
+
+---
+
+## 前置知识
+
+- 需要完成: s36 MCP 服务端 + 配置
+
+## 你将学到
+
+- <abbr data-tip="JSON Lines 格式，每行一个独立的 JSON 对象，支持追加写入和流式读取，是日志和事件流的常用格式">JSONL</abbr> 格式选择：<abbr data-tip="只在文件末尾添加新内容而不修改已有内容的写入方式，进程崩溃时只影响最后一条记录">追加写入</abbr>、行级容错、流式读取的天然优势
+- 会话存储架构：按项目哈希隔离的文件路径设计
+- Resume 恢复流程：会话列表扫描、消息重载与上下文继续
+- UUID 消息链：parentUuid 链表结构支持上下文追溯
+
 ## 问题场景
 
 你正在用 Agent 进行一个大型重构任务。做到一半需要离开——明天回来时，对话没了。
@@ -160,5 +177,40 @@ npm run dev -- --resume
 ## 练习
 
 1. 实现 `--resume <session-id>` 直接恢复指定会话
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+直接指定 session-id 恢复：
+
+```typescript
+// cli.tsx — 参数解析
+const resumeArg = args.indexOf("--resume");
+if (resumeArg !== -1) {
+  const sessionId = args[resumeArg + 1]; // 可选的 session-id 参数
+
+  if (sessionId) {
+    // 直接恢复指定会话
+    const { messages, metadata } = resumeSession(sessionId, process.cwd());
+    agent.loadMessages(messages);
+    agent.loadMetadata(metadata);
+  } else {
+    // 无参数 → 列出可恢复会话供选择
+    const sessions = listSessions(process.cwd());
+    // ... 展示选择 UI
+  }
+}
+```
+
+**CLI 用法**：
+- `my-cli --resume abc-123-456` → 直接恢复指定会话
+- `my-cli --resume` → 列出历史会话供用户选择
+
+</details>
+
 2. 添加 Ink 交互界面：方向键选择历史会话
 3. 实现渐进加载：大文件只读取前几行提取标题，选中后再加载全部
+
+## 下一课预告
+
+**s38 — Plugin System**：第三方扩展的终极形态——manifest 校验、安全边界、marketplace 生态。

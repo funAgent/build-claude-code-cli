@@ -1,10 +1,22 @@
 # s46 — 打包与分发
 
-> **Motto:** If users can't install it in one command, they won't use it
+> **If users can't install it in one command, they won't use it.**
 
-`[ Phase 4: 发布与分发 ]` · 主题：esbuild 单文件打包、package.json 配置、npm 发布与自动更新检查
+`[ Phase 11: 生产功能 ]` · 主题：esbuild 单文件打包、package.json 配置、npm 发布与自动更新检查
 
 ---
+
+## 前置知识
+
+- 需要完成: s45 Feature Flags
+
+## 你将学到
+
+- <abbr data-tip="使用 Go 编写的极速 JavaScript/TypeScript 打包器，比 Webpack 快 10-100 倍，支持 tree-shaking 和代码分割">esbuild</abbr> 单文件打包：--bundle、--platform=node、--external、--minify 参数
+- package.json 发布配置：bin、files、engines、prepublishOnly 字段
+- 版本检查：npm view 查询、semver 比较、静默失败设计
+- npm publish 流程：dry-run 预检、beta tag 频道、CI 自动发布
+- 供应链安全：files 字段过滤、npm provenance、lockfile 固定
 
 ## 问题场景
 
@@ -95,7 +107,7 @@ export function build(config: BuildConfig): { success: boolean; error?: string }
 - `--bundle`：将所有 `import` 打进一个文件。
 - `--platform=node`：保留 Node.js 内置模块（`fs`、`path` 等）不打包。
 - `--external`：native 模块（如 `fsevents`）无法序列化为 JS，必须排除。
-- `--minify`：生产发布时压缩，减小约 30-50% 体积。
+- `--minify`：生产发布时压缩，减小约 30-50% 体积。配合 <abbr data-tip="打包时自动移除未被引用的代码（像摇树让枯叶落下），减小最终产物体积">tree-shaking</abbr>，未使用的导出会被自动移除。
 
 ### 2. `generatePackageJson(config)` — 发布配置
 
@@ -231,7 +243,45 @@ npm pack --dry-run
 ## 练习
 
 1. 编写一个最小 `build.mjs`：用 esbuild API（非 CLI）打包 `src/cli.ts` 到 `dist/cli.js`，外部化 `@anthropic-ai/sdk`，生成 sourcemap。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+最小 esbuild 打包脚本：
+
+```javascript
+// build.mjs
+import { build } from "esbuild";
+
+await build({
+  entryPoints: ["src/cli.ts"],
+  bundle: true,
+  platform: "node",
+  target: "node18",
+  outfile: "dist/cli.js",
+  format: "esm",
+  sourcemap: true,
+  external: [
+    "@anthropic-ai/sdk",  // SDK 随用户安装
+    "fsevents",            // macOS 原生模块
+  ],
+  minify: false,  // 开发时不压缩，方便调试
+  banner: {
+    js: "#!/usr/bin/env node",  // 添加 shebang
+  },
+});
+
+console.log("✓ Built dist/cli.js");
+```
+
+**运行**：`node build.mjs` 即可生成 `dist/cli.js`。`external` 列出的包不会被打进 bundle，运行时从 `node_modules` 加载。
+
+</details>
 2. 创建一个完整的 `package.json`：包含 `bin`、`files`、`engines`、`exports`、`prepublishOnly` 脚本，用 `npm pack` 验证打包内容（不实际发布）。
 3. 实现 `checkForUpdates` 的缓存版本：将上次检查时间写入 `~/.config/your-cli/update-check.json`，24 小时内不重复查询。
 4. 用 `npm publish --dry-run` 检查你的包：确认 `files` 字段正确过滤了源码、测试、`.env` 等敏感文件。
 5. 设计一个 CI 发布流程（GitHub Actions）：`main` 分支 push 时自动 `npm version patch`、构建、测试、publish，并在失败时发送通知。
+
+## 下一课预告
+
+**s47 — Native 能力**：纯 TS / WASM / 子进程 / Native Addon 四种策略与降级链设计。

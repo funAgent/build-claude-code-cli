@@ -1,5 +1,22 @@
 # s32 — 权限规则引擎：allow / deny / ask
 
+> **Security is not one check; it's layered defense.**
+
+`[ Phase 8: 安全与权限 ]` · 工具数: 14 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s31 [Task System]
+
+## 你将学到
+
+- 三种权限行为：allow / deny / ask 的语义与默认策略
+- 四种全局安全级别：default / acceptEdits / <abbr data-tip="绕过大部分权限检查的模式，适用于可信环境或 CI/CD 自动化场景，但仍有安全底线（如危险命令仍被拦截）">bypass</abbr>Permissions / dontAsk
+- 九步<abbr data-tip="将复杂判断拆分为有序步骤依次执行，每步可能短路返回结果，类似中间件链或 Express.js 的洋葱模型">决策流水线</abbr>：deny 优先 → ask 检查 → 工具自定义 → bypass → 默认 ask
+- 权限规则的三要素：source / behavior / value
+
 ## 问题场景
 
 你的 Agent 有 `bash` 工具。用户说："帮我清理临时文件。"
@@ -60,7 +77,7 @@ Agent 可能执行的命令：
   └── 适用于 CI/CD 等非交互环境
 ```
 
-### 决策流水线
+### 决策<abbr data-tip="将复杂判断拆分为有序步骤依次执行，每步可能短路返回结果，类似中间件链或 Express.js 的洋葱模型">流水线</abbr>
 
 ```
 hasPermissionsToUseTool 的决策顺序：
@@ -201,5 +218,48 @@ npm run dev
 ## 练习
 
 1. 为 `file_write` 工具添加 `checkPermissions`：禁止写入 `/etc/` 和 `~/.ssh/` 目录
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+为 file_write 添加路径安全检查：
+
+```typescript
+const PROTECTED_PATHS = [
+  "/etc/",
+  "/.ssh/",
+  "/.gnupg/",
+  "/System/",
+  "/Windows/System32/",
+];
+
+function checkFileWritePermissions(input): PermissionDecision {
+  const filePath = resolve(input.path); // 绝对路径
+  const homeDir = process.env.HOME ?? "";
+
+  for (const protected of PROTECTED_PATHS) {
+    const fullPath = protected.startsWith("/.")
+      ? join(homeDir, protected)
+      : protected;
+    if (filePath.startsWith(fullPath)) {
+      return {
+        behavior: "deny",
+        message: `禁止写入受保护目录: ${fullPath}`,
+      };
+    }
+  }
+
+  return { behavior: "ask", message: "需要确认写入" };
+}
+```
+
+**设计考虑**：用绝对路径比较，先 `resolve()` 输入路径防止 `../../etc/passwd` 这类目录穿越攻击。
+
+</details>
+
 2. 实现规则持久化：将 session 规则保存到 `.agent-permissions.json`
 3. 添加正则类型的 ruleContent：支持 `bash("^git\s+")` 这样的正则匹配
+
+## 下一课预告
+
+权限引擎返回了 ask——但 Agent Loop 还不知道如何暂停执行、展示 UI 给用户做决定。下一课 **s33 权限 UI** 将实现交互式审批对话框：Ink 组件渲染、Promise 挂起模式、"记住选择"的规则注入。

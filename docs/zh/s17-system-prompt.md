@@ -1,6 +1,21 @@
 # s17 — 基础 System Prompt：告诉 Agent 它是谁
 
-## 问题场景
+> **The system prompt is the agent's soul**
+
+`[ Phase 4: Prompt 工程 ]` · 工具数: 9 · 代码量: ~250 行
+
+---
+
+## 前置知识
+
+- 需要完成: s16 [REPL 主屏]
+
+## 你将学到
+
+- System prompt 的分层组装设计
+- 工具指南自动生成——prompt 与实际工具同步
+- 环境信息注入（OS、cwd、日期）
+- Section 模式为后续 prompt cache 打基础
 
 前 16 课里，system prompt 一直是一行硬编码字符串：
 
@@ -87,3 +102,38 @@ npm run dev
 1. 新增一个 `getGitSection()`，用 `git rev-parse --abbrev-ref HEAD` 注入当前分支名。
 2. 实现一个 `--verbose-prompt` 参数，打印完整的 system prompt（调试用）。
 3. 研究 Claude Code `constants/prompts.ts` 中的 `getUsingYourToolsSection`，比较与我们的 tool guide 区别。
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+在 `cli.ts` 中添加 `--verbose-prompt` 参数：
+
+```typescript
+program
+  .command("chat")
+  .option("--verbose-prompt", "打印完整 system prompt")
+  .action(async (options) => {
+    const config = loadConfig({ verbosePrompt: options.verbosePrompt });
+    const tools = assembleToolPool();
+    const sections = buildSystemPrompt(tools.getAll(), process.cwd());
+
+    if (options.verbosePrompt) {
+      console.log("=== System Prompt Sections ===");
+      for (const section of sections) {
+        console.log(`\n--- ${section.name} (cacheable: ${section.cacheable}) ---`);
+        console.log(section.content);
+      }
+      console.log("\n=== End ===\n");
+    }
+
+    await startChat(config, sections);
+  });
+```
+
+**用途**：调试 prompt 时可以检查每个 section 的内容是否正确，以及 cacheable 标记是否合理。
+
+</details>
+
+## 下一课预告
+
+system prompt 告诉了 Agent "你是谁"，但它还不知道"这个项目怎么做"。下一课 **s18 CLAUDE.md** 将让 Agent 自动加载项目规则文件。

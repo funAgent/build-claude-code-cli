@@ -1,6 +1,21 @@
 # s19 — Prompt Cache：让重复 Prompt 不重复计费
 
-## 问题场景
+> **Cache the prefix, pay once for the static parts**
+
+`[ Phase 4: Prompt 工程 ]` · 工具数: 9 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s18 [CLAUDE.md]
+
+## 你将学到
+
+- Anthropic Prompt Cache 的工作原理
+- DYNAMIC_BOUNDARY：划分静态/动态 section
+- `cache_control: { type: "ephemeral" }` 注入方式
+- 工具列表稳定排序对缓存命中率的影响
 
 每次 API 调用，system prompt 都会被完整发送。一个有 9 个工具的 Agent，system prompt 大约 2000 token。对话 20 轮，就是 40000 token 的 system prompt 费用——但内容完全相同！
 
@@ -89,3 +104,41 @@ npm run dev
 1. 打印每次 API 响应的 `usage` 字段，计算 cache 命中率。
 2. 故意把工具列表改为 `Math.random()` 排序，对比 cache 命中率的变化。
 3. 研究 Claude Code `getCacheControl()` 中 `scope: 'global'` 的启用条件。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+在 Agent 循环中打印 cache 相关的 usage 数据：
+
+```typescript
+const response = await client.messages.create({ model, max_tokens, system, tools, messages });
+
+const usage = response.usage;
+const cacheRead = usage.cache_read_input_tokens ?? 0;
+const cacheCreation = usage.cache_creation_input_tokens ?? 0;
+const totalInput = usage.input_tokens;
+const hitRate = totalInput > 0 ? (cacheRead / totalInput * 100).toFixed(1) : "0";
+
+console.log(`  [${totalInput}↓ ${usage.output_tokens}↑ | cache: ${cacheRead}r/${cacheCreation}c | 命中率: ${hitRate}%]`);
+```
+
+**预期观察**：
+- 第 1 轮：cache_creation > 0，cache_read = 0（首次写入缓存）
+- 第 2 轮起：cache_read > 0，cache_creation = 0（命中缓存）
+- 命中率应该在 70-90% 之间（取决于 system prompt 占总 input 的比例）
+
+</details>
+
+## Phase 4 总结
+
+恭喜！完成 s17-s19，你的 Agent 已经有了**结构化的 Prompt 工程**：
+
+- ✅ System Prompt 分层组装（s17）
+- ✅ CLAUDE.md 项目规则（s18）
+- ✅ Prompt Cache 优化（s19）
+
+下一个 Phase 将处理**流式输出与性能**——让 Agent 的响应从"等 3 秒白屏"变成"实时逐字显示"。**s20 Streaming** 开始。
+
+## 下一课预告
+
+Agent 的回复要等全部生成完毕才显示，体验很差。下一课 **s20 Streaming** 将引入流式 API，让用户在模型思考时就能看到输出。

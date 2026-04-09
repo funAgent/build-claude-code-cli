@@ -1,5 +1,22 @@
 # s40 — Coordinator：Leader-Worker 编排
 
+> **One coordinator, many workers — divide and conquer.**
+
+`[ Phase 10: 多 Agent ]` · 工具数: 4 · 代码量: ~100 行
+
+---
+
+## 前置知识
+
+- 需要完成: s39 Agent 定义：声明式配置
+
+## 你将学到
+
+- <abbr data-tip="将完整工具集拆分为不同角色使用的子集——编排者只能调度，执行者只能操作文件，实现关注点分离">工具池分裂</abbr>：Coordinator 只有编排工具，Worker 只有执行工具
+- 系统提示策略：明确角色定义、Worker 能力描述、编排规则
+- 并行任务调度：先分析再派活，<abbr data-tip="包含所有必要上下文信息的提示词，Worker 不依赖外部状态即可独立完成任务，类似无状态的 REST 请求">自包含 prompt</abbr> 设计
+- 安全隔离：Worker 不能创建子 Worker，防止递归爆炸
+
 ## 问题场景
 
 一个复杂任务需要同时修改 5 个文件、运行测试、更新文档。单个 Agent 串行执行太慢。
@@ -128,3 +145,53 @@ npm run dev
 1. 实现 Coordinator 模式的切换和会话恢复
 2. 添加 Worker 能力的动态描述（根据已连接的 MCP 服务器）
 3. 实现任务进度追踪：Coordinator 知道每个 Worker 的状态
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+Coordinator 端的任务进度追踪：
+
+```typescript
+interface WorkerStatus {
+  agentId: string;
+  status: "idle" | "running" | "completed" | "failed";
+  task: string;
+  startedAt: number;
+  completedAt?: number;
+}
+
+class CoordinatorTracker {
+  private workers = new Map<string, WorkerStatus>();
+
+  assignTask(agentId: string, task: string) {
+    this.workers.set(agentId, {
+      agentId, status: "running", task, startedAt: Date.now(),
+    });
+  }
+
+  completeTask(agentId: string, success: boolean) {
+    const w = this.workers.get(agentId);
+    if (w) {
+      w.status = success ? "completed" : "failed";
+      w.completedAt = Date.now();
+    }
+  }
+
+  getProgress(): { total: number; completed: number; running: number } {
+    const all = [...this.workers.values()];
+    return {
+      total: all.length,
+      completed: all.filter(w => w.status === "completed").length,
+      running: all.filter(w => w.status === "running").length,
+    };
+  }
+}
+```
+
+Coordinator 在每轮循环中调用 `getProgress()`，实时展示 `[2/5 completed, 3 running]` 进度条。
+
+</details>
+
+## 下一课预告
+
+**s41 — Team + Mailbox**：多个 Agent 之间的通信机制——文件邮箱、JSON 消息队列、零依赖 IPC。

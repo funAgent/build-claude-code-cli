@@ -1,5 +1,22 @@
 # s35 — MCP 客户端：连接外部工具
 
+> **Don't build every tool; let the ecosystem build them.**
+
+`[ Phase 9: 扩展与集成 ]` · 工具数: 3 · 代码量: ~120 行
+
+---
+
+## 前置知识
+
+- 需要完成: s34 子 Agent 权限：继承与隔离
+
+## 你将学到
+
+- MCP 协议架构：<abbr data-tip="基于 JSON 的远程过程调用协议，通过发送 {method, params, id} 请求并接收 {result, id} 响应完成跨进程通信">JSON-RPC</abbr> 通信与工具发现流程
+- 连接 MCP 服务器：spawn 子进程、初始化、工具列表获取
+- mcp__ 命名规范：代理工具的前缀命名空间与权限匹配
+- <abbr data-tip="将远程工具封装为本地对象的设计模式，调用方无需知道底层通信细节，类似前端的 API 封装层">工具代理模式</abbr>：将 MCP 远程工具封装为本地 Tool 对象
+
 ## 问题场景
 
 你的 Agent 需要查数据库、调 GitHub API、操作 Slack。为每个服务都写一个内置工具？
@@ -189,3 +206,45 @@ npm run dev
 1. 连接一个真实的 MCP 服务器（如 `@modelcontextprotocol/server-filesystem`），观察工具发现过程
 2. 实现 SSE 传输层：支持连接远程 MCP 服务器
 3. 添加自动重连：连接断开后指数退避重试
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+MCP 连接自动重连与指数退避：
+
+```typescript
+const MAX_RETRIES = 5;
+const BASE_DELAY_MS = 1000;
+
+async function connectWithRetry(
+  serverName: string,
+  config: McpServerConfig,
+  retries = 0,
+): Promise<McpConnection> {
+  try {
+    return await connectToMcpServer(serverName, config);
+  } catch (error) {
+    if (retries >= MAX_RETRIES) throw error;
+
+    const delay = BASE_DELAY_MS * Math.pow(2, retries); // 指数退避
+    console.log(`[mcp] ${serverName} 连接失败，${delay}ms 后重试...`);
+
+    await new Promise(r => setTimeout(r, delay));
+    return connectWithRetry(serverName, config, retries + 1);
+  }
+}
+
+// 监听子进程退出 → 触发重连
+child.on("exit", () => {
+  console.log(`[mcp] ${serverName} 断开，正在重连...`);
+  connection = connectWithRetry(serverName, config);
+});
+```
+
+**指数退避**：每次重试间隔翻倍（1s → 2s → 4s → 8s → 16s），避免在服务端不可用时产生连接风暴。
+
+</details>
+
+## 下一课预告
+
+**s36 — MCP 服务端 + 配置**：不仅调用别人的工具，也让自己能被调用——实现 MCP Server 模式与三层配置管理。

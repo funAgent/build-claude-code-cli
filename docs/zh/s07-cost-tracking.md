@@ -42,6 +42,11 @@ AI API 按 token 计费。一次复杂的多轮对话可能花费 $0.01，也可
 核心逻辑——累加 usage 并按模型定价计算：
 
 ```typescript
+const PRICING: Record<string, { inputPerMillion: number; outputPerMillion: number }> = {
+  "claude-sonnet-4-20250514": { inputPerMillion: 3, outputPerMillion: 15 },
+  "claude-haiku-4-20251001":  { inputPerMillion: 0.25, outputPerMillion: 1.25 },
+};
+
 class CostTracker {
   addUsage(usage: { input_tokens: number; output_tokens: number }): void {
     this.totalInputTokens += usage.input_tokens;
@@ -59,6 +64,8 @@ class CostTracker {
   }
 }
 ```
+
+> **直觉参考**：1M tokens 大约是 750,000 个英文单词，或约 3 本小说的文本量。Sonnet 处理这么多输入文字的价格是 $3，输出是 $15。一次典型的 Agent 对话（5 轮循环）大约消耗 5,000-20,000 tokens，成本在 $0.01-$0.10 之间。
 
 > 完整实现（含模型定价表）见 **源码** 标签页
 
@@ -102,11 +109,53 @@ A: 输入 token 已经在 prompt 中了，模型只需要"理解"；输出 token
 
 A: 通过 token 预算（budget）。当累计消耗接近预算时，自动触发上下文压缩（s24 课），而不是停止服务。这比简单的 MAX_TURNS 更智能。
 
-## 动手练习
+**Q: 什么是 cache token？为什么它的价格不同？**
+
+A: 当你连续发送相似的 prompt 时，API 可以复用之前计算过的部分，这就是 cache。Cache 命中的 token 价格只有普通 token 的 10%（Sonnet：$0.30/M vs $3/M）。Claude Code 大量使用 prompt caching——system prompt 和工具定义在多轮对话中不变，每次只有用户消息是新输入的，所以大部分输入 token 都能命中 cache，实际成本比表面计算低很多。练习 1 就是让你统计 cache token。
+
+## 练习
 
 1. 添加缓存 token 统计（response.usage.cache_creation_input_tokens / cache_read_input_tokens）
 2. 实现成本预警：当单次对话超过 $0.10 时自动提示用户
 3. 把成本数据持久化到文件，实现跨会话的历史成本追踪
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+扩展 `addUsage` 方法，加入 cache token 统计：
+
+```typescript
+interface CacheUsage {
+  input_tokens: number;
+  output_tokens: number;
+  cache_creation_input_tokens?: number;  // 写入 cache 的 token
+  cache_read_input_tokens?: number;      // 从 cache 读取的 token
+}
+
+class CostTracker {
+  private cacheCreationTokens = 0;
+  private cacheReadTokens = 0;
+
+  addUsage(usage: CacheUsage): void {
+    this.totalInputTokens += usage.input_tokens;
+    this.totalOutputTokens += usage.output_tokens;
+    this.cacheCreationTokens += usage.cache_creation_input_tokens ?? 0;
+    this.cacheReadTokens += usage.cache_read_input_tokens ?? 0;
+    this.apiCalls++;
+  }
+
+  getInlineStatus(): string {
+    const cost = this.getCost();
+    return `[${this.totalInputTokens}↓ ${this.totalOutputTokens}↑ ` +
+      `cache:${this.cacheReadTokens}r/${this.cacheCreationTokens}w ` +
+      `$${cost.totalCost.toFixed(4)}]`;
+  }
+}
+```
+
+**观察**：多轮对话中，`cache_read_input_tokens` 会逐轮增长（system prompt 和工具定义被缓存复用），而 `cache_creation_input_tokens` 只在第一轮较高。这意味着实际成本比按标准价格计算的要低。
+
+</details>
 
 ## Phase 1 总结
 

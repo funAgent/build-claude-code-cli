@@ -1,10 +1,22 @@
 # s47 — Native 能力
 
-> **Motto:** The terminal is your canvas; the OS is your palette
+> **The terminal is your canvas; the OS is your palette.**
 
-`[ Phase 4: 系统能力 ]` · 主题：纯 TS / WASM / 子进程 / Native Addon 与降级链
+`[ Phase 11: 生产功能 ]` · 主题：纯 TS / WASM / 子进程 / Native Addon 与降级链
 
 ---
+
+## 前置知识
+
+- 需要完成: s46 打包与分发
+
+## 你将学到
+
+- 四种策略对比：Pure TS / <abbr data-tip="WebAssembly，可在浏览器和 Node.js 中运行的二进制指令格式，性能接近原生代码，常用于计算密集型任务">WASM</abbr> / Spawn 系统命令 / <abbr data-tip="用 C/C++ 编写并通过 N-API 编译为 .node 文件的 Node.js 原生扩展，性能极高但需要针对每个平台单独编译">Native Addon</abbr> 的优劣取舍
+- 三档降级（以 ripgrep 为例）：system → vendor/builtin → embedded/fallback
+- 剪贴板封装：macOS pbcopy / Linux xclip 统一接口
+- detectCapabilities：启动时检测系统工具、磁盘、Git 可用性
+- 安全考量：PATH 劫持防护、findExecutable 命令名解析
 
 ## 问题场景
 
@@ -97,6 +109,63 @@ which rg && echo "system rg available"
 
 1. 画出 `getRipgrepConfig` 决策树：环境变量 → bundled → vendor。
 2. 实现一个最小 `detectCapabilities()`：返回 `hasGit`、`hasRg`、`clipboard` 可用性。
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+系统能力检测函数：
+
+```typescript
+import { execFileSync } from "child_process";
+import { platform } from "os";
+
+export interface Capabilities {
+  hasGit: boolean;
+  hasRg: boolean;
+  clipboard: "pbcopy" | "xclip" | "wl-copy" | null;
+  platform: string;
+}
+
+let cached: Capabilities | null = null;
+
+export function detectCapabilities(): Capabilities {
+  if (cached) return cached;
+
+  const result: Capabilities = {
+    hasGit: checkCommand("git", "--version"),
+    hasRg: checkCommand("rg", "--version"),
+    clipboard: detectClipboard(),
+    platform: platform(),
+  };
+
+  cached = result;
+  return result;
+}
+
+function checkCommand(cmd: string, arg: string): boolean {
+  try {
+    execFileSync(cmd, [arg], { timeout: 3000, stdio: "pipe" });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function detectClipboard(): Capabilities["clipboard"] {
+  if (platform() === "darwin" && checkCommand("pbcopy", "")) return "pbcopy";
+  if (checkCommand("xclip", "-version")) return "xclip";
+  if (checkCommand("wl-copy", "--version")) return "wl-copy";
+  return null;
+}
+```
+
+**缓存策略**：首次调用后缓存结果，避免每条消息都执行 `which` 命令。环境变化（如安装新工具）需要重启 CLI 才能生效。
+
+</details>
 3. 在 Linux 上封装 `xclip -selection clipboard`，失败时尝试 `wl-copy`，并写单元测试 mock `execFile`。
 4. 讨论：为何 Pure TS 实现 diff 颜色仍可能有价值（不 spawn `diff`）？
 5. 列举两个应使用 **Native FFI** 而非 spawn 的场景，并说明风险。
+
+## 下一课预告
+
+**s48 — 遥测与诊断**：启动剖析、Doctor 健康检查、采样遥测与结构化诊断报告——最后一课收官。

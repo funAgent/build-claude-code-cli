@@ -84,9 +84,19 @@ function truncateContent(content: string, maxLen = 10_000): string {
 class Agent {
   private history: AgentMessage[] = [];
   async run(userInput: string): Promise<void> { /* ... */ }
-  showStats(): void { /* ... */ }
+  showStats(): void {
+    const stats = getConversationStats(this.history);
+    console.log("--- 对话统计 ---");
+    console.log(`总消息数: ${stats.totalMessages}`);
+    console.log(`用户消息: ${stats.userMessages}`);
+    console.log(`助手消息: ${stats.assistantMessages}`);
+    console.log(`总输入 tokens: ${stats.totalInputTokens}`);
+    console.log(`总输出 tokens: ${stats.totalOutputTokens}`);
+  }
 }
 ```
+
+用户在交互模式中输入 `/stats` 就能实时查看对话统计。
 
 > 完整实现见 **源码** 标签页
 
@@ -121,11 +131,44 @@ A: 产品化后，消息不只是 user/assistant。还需要：system 消息（�
 
 A: 模型需要知道它看到的不是完整输出。如果直接切断，模型可能基于不完整的信息做出错误判断。加上 `[内容已截断]` 后，模型知道该自己再去获取更多信息。
 
-## 动手练习
+**Q: 为什么需要 `toApiMessages()` 转换函数，不能直接把 AgentMessage 发给 API？**
+
+A: 因为 `AgentMessage` 包含 API 不认识的字段（`timestamp`、`tokenCount`）。直接发送会导致 API 报错或忽略这些字段。转换函数的作用就是"脱掉外套"——去掉元数据，只保留 API 需要的 `role` 和 `content`。Claude Code 的 `normalizeMessagesForAPI()` 做得更多：还会合并连续同 role 消息、验证图片格式、去重等。
+
+## 练习
 
 1. 给 `AgentMessage` 添加一个 `id` 字段（UUID），用 `crypto.randomUUID()` 生成
 2. 实现一个 `/history` 命令，打印当前 messages 数组的结构（每条消息的 role、content 类型、大小）
 3. 修改截断逻辑：对代码类输出保留头尾各 30%，中间截断
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+修改 `AgentMessage` 接口，添加 `id` 字段：
+
+```typescript
+import { randomUUID } from "node:crypto";
+
+export interface AgentMessage {
+  id: string;  // 新增
+  role: "user" | "assistant";
+  content: string | ContentBlockParam[];
+  timestamp: number;
+  tokenCount?: { input: number; output: number };
+}
+```
+
+在每个工厂函数中自动生成 UUID：
+
+```typescript
+export function createUserMessage(content: string): AgentMessage {
+  return { id: randomUUID(), role: "user", content, timestamp: Date.now() };
+}
+```
+
+**用途**：有了唯一 ID，你可以实现消息的去重、引用（"引用第 3 条消息"）和追踪（日志中用 ID 关联同一条消息）。Claude Code 的每条消息都有 `uuid` 字段。
+
+</details>
 
 ## 下一课预告
 

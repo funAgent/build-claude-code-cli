@@ -34,7 +34,7 @@ s04 的 Agent 在正常情况下运行良好，但现实中充满意外：
 
 | 错误类型 | 策略 | 原因 |
 |----------|------|------|
-| API 错误 | 指数退避重试 | 大多数是暂时性的，等一等就好 |
+| API 错误 | <abbr data-tip="一种重试策略：每次重试的等待时间翻倍（1s → 2s → 4s → 8s...）。第一次快速重试捕捉短暂故障，后续逐步加长等待给服务恢复时间。">指数退避</abbr>重试 | 大多数是暂时性的，等一等就好 |
 | 工具错误 | 告诉模型，让它修正 | 模型可能换个命令或换个方式 |
 
 这个区分至关重要：API 错误是"通道问题"，重试是正确做法；工具错误是"内容问题"，让模型知道并修正才是正确做法。
@@ -131,11 +131,75 @@ A: 因为 API 要求每个 `tool_use` 都必须有配对的 `tool_result`。如�
 
 A: 是的。当你传入 `is_error: true` 和错误信息后，模型会分析错误原因并尝试换一种方式。比如 `cat nonexistent.txt` 失败后，模型通常会先 `ls` 看看有什么文件，再去读取正确的文件。
 
-## 动手练习
+**Q: 什么时候不应该重试？**
+
+A: 不是所有错误都应该重试。400（请求格式错误）、401（认证失败）、403（权限不足）这些错误重试也没用——你的请求本身就有问题。`isRetryableError` 函数只对 429、529、5xx 和网络超时返回 true，其他错误直接抛出。Claude Code 还处理了一种特殊情况：`prompt-too-long`（输入超过上下文窗口），这种错误重试没用，但压缩上下文后重试可能有用——所以它不重试，而是先压缩再重发。
+
+## 练习
 
 1. 添加一个 `--max-retries` CLI 参数，让用户控制最大重试次数
 2. 实现"降级模型"：当 `claude-sonnet-4-20250514` 失败时，自动切换到 `claude-haiku-4-20250514`
 3. 给重试过程加上倒计时显示，让用户知道还要等多久
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+在 `cli.ts` 的 `chat` 命令中添加 `--max-retries` 选项：
+
+```typescript
+program
+  .command("chat")
+  .option("-m, --model <model>", "模型名称", DEFAULT_MODEL)
+  .option("--max-retries <n>", "最大重试次数", "3")
+  .action(async (options) => {
+    await startChat({
+      model: options.model,
+      maxRetries: Number(options.maxRetries),
+    });
+  });
+```
+
+然后在 `agent.ts` 中把 `maxRetries` 传给 `withRetry`：
+
+```typescript
+const response = await withRetry(
+  () => client.messages.create({ model, max_tokens: 4096, tools, messages }),
+  { maxRetries: options.maxRetries }
+);
+```
+
+</details>
+
+<details>
+<summary>练习 2 参考思路</summary>
+
+降级模型的核心是在 `withRetry` 失败后，换一个模型再试。思路如下：
+
+```typescript
+const FALLBACK_MODEL = "claude-haiku-4-20251001";
+
+async function callModel(model: string, messages: MessageParam[]) {
+  return withRetry(
+    () => client.messages.create({ model, max_tokens: 4096, tools, messages }),
+    { maxRetries: 2 }
+  );
+}
+
+// 使用时
+try {
+  response = await callModel("claude-sonnet-4-20250514", messages);
+} catch (error) {
+  console.log(`[fallback] 主模型失败，切换到 ${FALLBACK_MODEL}`);
+  response = await callModel(FALLBACK_MODEL, messages);
+}
+```
+
+**要点**：
+- 主模型和备用模型各自独立重试，不会交叉干扰
+- Haiku 更便宜更快，但能力稍弱，适合作为降级选择
+- Claude Code 生产版也采用类似策略：重试失败后自动降级
+
+</details>
 
 ## 下一课预告
 

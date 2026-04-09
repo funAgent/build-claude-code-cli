@@ -1,6 +1,21 @@
 # s18 — CLAUDE.md 项目规则：让 Agent 了解项目
 
-## 问题场景
+> **Teach the agent your project's rules**
+
+`[ Phase 4: Prompt 工程 ]` · 工具数: 9 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s17 [System Prompt]
+
+## 你将学到
+
+- CLAUDE.md / RULES.md 项目规则文件的设计
+- 三级加载优先级（全局 → 项目 → 子目录）
+- 项目根检测（向上查找 package.json 或 .git）
+- 规则文件注入 system prompt 的方式
 
 s17 的 system prompt 告诉 Agent "你是谁"和"能做什么"，但不知道"这个项目怎么做"。比如：
 
@@ -89,3 +104,83 @@ npm run dev
 1. 创建 `~/.mycli/RULES.md`，写入"Always respond in English"，验证全局规则是否生效。
 2. 实现 `--no-rules` 参数，跳过规则加载（用于调试）。
 3. 给 `/init` 命令增加交互式生成——让 AI 分析当前项目结构后自动生成 RULES.md。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+```typescript
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+/** 全局规则：~/.mycli/RULES.md */
+export function globalRulesPath(): string {
+  return path.join(os.homedir(), ".mycli", "RULES.md");
+}
+
+export function readGlobalRules(): string | undefined {
+  const p = globalRulesPath();
+  if (!fs.existsSync(p)) return undefined;
+  return fs.readFileSync(p, "utf8");
+}
+```
+
+- **要点**：在 `~/.mycli/` 下新建 `RULES.md`，写入一行 `Always respond in English.`；确保 `loadRules` 把 `readGlobalRules()` 的结果并入 prompt。启动 CLI 后用中英混合提问，若回复为英文则全局规则生效。
+
+</details>
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+```typescript
+/** 解析 CLI，例如：node index.js --no-rules */
+export function parseArgs(argv: string[]): { noRules: boolean; rest: string[] } {
+  const noRules = argv.includes("--no-rules");
+  const rest = argv.filter((a) => a !== "--no-rules");
+  return { noRules, rest };
+}
+
+export function loadRules(cwd: string, opts: { skipRules?: boolean }): RuleFile[] {
+  if (opts.skipRules) return [];
+  const rules: RuleFile[] = [];
+  // ... 与课文相同：合并 ~/.mycli、项目根、cwd 的 RULES.md ...
+  return rules;
+}
+```
+
+- **要点**：入口在解析出 `noRules` 后传入 `loadRules(cwd, { skipRules: noRules })`，调试时可完全跳过规则注入，避免干扰 prompt 对比。
+
+</details>
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+```typescript
+import fs from "node:fs";
+import path from "node:path";
+
+async function initRulesWithAi(cwd: string, client: AnthropicLike): Promise<void> {
+  const summary = buildProjectSummary(cwd); // 如列出顶层目录、package.json 的 name/scripts
+  const res = await client.messages.create({
+    model: process.env.MODEL ?? "claude-sonnet-4-20250514",
+    max_tokens: 4096,
+    messages: [
+      {
+        role: "user",
+        content: `You are helping write RULES.md for this repo.\n\nProject snapshot:\n${summary}\n\nOutput only the RULES.md body in Markdown.`,
+      },
+    ],
+  });
+  const text = res.content.map((b) => (b.type === "text" ? b.text : "")).join("");
+  const out = path.join(cwd, "RULES.md");
+  fs.writeFileSync(out, text.trim() + "\n", "utf8");
+}
+```
+
+- **要点**：`/init` 先收集结构化项目快照（避免把整个仓库塞进上下文），再调用一次非流式 `messages.create` 生成草稿并写入 `{cwd}/RULES.md`；用户可在写入后自行编辑确认。
+
+</details>
+
+## 下一课预告
+
+每次 API 调用都发送完整 system prompt，大量重复 token 被计费。下一课 **s19 Prompt Cache** 将利用 Anthropic 的缓存机制，让重复的 prompt 前缀只计费一次。

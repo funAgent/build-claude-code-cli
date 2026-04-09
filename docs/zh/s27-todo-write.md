@@ -1,5 +1,22 @@
 # s27 — TodoWrite：让 Agent 先规划再执行
 
+> **Plan the work, then work the plan.**
+
+`[ Phase 7: Agent 智能 ]` · 工具数: 10 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s26 [大输出处理]
+
+## 你将学到
+
+- TodoWrite 工具的设计：pending / in_progress / completed <abbr data-tip="描述对象在其生命周期中经历的所有状态及状态转换规则的模型，常见于游戏开发和协议设计中">状态机</abbr>
+- <abbr data-tip="只更新变化的部分而非替换整体，类似 Git merge 的增量更新思路">merge 模式</abbr>：Agent 只传需要更新的项
+- 按 agentId 隔离 todo 存储
+- allDone 自动清空策略
+
 ## 问题场景
 
 用户说："帮我重构整个 auth 模块，包括 OAuth、JWT、权限检查、中间件。"
@@ -212,4 +229,38 @@ TodoWrite vs Task System:
 
 1. 给 Agent 一个复杂任务（如"创建一个带认证的 REST API"），观察它如何拆解为 todo 列表
 2. 实现 `cancelled` 状态：允许 Agent 取消不再需要的任务
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+添加 cancelled 状态：
+
+```typescript
+export type TodoStatus = "pending" | "in_progress" | "completed" | "cancelled";
+
+// 更新逻辑中处理 cancelled
+export function updateTodos(todos, options) {
+  // ... 已有逻辑 ...
+
+  // cancelled 状态不计入 allDone 判断
+  const allDone = result.every(t =>
+    t.status === "completed" || t.status === "cancelled"
+  );
+  if (allDone && result.some(t => t.status === "completed")) {
+    todoStore.delete(key);
+    return [];
+  }
+
+  todoStore.set(key, result);
+  return result;
+}
+```
+
+**设计考虑**：cancelled 不应触发 allDone 清空（除非所有任务都已完成或取消）。Agent 通过 `merge: true` 只传 `[{id: "step3", status: "cancelled"}]` 即可取消单个任务。
+
+</details>
 3. 添加 todo 持久化：把任务列表写入 `.agent-todos.json`，支持会话恢复
+
+## 下一课预告
+
+TodoWrite 让 Agent 学会了规划，但面对复杂任务时，单个 Agent 的 context 会迅速膨胀。下一课 **s28 Subagent 基础** 将实现上下文隔离——让 Agent 创建子 Agent，每个子任务获得干净的工作空间。

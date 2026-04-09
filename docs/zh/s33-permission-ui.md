@@ -1,5 +1,22 @@
 # s33 — 权限 UI：交互式审批对话框
 
+> **Good permission UX builds trust, not interruption.**
+
+`[ Phase 8: 安全与权限 ]` · 工具数: 14 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s32 [权限规则引擎]
+
+## 你将学到
+
+- PermissionPrompt Ink 组件：键盘选择 Allow / Deny / Always Allow
+- <abbr data-tip="利用 Promise 的 resolve 回调将异步 UI 交互转为同步等待——创建 Promise 后 await，用户操作后调用 resolve 释放控制流">Promise 挂起模式</abbr>：将 UI 交互嵌入异步 Agent Loop
+- "记住选择"：Always Allow 将 session 规则注入权限上下文
+- 工具专属预览：不同工具展示不同的操作预览
+
 ## 问题场景
 
 权限引擎（s32）返回 ask——现在需要一个 UI 让用户做决定。
@@ -190,3 +207,30 @@ npm run dev
 1. 为 `file_edit` 创建专属的 `FileEditPermissionRequest`：显示 old_string → new_string 的 diff
 2. 添加 "Reject with feedback" 选项：用户可以输入拒绝原因，作为 tool_result 返回给模型
 3. 实现键盘快捷键：`y` = Allow, `n` = Deny, `a` = Always Allow
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+为 PermissionPrompt 添加快捷键：
+
+```tsx
+useInput((input, key) => {
+  // 原有方向键逻辑保留
+  if (key.upArrow) setSelected(s => Math.max(0, s - 1));
+  if (key.downArrow) setSelected(s => Math.min(2, s + 1));
+  if (key.return) onChoice(options[selected].value);
+
+  // 新增快捷键
+  if (input === "y") onChoice("allow");
+  if (input === "n") onChoice("deny");
+  if (input === "a") onChoice("always_allow");
+});
+```
+
+**UX 优化**：在选项旁显示快捷键提示，如 `❯ Allow (y)`、`Deny (n)`、`Always Allow (a)`。这能让熟练用户快速决策，无需方向键导航。
+
+</details>
+
+## 下一课预告
+
+主 Agent 的权限控制完善了，但子 Agent 呢？用户批准了主 Agent 的 Always Allow bash，子 Agent 会继承这个权限吗？下一课 **s34 子 Agent 权限** 将实现权限继承与隔离——session allow 不继承、模式只能收紧、异步子 Agent 的 ask 自动 deny。

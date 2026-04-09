@@ -1,5 +1,22 @@
 # s25 — 多层压缩策略：一种压缩方式不够
 
+> **One strategy is not enough; layer your defenses.**
+
+`[ Phase 6: 上下文管理 ]` · 工具数: 9 · 代码量: ~400 行
+
+---
+
+## 前置知识
+
+- 需要完成: s24 [自动压缩]
+
+## 你将学到
+
+- 三层压缩策略递进：<abbr data-tip="零成本的本地压缩策略，不调用 API，直接将旧工具结果替换为占位符来释放 token">微压缩</abbr> → 自动压缩 → <abbr data-tip="当 API 调用因 prompt 过长被拒绝时触发的紧急压缩，先执行微压缩再做摘要压缩">响应式压缩</abbr>
+- 微压缩（microcompact）算法：零成本清理旧工具结果
+- 响应式压缩（reactive compact）：prompt-too-long 错误兜底
+- <abbr data-tip="熔断器模式——当连续失败次数超过阈值时自动停止重试，防止级联故障浪费资源">Circuit Breaker</abbr> 熔断模式在压缩中的应用
+
 ## 问题场景
 
 s24 的自动压缩解决了长对话溢出的问题，但存在两个缺陷：
@@ -229,5 +246,32 @@ query loop 每轮:
 ## 练习
 
 1. 调低 `KEEP_RECENT` 为 2，观察更激进的微压缩行为
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+调整微压缩保留数量：
+
+```typescript
+const KEEP_RECENT = 2; // 从 5 改为 2
+
+// 添加调试日志
+export function microcompactMessages(messages) {
+  const candidates = collectCompactableCandidates(messages);
+  console.log(`[microcompact] candidates: ${candidates.length}, keep: ${KEEP_RECENT}`);
+  if (candidates.length <= KEEP_RECENT) return { messages, freedTokens: 0 };
+  const toClean = candidates.slice(0, candidates.length - KEEP_RECENT);
+  console.log(`[microcompact] cleaning ${toClean.length} old results`);
+  // ...
+}
+```
+
+**预期观察**：保留数从 5 降到 2 后，微压缩会更频繁地触发。在读取 3 个以上文件时，最早的工具结果就会被替换为占位符。
+
+</details>
 2. 实现 time-based 微压缩：超过 5 分钟未被引用的工具结果自动清理
 3. 添加压缩统计面板：显示每层压缩的触发次数和释放 token 数
+
+## 下一课预告
+
+多层压缩解决了对话历史的 token 膨胀，但还有一种特殊情况：单个工具结果本身就可能有数十万字符。下一课 **s26 大输出处理** 将实现工具结果的持久化与预算控制，让超大文件读取不再撑爆 context window。

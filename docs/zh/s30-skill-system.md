@@ -1,5 +1,22 @@
 # s30 — Skill 系统：按需加载知识
 
+> **Load knowledge when you need it, not upfront.**
+
+`[ Phase 7: Agent 智能 ]` · 工具数: 12 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s29 [Subagent 进阶]
+
+## 你将学到
+
+- SKILL.md 文件发现与解析
+- <abbr data-tip="将外部知识（如文档、规范）动态传递给模型的过程，区别于硬编码在 system prompt 中的静态知识">知识注入</abbr>通过 tool_result 而非 system prompt
+- <abbr data-tip="不在 system prompt 初始列表中声明的工具，Agent 通过 tool_search 按需发现后才可使用，节省 prompt 空间">延迟工具</abbr>（deferred tools）与 ToolSearchTool
+- inline / fork / remote 三种技能加载模式
+
 ## 问题场景
 
 你的 Agent 需要了解项目的部署流程、编码规范、API 设计指南。如果把所有知识都放在 system prompt 里：
@@ -179,4 +196,48 @@ npm run dev
 
 1. 创建 3 个不同的 SKILL.md（编码规范、Git 工作流、测试指南），观察 Agent 如何选择性加载
 2. 实现 fork 模式：加载 SKILL.md 后用子 Agent 执行其中的指令
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+Fork 模式的 SkillTool 实现：
+
+```typescript
+export const skillTool = buildTool({
+  name: "skill",
+  description: "加载技能获取专业知识...",
+  async call(input, context) {
+    const skills = discoverSkills(context.cwd);
+    const skill = findSkill(skills, input.name);
+
+    if (skill.mode === "fork") {
+      // fork 模式：启动子 Agent 执行技能指令
+      const subContext = createSubagentContext({
+        parentAgentId: context.agentId,
+        parentCwd: context.cwd,
+        parentAbortController: context.abortController,
+      });
+
+      const result = await runSubagentLoop(
+        subContext,
+        `执行技能 "${skill.name}" 的指令：\n\n${skill.content}`,
+      );
+      return { output: result };
+    }
+
+    // inline 模式：直接注入知识到当前上下文
+    return {
+      output: `已加载技能: ${skill.name}\n\n${skill.content}`,
+    };
+  },
+});
+```
+
+**SKILL.md 中声明模式**：在文件头部加 `<!-- mode: fork -->` 或使用 YAML frontmatter `{ mode: "fork" }`。
+
+</details>
 3. 为 ToolSearchTool 添加模糊搜索和相关性评分
+
+## 下一课预告
+
+TodoWrite 让 Agent 学会了规划，但它只有内存存储、没有依赖关系。下一课 **s31 Task System** 将实现磁盘持久化的任务管理——依赖图、拓扑排序、多 Agent 协作，让大型项目的任务协调成为可能。

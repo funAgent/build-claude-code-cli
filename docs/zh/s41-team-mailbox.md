@@ -1,5 +1,22 @@
 # s41 — Team + Mailbox：文件邮箱通信
 
+> **The filesystem is the most reliable <abbr data-tip="Inter-Process Communication 进程间通信，常见方式包括管道、共享内存、消息队列、文件等">IPC</abbr> — no message queue needed.**
+
+`[ Phase 10: 多 Agent ]` · 工具数: 4 · 代码量: ~90 行
+
+---
+
+## 前置知识
+
+- 需要完成: s40 Coordinator：Leader-Worker 编排
+
+## 你将学到
+
+- 文件邮箱架构：每个成员一个 JSON 文件作为收件箱
+- TeammateMessage 类型：from / text / timestamp / read 消息模型
+- 团队创建与管理：createTeam、邮箱初始化与目录结构
+- 读写分离设计：写入追加到对方邮箱，读取自己的未读消息
+
 ## 问题场景
 
 多个 Agent 需要互相通信——交换结果、请求协助、报告进度。用什么机制？
@@ -136,4 +153,43 @@ ls ~/.agent-cli/teams/my-team/inboxes/
 
 1. 添加 proper-lockfile 确保并发写入安全
 2. 实现邮箱轮询（useInboxPoller）：定时检查新消息
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+Ink 组件中的邮箱轮询 hook：
+
+```typescript
+function useInboxPoller(
+  teamName: string,
+  memberName: string,
+  intervalMs: number = 3000,
+): TeammateMessage[] {
+  const [unread, setUnread] = useState<TeammateMessage[]>([]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const messages = readUnreadMessages(teamName, memberName);
+      if (messages.length > 0) {
+        // 标记已读
+        markAsRead(teamName, memberName, messages);
+        setUnread(prev => [...prev, ...messages]);
+      }
+    }, intervalMs);
+
+    return () => clearInterval(timer);
+  }, [teamName, memberName, intervalMs]);
+
+  return unread;
+}
+```
+
+**轮询间隔**：3 秒是一个平衡值——太快浪费 CPU 和磁盘 I/O，太慢延迟感知。生产环境可改为 inotify/fs.watch 事件驱动。
+
+</details>
+
 3. 添加消息类型过滤：区分普通消息和协议消息
+
+## 下一课预告
+
+**s42 — Team Protocols**：多 Agent 协商协议——权限同步、计划审批、关闭通知的结构化消息设计。

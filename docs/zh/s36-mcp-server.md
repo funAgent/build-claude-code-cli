@@ -1,5 +1,22 @@
 # s36 — MCP 服务端 + 配置：让自己也能被调用
 
+> **To be truly useful, you must be both caller and callee.**
+
+`[ Phase 9: 扩展与集成 ]` · 工具数: 4 · 代码量: ~100 行
+
+---
+
+## 前置知识
+
+- 需要完成: s35 MCP 客户端：连接外部工具
+
+## 你将学到
+
+- MCP 服务端模式：通过 <abbr data-tip="进程的标准输入/输出流，MCP 使用它们作为通信通道——客户端写 stdin 发请求，从 stdout 读响应，类似管道操作">stdin/stdout</abbr> 暴露内置工具的 JSON-RPC 接口
+- 三层<abbr data-tip="配置的生效范围层级，高优先级覆盖低优先级，类似 CSS 的优先级规则">配置作用域</abbr>：user / project / local 配置合并与优先级
+- 配置管理 CLI：mcp add / remove / list 子命令实现
+- 双向 MCP 生态：客户端与服务端的互补关系
+
 ## 问题场景
 
 你的 Agent CLI 有强大的工具集（bash、文件操作、搜索等）。其他工具想调用这些能力怎么办？
@@ -134,5 +151,57 @@ npm run dev -- mcp list
 ## 练习
 
 1. 用另一个 MCP 客户端连接你的 `mcp serve`，验证工具调用
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+用 Node.js 脚本作为 MCP 客户端测试：
+
+```typescript
+import { spawn } from "child_process";
+
+// 启动 MCP 服务端子进程
+const server = spawn("npm", ["run", "dev", "--", "mcp", "serve"]);
+
+let buffer = "";
+server.stdout.on("data", (data) => {
+  buffer += data.toString();
+  const lines = buffer.split("\n");
+  buffer = lines.pop() ?? ""; // 保留不完整的行
+
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const response = JSON.parse(line);
+    console.log("收到响应:", JSON.stringify(response, null, 2));
+  }
+});
+
+// 发送 initialize 请求
+server.stdin.write(JSON.stringify({
+  jsonrpc: "2.0",
+  id: 1,
+  method: "initialize",
+  params: { protocolVersion: "2024-11-05", capabilities: {} },
+}) + "\n");
+
+// 等 initialize 完成后请求工具列表
+setTimeout(() => {
+  server.stdin.write(JSON.stringify({
+    jsonrpc: "2.0",
+    id: 2,
+    method: "tools/list",
+    params: {},
+  }) + "\n");
+}, 1000);
+```
+
+**测试要点**：验证 initialize 返回正确的 capabilities，tools/list 返回内置工具列表（bash、file_read 等）。
+
+</details>
+
 2. 添加 Resources 支持：让 MCP 服务端暴露文件等资源
 3. 实现配置的策略控制：添加 allowlist/denylist
+
+## 下一课预告
+
+**s37 — 会话持久化**：Ctrl+C 后对话丢失？用 JSONL 追加写入实现断点续做，支持 --resume 恢复历史会话。

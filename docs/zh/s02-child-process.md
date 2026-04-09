@@ -36,7 +36,7 @@
 
 | 方案 | 优点 | 缺点 |
 |------|------|------|
-| `child_process.exec` | API 简单，直接返回字符串 | 输出缓冲在内存，大输出会 OOM |
+| `child_process.exec` | API 简单，直接返回字符串 | 输出缓冲在内存，大输出会 <abbr data-tip="Out of Memory，内存耗尽。当程序使用的内存超过系统限制时，操作系统会强制终止进程。exec 默认缓冲上限是 1MB，超过就报错。">OOM</abbr> |
 | `child_process.spawn` | 流式输出，可控性强 | 需要自己拼接输出 |
 
 **Claude Code 选择了 spawn**，因为工具的输出可能非常大（比如 `cat` 一个大文件），`exec` 会把全部输出缓冲在内存里，而 `spawn` 的流式处理可以在输出超过限制时主动截断。
@@ -47,7 +47,7 @@
 
 现阶段的策略：
 1. **执行前拦截**：用正则检查命令是否匹配危险模式
-2. **超时控制**：默认 30 秒，超时则 SIGTERM 然后 SIGKILL
+2. **超时控制**：默认 30 秒，超时则 <abbr data-tip="Unix 信号。SIGTERM（信号 15）是「请优雅退出」，进程可以捕获它做清理；SIGKILL（信号 9）是「强制终止」，进程无法忽略或捕获。">SIGTERM</abbr> 然后 <abbr data-tip="Unix 信号。SIGTERM（信号 15）是「请优雅退出」，进程可以捕获它做清理；SIGKILL（信号 9）是「强制终止」，进程无法忽略或捕获。">SIGKILL</abbr>
 3. **输出限制**：stdout/stderr 各最多 1MB，超过则截断
 
 ## 动手实现
@@ -69,7 +69,7 @@ export function isDangerous(command: string): string | null {
 
 ### 步骤 2: spawn 封装
 
-核心设计——安全检查 → spawn 执行 → 超时控制 → 输出限制：
+核心设计——安全检查 → <abbr data-tip="Node.js 内置的子进程方法。spawn 启动一个新进程并返回流式接口，适合执行长命令或输出量大的命令。相比 exec，spawn 不会把全部输出缓冲在内存里。">spawn</abbr> 执行 → 超时控制 → 输出限制：
 
 ```typescript
 export async function execShell(command: string, options = {}): Promise<ShellResult> {
@@ -87,15 +87,34 @@ export async function execShell(command: string, options = {}): Promise<ShellRes
 三个关键设计点：
 1. `spawn("sh", ["-c", command])` — 通过 shell 执行，支持管道、通配符
 2. `stdio: ["ignore", "pipe", "pipe"]` — 不接受 stdin，捕获 stdout/stderr
-3. **两阶段 kill**：SIGTERM 给进程清理机会，3 秒后 SIGKILL 强制终止
+3. **两阶段 kill**：<abbr data-tip="Unix 信号。SIGTERM（信号 15）是「请优雅退出」，进程可以捕获它做清理；SIGKILL（信号 9）是「强制终止」，进程无法忽略或捕获。">SIGTERM</abbr> 给进程清理机会，3 秒后 SIGKILL 强制终止
 
 > 完整实现见 **源码** 标签页的 `shell.ts`
 
 ### 步骤 3: 添加 exec 子命令
 
-在 CLI 中注册 `exec <command>` 子命令，接收 `--timeout` 参数。
+在 CLI 中注册 `exec <command>` 子命令，接收 `--timeout` 参数：
+
+```typescript
+program
+  .command("exec <command>")
+  .description("执行 shell 命令")
+  .option("-t, --timeout <ms>", "超时时间（毫秒）", "30000")
+  .action(async (command, options) => {
+    const result = await execShell(command, {
+      timeout: Number(options.timeout),
+    });
+    if (result.stdout) console.log(result.stdout);
+    if (result.stderr) console.error(result.stderr);
+    process.exit(result.exitCode);
+  });
+```
+
+注意 `exec` 和前面 `chat` 子命令的用法不同——这里直接调用 `shell.ts`，不经过 AI API。
 
 > 完整代码见 **源码** 标签页的 `cli.ts`
+
+> 这一课我们只封装了 `shell.ts` 模块，还没有和 AI 对接。`main.ts` 的对话逻辑暂时和 s01 一样。下一课 s03 会把 shell 执行接到 Agent 循环里——那才是真正的 Agent。
 
 ## 运行验证
 
@@ -128,7 +147,11 @@ A: 正则只能匹配已知的危险模式。攻击者可以用编码、变量�
 
 A: `bash` 功能更丰富（数组、高级字符串操作等），但不是所有系统都有 bash（比如某些 Docker 镜像）。教学阶段用 `sh` 兼容性更好。实际产品中，Claude Code 会先检测用户的 shell 环境，优先使用 bash。
 
-## 动手练习
+**Q: `spawn("sh", ["-c", command])` 为什么不直接 `spawn(command)`？**
+
+A: 因为很多命令需要 shell 特性——管道 `|`、通配符 `*`、环境变量 `$HOME`、重定向 `>` 等。`spawn("sh", ["-c", command])` 通过 shell 解释器执行命令，天然支持这些语法。直接 `spawn(command)` 只能执行单个程序，`ls -la | grep foo` 这样的管道命令就无法运行。
+
+## 练习
 
 给 `execShell` 函数添加一个 `onOutput` 回调，在命令执行过程中实时输出每一行，而不是等全部结束后才打印：
 
@@ -139,6 +162,54 @@ await execShell("ping -c 5 google.com", {
 ```
 
 提示：在 `child.stdout.on("data", ...)` 里按行分割数据。
+
+<details>
+<summary>参考实现</summary>
+
+修改 `ShellResult` 接口和 `execShell` 函数签名，增加 `onOutput` 回调参数：
+
+```typescript
+export interface ShellOptions {
+  timeout?: number;
+  maxOutput?: number;
+  cwd?: string;
+  onOutput?: (line: string) => void;  // 新增
+}
+
+export async function execShell(
+  command: string,
+  options: ShellOptions = {}
+): Promise<ShellResult> {
+  // ... 安全检查不变 ...
+
+  // 流式输出部分改为逐行回调
+  let buffer = "";
+  child.stdout.on("data", (chunk: Buffer) => {
+    if (stdout.length >= maxOutput) return;
+    buffer += chunk.toString();
+    const lines = buffer.split("\n");
+    buffer = lines.pop()!;  // 保留未完成的行
+    for (const line of lines) {
+      if (options.onOutput) options.onOutput(line);
+      stdout += line + "\n";
+    }
+  });
+
+  // close 事件中处理 buffer 残余
+  child.on("close", (code) => {
+    if (buffer && options.onOutput) options.onOutput(buffer);
+    stdout += buffer;
+    // ... 后续截断逻辑不变 ...
+  });
+}
+```
+
+**要点**：
+- 流式数据到达时不是完整的一行，需要用 `buffer` 拼接，按 `\n` 分割
+- `lines.pop()` 保留最后一个可能不完整的行，等下次 data 事件继续拼接
+- `close` 事件中要处理 buffer 里最后残余的数据
+
+</details>
 
 ## 下一课预告
 

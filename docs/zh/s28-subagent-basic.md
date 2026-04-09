@@ -1,5 +1,22 @@
 # s28 — Subagent 基础：上下文隔离
 
+> **Break big tasks down; each subtask gets a clean context.**
+
+`[ Phase 7: Agent 智能 ]` · 工具数: 11 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s27 [TodoWrite]
+
+## 你将学到
+
+- 子 Agent 的<abbr data-tip="子 Agent 拥有独立的对话历史和身份，不继承父 Agent 的消息积累，从而获得干净的可用 token 空间">上下文隔离</abbr>边界：独立消息历史、独立 agentId、共享文件系统
+- createSubagentContext：agentId 生成、<abbr data-tip="Web API 标准的取消信号机制，调用 abort() 后所有监听该信号的异步操作会被终止">AbortController</abbr> 控制策略
+- AgentTool 实现：在工具调用中运行完整的 Agent Loop
+- 同步 vs 异步子 Agent 的 abort 策略
+
 ## 问题场景
 
 用户说："分析这个项目的代码质量，同时生成 API 文档。"
@@ -157,4 +174,41 @@ npm run dev
 
 1. 让主 Agent 创建两个子 Agent 分别做不同的事，观察它们的独立上下文
 2. 实现异步子 Agent：后台运行，主 Agent 继续对话
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+异步子 Agent 的核心实现：
+
+```typescript
+// 存储异步子 Agent 的引用
+const asyncAgents = new Map<string, {
+  promise: Promise<string>;
+  abort: AbortController;
+}>();
+
+// agentTool.call 中
+if (input.mode === "async") {
+  const abortController = new AbortController(); // 独立 abort
+  const subContext = createSubagentContext({
+    parentAgentId: context.agentId,
+    parentCwd: context.cwd,
+    parentAbortController: abortController,
+    isAsync: true,
+  });
+
+  const promise = runSubagentLoop(subContext, input.task);
+  asyncAgents.set(subContext.agentId, { promise, abort: abortController });
+
+  return { output: `异步子 Agent ${subContext.agentId} 已启动` };
+}
+```
+
+**关键差异**：异步子 Agent 用独立的 AbortController，父 Agent 不会等待其完成。需要额外的 `check_async_agent` 工具来查询异步子 Agent 的执行状态。
+
+</details>
 3. 添加子 Agent 的执行日志：记录每个子 Agent 的工具调用和结果
+
+## 下一课预告
+
+s28 的子 Agent 拥有完整工具集——包括 agent 工具本身，这会导致无限递归风险。下一课 **s29 Subagent 进阶** 将实现工具过滤、递归深度控制和生命周期清理，确保子 Agent 只做它该做的事。

@@ -1,10 +1,22 @@
 # s45 — Feature Flags
 
-> **Motto:** Every feature is an experiment until proven stable
+> **Every feature is an experiment until proven stable.**
 
-`[ Phase 4: 发布管控 ]` · 主题：编译期 DCE、运行时环境变量门控、灰度发布与用户分流
+`[ Phase 11: 生产功能 ]` · 主题：编译期 DCE、运行时环境变量门控、灰度发布与用户分流
 
 ---
+
+## 前置知识
+
+- 需要完成: s44 递进式错误恢复
+
+## 你将学到
+
+- 三层 Flag 架构：编译期 <abbr data-tip="Dead Code Elimination 死代码消除，打包工具在编译期将永远不会执行的代码分支（如 if(false)）从产物中移除，减小体积">DCE</abbr> → 运行时 env → <abbr data-tip="通过哈希分桶让一部分用户先看到新功能的发布策略，逐步扩大范围（1% → 10% → 50% → 100%），降低全量上线风险">灰度发布</abbr>/用户分流
+- feature() 门控函数：注册表查询、环境变量覆盖、中心化 Map
+- 灰度 hash 分桶：确定性分桶、均匀分布、逐步放量
+- 用户类型分流：internal 用户始终启用，external 受灰度控制
+- COMMON_FLAGS 枚举：集中声明避免字符串散落
 
 ## 问题场景
 
@@ -186,7 +198,59 @@ FEATURE_VOICE_MODE=true USER_TYPE=internal npm run dev
 ## 练习
 
 1. 实现 `feature()` + `registerFlag` + `loadFlagsFromEnv`，写单元测试验证：环境变量 `FEATURE_VOICE_MODE=true` 时 `feature('voice_mode')` 返回 `true`。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+Feature Flag 核心实现与测试：
+
+```typescript
+const flagRegistry = new Map<string, { name: string; enabled: boolean; source: string }>();
+
+export function registerFlag(name: string, enabled: boolean, source: string) {
+  flagRegistry.set(name, { name, enabled, source });
+}
+
+export function loadFlagsFromEnv() {
+  for (const [key, value] of Object.entries(process.env)) {
+    if (key.startsWith("FEATURE_")) {
+      const name = key.slice(8).toLowerCase();
+      registerFlag(name, value === "true", "env");
+    }
+  }
+}
+
+export function feature(name: string): boolean {
+  const flag = flagRegistry.get(name);
+  if (flag) return flag.enabled;
+  const envKey = `FEATURE_${name.toUpperCase()}`;
+  return process.env[envKey] === "true";
+}
+```
+
+```typescript
+// 测试
+import { vi } from "vitest";
+
+test("环境变量 FEATURE_VOICE_MODE=true 启用 flag", () => {
+  process.env.FEATURE_VOICE_MODE = "true";
+  loadFlagsFromEnv();
+  expect(feature("voice_mode")).toBe(true);
+});
+
+test("未设置环境变量时默认 false", () => {
+  delete process.env.FEATURE_VOICE_MODE;
+  flagRegistry.clear();
+  expect(feature("voice_mode")).toBe(false);
+});
+```
+
+</details>
 2. 实现 `isEnabledForUser`，测试：固定 `userId='user-42'`，`percentage=50` 时结果是否确定性（多次调用一致）；将 `percentage` 从 0 增到 100，验证同一用户的切换点唯一。
 3. 为 `COMMON_FLAGS` 的每个 flag 编写一段伪代码，展示在编译期 `false` 时哪些代码路径会被 DCE 移除。
 4. 设计一个 `FeatureFlagMiddleware`：在 Agent 主循环中，每轮对话前检查 flag 状态，将当前 flag 快照注入 `ToolContext`，使所有工具都能读取 flag 值。
 5. 阅读 Claude Code 的 `growthbook.ts`，比较远程 flag 与本地 `feature()` 的调用时序——远程 SDK 需要异步初始化，如何保证首次调用前已就绪？
+
+## 下一课预告
+
+**s46 — 打包与分发**：从开发项目到用户产品——esbuild 单文件打包、package.json 配置、npm 发布与自动更新。

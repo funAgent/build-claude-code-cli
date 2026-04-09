@@ -1,5 +1,22 @@
 # s29 — Subagent 进阶：工具限制与深度控制
 
+> **A subagent should do less, not more.**
+
+`[ Phase 7: Agent 智能 ]` · 工具数: 11 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s28 [Subagent 基础]
+
+## 你将学到
+
+- 工具过滤策略：DISALLOWED_TOOLS 和 readOnly 只读模式
+- <abbr data-tip="Agent 创建子 Agent 的嵌套层数限制，防止无限递归导致资源耗尽和成本失控">递归深度</abbr>控制：MAX_DEPTH 与 canCreateSubagent 检查
+- 生命周期清理：finally 块中的 todo/shell/MCP 资源回收
+- <abbr data-tip="安全设计核心原则——每个模块只被授予完成其任务所需的最少权限，减少潜在的安全风险">最小权限原则</abbr>在 Agent 系统中的体现
+
 ## 问题场景
 
 s28 的子 Agent 有完整的工具集——包括 `agent` 工具本身。这意味着：
@@ -157,7 +174,7 @@ npm run dev
 
 ## 深入思考
 
-1. **最小权限原则**：子 Agent 应该只拥有完成任务所需的最少工具。`readOnly` 模式让分析类子任务更安全。
+1. **<abbr data-tip="安全设计核心原则——每个模块只被授予完成其任务所需的最少权限，减少潜在的安全风险">最小权限原则</abbr>**：子 Agent 应该只拥有完成任务所需的最少工具。`readOnly` 模式让分析类子任务更安全。
 2. **递归是危险的**：没有深度限制的 Agent 递归可能导致 API 成本指数增长。每层子 Agent 都有自己的对话历史和 API 调用。
 3. **finally 的重要性**：子 Agent 可能因为 abort、错误或超时而提前退出。`finally` 确保资源总是被清理，防止内存泄漏和进程残留。
 
@@ -166,3 +183,39 @@ npm run dev
 1. 在 `DISALLOWED_TOOLS` 中添加 `bash`，创建一个"安全沙箱"模式的子 Agent
 2. 实现 `AsyncLocalStorage` 版的深度追踪，让深度信息自动在调用链中传递
 3. 添加子 Agent 的执行时间限制：超过 30 秒自动中止
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+为子 Agent 添加超时机制：
+
+```typescript
+const SUBAGENT_TIMEOUT_MS = 30_000; // 30 秒
+
+async call(input, context) {
+  const subContext = createSubagentContext({...});
+
+  // 设置超时自动中止
+  const timeoutId = setTimeout(() => {
+    subContext.abortController.abort();
+  }, SUBAGENT_TIMEOUT_MS);
+
+  try {
+    while (turns < MAX_TURNS) {
+      if (subContext.abortController.signal.aborted) break;
+      // ... Agent Loop ...
+    }
+  } finally {
+    clearTimeout(timeoutId);
+    cleanupSubagent(subContext.agentId);
+  }
+}
+```
+
+**设计要点**：超时和 abort 共用同一个 AbortController 信号。子 Agent Loop 中每次迭代检查 `signal.aborted`，确保超时后能及时退出。`finally` 确保清理逻辑始终执行。
+
+</details>
+
+## 下一课预告
+
+子 Agent 的安全和控制已经到位，但 Agent 的知识还在 system prompt 里硬编码。下一课 **s30 Skill 系统** 将实现按需加载知识——SKILL.md 文件、延迟工具（deferred tools）和 tool_search，让 Agent 在需要时才加载专业知识。

@@ -1,6 +1,21 @@
 # s16 — REPL 主屏：组装完整 TUI
 
-## 问题场景
+> **Compose, don't inherit**
+
+`[ Phase 3: 终端 UI ]` · 工具数: 9 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s15 [输入框]
+
+## 你将学到
+
+- Composition Root 模式组装所有组件
+- 欢迎页 → 对话视图的状态切换
+- 内置命令路由（/help、/clear、/tools）
+- 终端窗口自适应布局
 
 经过 s13-s15，我们有了所有组件：MessageList、PromptInput、Spinner、StatusBar。但它们还没有被**组装成一个完整的产品体验**。
 
@@ -101,3 +116,143 @@ npm run dev
 1. 给 Welcome 组件添加一个 ASCII Art Logo（提示：用模板字符串和 `Text` 组件）。
 2. 实现 `/model` 命令，让用户在运行时切换 AI 模型。
 3. 用 `useStdout` 的 `stdout.columns` 实现自适应：当终端宽度 < 60 时，隐藏 StatusBar 的快捷键提示部分。
+
+<details><summary>练习 1 参考实现</summary>
+
+用多行字符串定义 Logo（模板字符串或字符串数组 + `join` 均可），按行 `split` 后用多行 `Text` 渲染，便于对齐与单独着色。
+
+```typescript
+const ASCII_LOGO = [
+  "  __  __       _   ",
+  " |  \\/  | ___ | |_ ",
+  " | |\\/| |/ _ \\| __|",
+  " | |  | | (_) | |_ ",
+  " |_|  |_|\\___/|__| ",
+].join("\n");
+
+export function Welcome({ cwd }: { cwd: string }): React.ReactElement {
+  const lines = ASCII_LOGO.split("\n");
+  return (
+    <Box flexDirection="column" paddingX={1} paddingY={1}>
+      {lines.map((line, i) => (
+        <Text key={i} bold color="cyan">
+          {line}
+        </Text>
+      ))}
+      {/* ... 其余 Welcome 内容 */}
+    </Box>
+  );
+}
+```
+
+要点：若用 `` `...` `` 且首行是空行，可用 `trim()` 去掉首尾空白；每行一个 `Text` 可避免空格被折叠导致的错位。
+
+</details>
+
+<details><summary>练习 2 参考实现</summary>
+
+在 `ReplScreen` 用 `useState` 保存当前模型名；`handleCommand` 解析 `/model` 与子参数，更新状态并可选地 `addMessage` 提示；把 `model` 传给 `StatusBar` 与 `Welcome`（若上面写死模型名则改为 props）。
+
+```typescript
+const [model, setModel] = useState("claude-sonnet-4");
+
+const handleCommand = useCallback(
+  (raw: string): boolean => {
+    const trimmed = raw.trim();
+    const [head, ...rest] = trimmed.split(/\s+/);
+
+    if (head === "/model") {
+      const name = rest.join(" ").trim();
+      if (!name) {
+        addMessage("assistant", "用法: /model <模型名>  例: /model claude-sonnet-4");
+        return true;
+      }
+      setModel(name);
+      addMessage("assistant", `已切换模型: ${name}`);
+      return true;
+    }
+
+    switch (trimmed) {
+      case "/help":
+        // ...
+        return true;
+      default:
+        return false;
+    }
+  },
+  [addMessage /* ... */],
+);
+
+// <StatusBar model={model} ... />
+// <Welcome cwd={...} model={model} /> 若欢迎页展示模型
+```
+
+要点：用 `split(/\s+/)` 切分首 token；若模型名本身含空格，可改用 `raw.slice("/model".length).trim()` 取参数。真正请求仍走 `Agent` 时需在调用前把 `model` 传入 agent 配置（教学版可仅改 UI 与提示）。
+
+</details>
+
+<details><summary>练习 3 参考实现</summary>
+
+`useStdout()` 得到 `stdout.columns`（可能为 `undefined`，需回退）；将「是否显示快捷键区」作为 prop 传入 `StatusBar`，窄终端只保留左侧信息。
+
+```typescript
+const { stdout } = useStdout();
+const columns = stdout?.columns ?? 80;
+const showShortcutHints = columns >= 60;
+
+// ...
+<StatusBar
+  messageCount={messages.length}
+  model={model}
+  isRunning={running}
+  showShortcutHints={showShortcutHints}
+/>
+```
+
+```typescript
+export function StatusBar({
+  messageCount,
+  model,
+  isRunning,
+  showShortcutHints = true,
+}: {
+  messageCount: number;
+  model: string;
+  isRunning: boolean;
+  showShortcutHints?: boolean;
+}): React.ReactElement {
+  return (
+    <Box borderStyle="single" borderColor="gray" paddingX={1} justifyContent="space-between">
+      <Text dimColor>
+        {model} │ {messageCount} msgs
+      </Text>
+      {showShortcutHints ? (
+        <Text dimColor>
+          {isRunning ? "⏳ running" : "↑↓ history │ Enter send │ ESC quit"}
+        </Text>
+      ) : (
+        <Text dimColor>{isRunning ? "⏳" : ""}</Text>
+      )}
+    </Box>
+  );
+}
+```
+
+要点：阈值 `60` 可按产品调整；极窄时右侧可只显示运行中的 `⏳` 或留空，避免与左侧重叠。
+
+</details>
+
+## Phase 3 总结
+
+恭喜！完成 s13-s16，你的 Agent 已经有了**专业的终端 UI**：
+
+- ✅ Ink React 渲染（s13）
+- ✅ 消息列表组件（s14）
+- ✅ 输入框 + 历史记录（s15）
+- ✅ REPL 主屏组装（s16）
+
+下一个 Phase 将深入 Prompt 工程——让 Agent 更聪明。**s17 System Prompt** 开始。
+
+## 下一课预告
+
+Agent 已经能跑、能看、能交互了。但它的行为靠"默认人格"驱动，没有定制化。下一课 **s17 System Prompt** 将设计 Agent 的"灵魂"——通过 system prompt 让它知道自己是做什么的、应该怎么做。

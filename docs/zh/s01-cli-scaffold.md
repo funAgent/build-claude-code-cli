@@ -57,9 +57,17 @@ program
   });
 ```
 
-注意第一行 `#!/usr/bin/env node` 是 shebang，让操作系统知道用 node 来执行。
+注意第一行 `#!/usr/bin/env node` 是 <abbr data-tip="脚本第一行的 #! 指令，告诉操作系统用哪个程序来执行这个文件。env node 会自动在 PATH 中找到 node，比硬编码路径更通用。">shebang</abbr>，让操作系统知道用 node 来执行。
 
 > 完整代码见 **源码** 标签页的 `cli.ts`
+
+除了 `chat` 子命令，还提供了 `ask` 子命令用于单次提问，不需要进入交互循环：
+
+```bash
+mycli ask "什么是 TypeScript？" -m claude-sonnet-4-20250514
+```
+
+适合在脚本中快速调用 AI，或者在 CI/CD 中做批量处理。
 
 ### 步骤 2: 分离业务逻辑到 main.ts
 
@@ -79,7 +87,29 @@ export async function startChat(options: ChatOptions): Promise<void> {
 { "bin": { "mycli": "./dist/cli.mjs" } }
 ```
 
-用 esbuild 的 `--bundle` 把所有本地导入打包成一个文件，`--external` 保留外部依赖。
+<abbr data-tip="package.json 中的 bin 字段定义了 npm 包安装后会在 node_modules/.bin/ 下创建的可执行命令。npm link 后就能直接在终端输入命令名来运行。">`bin` 字段</abbr>让 npm 知道你的包提供了哪个可执行文件。
+
+用 <abbr data-tip="一个极快的 JavaScript/TypeScript 打包工具，用 Go 语言编写。--bundle 模式能把多个源文件合并为单个输出文件，适合 CLI 分发。Claude Code 也使用 esbuild。">esbuild</abbr> 的 `--bundle` 把所有本地导入打包成一个文件，`--external` 保留外部依赖。
+
+实际的构建命令如下：
+
+```bash
+npx esbuild src/cli.ts \
+  --bundle --platform=node --format=esm \
+  --external:@anthropic-ai/sdk --external:commander \
+  --outfile=dist/cli.mjs
+```
+
+几个关键参数的解释：
+
+| 参数 | 作用 |
+|------|------|
+| `--bundle` | 把 `cli.ts` 和 `main.ts` 等本地模块合并为一个文件 |
+| `--platform=node` | 目标运行环境是 Node.js，保留 `__dirname` 等 Node 全局变量 |
+| `--format=esm` | 输出 ESM 格式（`.mjs`），因为我们的源码用了 `import/export` |
+| `--external:xxx` | 不把 `xxx` 包打进 bundle，运行时从 `node_modules` 加载 |
+
+为什么 `@anthropic-ai/sdk` 要 `--external`？因为这些包体积大且包含平台相关的原生模块，打包进去反而容易出问题。CLI 产品安装后 `node_modules` 里已经有这些依赖了，直接引用即可。
 
 ## 运行验证
 
@@ -113,7 +143,11 @@ A: 因为 Claude Code 的 TUI 使用了 React + Ink。`.tsx` 文件支持 JSX �
 
 A: 开发阶段不需要——`dist/` 通常在 `.gitignore` 里。发布到 npm 时，`npm publish` 会自动包含 `bin` 指向的文件。
 
-## 动手练习
+**Q: `npm run dev` 和 `npm link` 有什么区别？什么时候用哪个？**
+
+A: `npm run dev` 通常对应 `npx tsx src/cli.ts`，直接用 TypeScript 执行器跑源码，修改后立刻生效，适合开发调试。`npm link` 会真正把命令注册到全局（在 `/usr/local/bin/` 下创建符号链接），让你在任何目录输入 `mycli` 来运行，体验和真实用户一致。开发阶段用 dev，发布前用 link 做最终验证。
+
+## 练习
 
 给你的 CLI 添加一个 `config` 子命令，输出当前使用的模型名称和 API Key 的前 8 位字符：
 
@@ -122,6 +156,30 @@ mycli config
 # Model: claude-sonnet-4-20250514
 # API Key: sk-ant-a3...
 ```
+
+<details>
+<summary>参考实现</summary>
+
+在 `cli.ts` 中注册 `config` 子命令：
+
+```typescript
+program
+  .command("config")
+  .description("显示当前配置")
+  .action(() => {
+    const key = process.env.ANTHROPIC_API_KEY ?? "(未设置)";
+    const masked = key.length > 8 ? key.slice(0, 8) + "..." : key;
+    console.log(`Model: ${DEFAULT_MODEL}`);
+    console.log(`API Key: ${masked}`);
+  });
+```
+
+**要点**：
+- 直接在 action 中读取环境变量，不需要调用 main.ts
+- 对 API Key 做了脱敏处理，只显示前 8 位，避免在终端泄露完整密钥
+- 这个命令不依赖 AI API，是纯本地操作，响应即时
+
+</details>
 
 ## 下一课预告
 

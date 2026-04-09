@@ -1,5 +1,23 @@
 # s42 — Team Protocols：协商协议
 
+> **Multi-agent stability depends on protocol design, not agent intelligence.**
+
+`[ Phase 10: 多 Agent ]` · 工具数: 5 · 代码量: ~110 行
+
+---
+
+## 前置知识
+
+- 需要完成: s41 Team + Mailbox：文件邮箱通信
+
+## 你将学到
+
+- 四种核心协议：权限同步、计划审批、关闭、任务分配
+- 协议消息格式：结构化 JSON 嵌入邮箱的 ProtocolMessage 设计
+- isProtocolMessage 过滤：协议消息与普通对话的精确分离
+- 权限同步流程：sendPermissionRequest / pollForPermissionResponse <abbr data-tip="分布式系统中最基础的通信模式——发送方发起请求并等待，接收方处理后将响应精确匹配回对应请求">请求-响应模式</abbr>
+- requestId 匹配：响应精确关联到对应请求
+
 ## 问题场景
 
 Worker Agent 需要执行 `rm -rf`，但没有权限。谁来审批？怎么审批？
@@ -156,5 +174,60 @@ npm run dev
 ## 练习
 
 1. 实现计划审批的完整流程（请求 → 审批/拒绝 → 执行）
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+计划审批协议的完整实现：
+
+```typescript
+// Worker 端：发送计划请求
+function submitPlan(teamName, workerName, leaderName, plan: string) {
+  const request: ProtocolMessage = {
+    protocol: "plan_request",
+    requestId: generateRequestId(),
+    payload: { plan, steps: plan.split("\n").length },
+  };
+  writeToMailbox(teamName, leaderName, workerName, JSON.stringify(request));
+  return request.requestId;
+}
+
+// Leader 端：审批计划
+function reviewPlan(teamName, leaderName, workerName, requestId, decision) {
+  const response: ProtocolMessage = {
+    protocol: "plan_response",
+    requestId,
+    payload: {
+      approved: decision.approved,
+      feedback: decision.feedback, // "修改步骤 3 后执行"
+    },
+  };
+  writeToMailbox(teamName, workerName, leaderName, JSON.stringify(response));
+}
+
+// Worker 端：等待审批结果
+async function waitForPlanApproval(teamName, workerName, requestId) {
+  // 轮询邮箱，匹配 requestId
+  for (let i = 0; i < 30; i++) { // 最多等 30 秒
+    const msgs = readUnreadMessages(teamName, workerName);
+    const response = msgs.find(m => {
+      const parsed = JSON.parse(m.text);
+      return parsed.protocol === "plan_response" && parsed.requestId === requestId;
+    });
+    if (response) return JSON.parse(response.text).payload;
+    await sleep(1000);
+  }
+  return { approved: false, feedback: "审批超时" };
+}
+```
+
+**关键**：requestId 将请求和响应对应起来，确保多个并发请求不会错配。
+
+</details>
+
 2. 添加协议超时机制：Leader 没响应时 Worker 自动降级
 3. 实现 FSM 状态机追踪协议状态
+
+## 下一课预告
+
+**s43 — Worktree 隔离**：每个 Agent 独立工作目录——Git Worktree 天然隔离，零冲突并行。

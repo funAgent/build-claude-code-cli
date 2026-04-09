@@ -1,10 +1,22 @@
 # s44 — 递进式错误恢复
 
-> **Motto:** Ship fast, fail gracefully, recover automatically
+> **Ship fast, fail gracefully, recover automatically.**
 
-`[ Phase 4: 生产级韧性 ]` · 主题：API 失败时的分类、重试、递进恢复与熔断
+`[ Phase 11: 生产功能 ]` · 主题：API 失败时的分类、重试、递进恢复与熔断
 
 ---
+
+## 前置知识
+
+- 需要完成: s43 Worktree 隔离：每个 Agent 独立目录
+
+## 你将学到
+
+- 错误分类体系：classifyAPIError 统一 7 种错误类型
+- <abbr data-tip="每次重试等待时间翻倍的策略（500ms → 1s → 2s → 4s...），减轻服务端压力，避免雪崩效应">指数退避</abbr>重试：BASE_DELAY、<abbr data-tip="在退避时间上添加随机抖动（如 ±25%），防止多个客户端在同一时刻同时重试造成'雷群效应'">jitter</abbr>、Retry-After 优先级
+- 递进恢复链：compact → fallback model → user message → abort
+- 熔断器模式：连续失败阈值、OPEN/HALF-OPEN 状态切换
+- 前台/后台 529 策略：按 QuerySource 区分重试代价
 
 ## 问题场景
 
@@ -128,7 +140,53 @@ ANTHROPIC_API_KEY=sk-ant-invalid npm run dev
 ## 练习
 
 1. 实现 `classifyAPIError`，覆盖用户列出的 7 类，并写单元测试：构造 `APIError`（429/529/401）、`APIConnectionTimeoutError`、带 `retry-after` 的 429。
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+错误分类函数实现：
+
+```typescript
+type ErrorType = "rate_limit" | "server_overload" | "prompt_too_long" |
+  "auth" | "server_error" | "connection" | "timeout" | "unknown";
+
+function classifyAPIError(error: unknown): ErrorType {
+  if (!(error instanceof Error)) return "unknown";
+
+  const msg = error.message.toLowerCase();
+  const status = (error as any).status;
+
+  // 限流
+  if (status === 429) return "rate_limit";
+  // 过载
+  if (status === 529 || msg.includes("overloaded")) return "server_overload";
+  // 上下文过长
+  if (msg.includes("prompt is too long") || msg.includes("prompt_too_long"))
+    return "prompt_too_long";
+  // 鉴权
+  if (status === 401 || status === 403 || msg.includes("auth"))
+    return "auth";
+  // 服务器错误
+  if (status >= 500 && status < 600) return "server_error";
+  // 连接
+  if (msg.includes("econnreset") || msg.includes("epipe"))
+    return "connection";
+  // 超时
+  if (error.name === "APIConnectionTimeoutError" || msg.includes("timeout"))
+    return "timeout";
+
+  return "unknown";
+}
+```
+
+**测试要点**：构造不同 `status` 和 `message` 的 Error 对象，验证每种类型都正确分类。特别注意 `auth` 类错误不应自动重试。
+
+</details>
 2. 实现 `getRetryDelay`，验证：无 header 时单调递增且不超过 32s；有 `Retry-After: 120` 时返回 120000ms。
 3. 为 `prompt_too_long` 写伪代码状态机：compact → fallback model → user message → abort，每步记录埋点事件名。
 4. 实现一个内存熔断器：连续 5 次失败后 30s 内直接拒绝调用，之后允许一次半开探测。
 5. 阅读 Claude Code 的 `FOREGROUND_529_RETRY_SOURCES`，列举两个**不应**加入该集合的 `QuerySource` 并说明原因。
+
+## 下一课预告
+
+**s45 — Feature Flags**：三层 Feature Flag 架构——编译期 DCE、运行时环境变量门控、灰度发布与用户分流。

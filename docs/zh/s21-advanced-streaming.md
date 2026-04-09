@@ -1,6 +1,21 @@
 # s21 — Streaming 进阶：thinking + 工具流式 + 容错
 
-## 问题场景
+> **Stream everything: text, thinking, and tool calls**
+
+`[ Phase 5: 流式与性能 ]` · 工具数: 9 · 代码量: ~450 行
+
+---
+
+## 前置知识
+
+- 需要完成: s20 [基础 Streaming]
+
+## 你将学到
+
+- Thinking block 流式输出与折叠显示
+- 工具调用 JSON 增量解析（input_json_delta）
+- Watchdog 超时保护
+- 流式失败时降级为非流式模式
 
 s20 实现了基础的文本流式输出。但真实的 Agent 交互远不止文字——还有：
 
@@ -209,3 +224,126 @@ cd agents/s21-advanced-streaming && npm run dev
 1. 实现一个 "thinking 折叠/展开" 交互：按 `t` 键切换 thinking 消息的显示模式
 2. 给 watchdog 添加一条警告消息：超时前 10 秒显示 "API 响应缓慢..."
 3. 实现 VCR 模式的简化版：把所有 stream event 序列化到 JSON 文件
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+```typescript
+import { Box, Text, useInput } from "ink";
+import { useState } from "react";
+
+type ThinkingDisplay = "folded" | "full";
+
+export function useThinkingToggle() {
+  const [mode, setMode] = useState<ThinkingDisplay>("folded");
+  useInput((input) => {
+    if (input === "t") setMode((m) => (m === "folded" ? "full" : "folded"));
+  });
+  return mode;
+}
+
+function ThinkingMessage({
+  content,
+  streaming,
+  mode,
+}: {
+  content: string;
+  streaming: boolean;
+  mode: ThinkingDisplay;
+}) {
+  const preview =
+    content.length > 120 ? content.slice(-120) + "…" : content;
+  const shown = mode === "folded" ? preview : content;
+  return (
+    <Box flexDirection="column" paddingLeft={2}>
+      <Text dimColor color="gray">
+        [t] {mode === "folded" ? "展开" : "折叠"} thinking
+      </Text>
+      <Text color="magenta" dimColor>
+        {"💭 "}
+        {shown}
+        {streaming ? "▍" : ""}
+      </Text>
+    </Box>
+  );
+}
+```
+
+- **要点**：用 `useInput` 监听 `t`，在 `folded` 与 `full` 间切换；折叠时仍可用「尾部 120 字」预览，与课文方案 C 一致，展开时显示完整 thinking 文本。
+
+</details>
+
+<details>
+<summary>练习 2 参考实现</summary>
+
+```typescript
+const STREAM_IDLE_TIMEOUT = 60_000;
+const WARN_LEAD_MS = 10_000;
+
+function attachIdleWatchdog(
+  stream: { abort: () => void },
+  onWarn: () => void,
+  onIdleTimeout: () => void,
+) {
+  let idleTimer: NodeJS.Timeout | undefined;
+  let warnTimer: NodeJS.Timeout | undefined;
+
+  const reset = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (warnTimer) clearTimeout(warnTimer);
+    const warnAt = Math.max(0, STREAM_IDLE_TIMEOUT - WARN_LEAD_MS);
+    warnTimer = setTimeout(onWarn, warnAt);
+    idleTimer = setTimeout(onIdleTimeout, STREAM_IDLE_TIMEOUT);
+  };
+
+  const clear = () => {
+    if (idleTimer) clearTimeout(idleTimer);
+    if (warnTimer) clearTimeout(warnTimer);
+    idleTimer = warnTimer = undefined;
+  };
+
+  return { reset, clear };
+}
+
+// stream.on("event", () => { resetWatchdog.reset(); ... });
+// await stream.finalMessage(); finally: resetWatchdog.clear();
+```
+
+- **要点**：在「距 abort 还有 10s」时触发一次 `onWarn`（例如往 UI 打一行 `API 响应缓慢...`）；每次收到事件要同时清掉警告定时器与 idle 定时器并重新 `reset`，避免重复警告。
+
+</details>
+
+<details>
+<summary>练习 3 参考实现</summary>
+
+```typescript
+import fs from "node:fs";
+import path from "node:path";
+
+async function streamTurnWithVcr(
+  stream: MessageStream,
+  vcrPath: string,
+): Promise<Message> {
+  const events: unknown[] = [];
+
+  stream.on("event", (event) => {
+    events.push(JSON.parse(JSON.stringify(event)));
+  });
+
+  try {
+    const finalMessage = await stream.finalMessage();
+    return finalMessage;
+  } finally {
+    fs.mkdirSync(path.dirname(vcrPath), { recursive: true });
+    fs.writeFileSync(vcrPath, JSON.stringify(events, null, 2), "utf8");
+  }
+}
+```
+
+- **要点**：在 `content_block_*` 等所有 `event` 上追加到数组；`JSON.stringify(event)` 若遇循环引用可改为只序列化 `type` 与必要字段；写入文件放在 `finalMessage` 之后（或 `finally`），保证一次请求对应一份完整录制。
+
+</details>
+
+## 下一课预告
+
+模型经常一次返回多个工具调用。目前我们串行执行——但读类工具完全可以并行。下一课 **s22 工具并行执行** 将实现安全工具并行、危险工具串行的调度策略。

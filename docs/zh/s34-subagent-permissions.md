@@ -1,5 +1,22 @@
 # s34 — 子 Agent 权限：继承与隔离
 
+> **Children can be stricter, never looser.**
+
+`[ Phase 8: 安全与权限 ]` · 工具数: 14 · 代码量: ~300 行
+
+---
+
+## 前置知识
+
+- 需要完成: s33 [权限 UI]
+
+## 你将学到
+
+- Session allow 规则不继承的设计原理
+- <abbr data-tip="安全设计原则——子进程/子 Agent 的权限只能是父进程的子集，不能获得比父更多的权限">权限模式收紧</abbr>：子 Agent 只能比父更严格
+- 异步子 Agent 无 UI 的权限策略：ask 自动 deny
+- createSubagentPermissionContext 实现
+
 ## 问题场景
 
 主 Agent 运行中，用户批准了 `bash` 的 Always Allow。然后主 Agent 创建子 Agent：
@@ -170,5 +187,63 @@ npm run dev
 ## 练习
 
 1. 实现 bubble 模式：异步子 Agent 的 ask 冒泡到父 Agent 的 PermissionPrompt
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+Bubble 权限冒泡机制：
+
+```typescript
+// 子 Agent 检测到 ask → 通过回调冒泡到父 Agent
+class BubblePermissionManager {
+  private parentPromptCallback:
+    | ((req: PermissionRequest) => Promise<string>)
+    | null = null;
+
+  setParentPrompt(cb: (req: PermissionRequest) => Promise<string>) {
+    this.parentPromptCallback = cb;
+  }
+
+  async checkPermission(tool, input): Promise<{ allowed: boolean }> {
+    const decision = hasPermissionsToUseTool(tool.name, input, this.ctx);
+    if (decision.behavior !== "ask") {
+      return { allowed: decision.behavior === "allow" };
+    }
+
+    // 冒泡到父 Agent 的 UI
+    if (this.parentPromptCallback) {
+      const choice = await this.parentPromptCallback({
+        toolName: tool.name,
+        toolInput: input,
+        source: "subagent",
+        agentId: this.ctx.agentId,
+      });
+      return { allowed: choice !== "deny" };
+    }
+
+    // 无冒泡目标 → deny（安全兜底）
+    return { allowed: false };
+  }
+}
+```
+
+**关键**：异步子 Agent 通过 `parentPromptCallback` 将权限请求转发到父 Agent 的 UI，父 Agent 的 PermissionPrompt 中显示来源标识（如 `[子 Agent abc123]`）。
+
+</details>
+
 2. 添加审计日志：记录每个子 Agent 的权限检查结果和用户决策
 3. 实现 "inherit" 选项：允许显式继承特定的 session 规则（需要用户确认）
+
+## Phase 8 总结
+
+恭喜！完成 s32-s34，你的 Agent 已经有了**完整的安全与权限体系**：
+
+- ✅ 权限规则引擎：allow / deny / ask 三种行为，九步决策流水线，deny 优先（s32）
+- ✅ 权限 UI：交互式审批对话框，Promise 挂起模式，Always Allow 记住选择（s33）
+- ✅ 子 Agent 权限：session allow 不继承，模式只能收紧，异步子 Agent ask 自动 deny（s34）
+
+下一个 Phase 将让 Agent 连接外部世界——**MCP 协议**。如何让 Agent 调用数据库、GitHub、Slack 等外部工具？**s35 MCP Client** 开始。
+
+## 下一课预告
+
+Agent 的内置工具集有限，真实场景需要连接数据库、调用 API、操作 GitHub。下一课 **s35 MCP Client** 将实现 Model Context Protocol 客户端，让 Agent 动态发现和调用外部工具服务器。

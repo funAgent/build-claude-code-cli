@@ -1,5 +1,22 @@
 # s31 — Task System：持久化任务与依赖图
 
+> **What gets persisted, gets done.**
+
+`[ Phase 7: Agent 智能 ]` · 工具数: 14 · 代码量: ~400 行
+
+---
+
+## 前置知识
+
+- 需要完成: s30 [Skill 系统]
+
+## 你将学到
+
+- Task 与 TodoWrite 的定位区别与互斥开关
+- <abbr data-tip="用有向边描述任务间前置关系的图结构，常见于构建系统（如 Webpack）和 CI/CD 流水线">依赖图</abbr>设计：blocks / blockedBy 双向边
+- 磁盘持久化存储（JSON 文件）与跨会话恢复
+- createTask / updateTask / task_list / task_get 四个工具
+
 ## 问题场景
 
 TodoWrite（s27）有两个致命限制：
@@ -164,7 +181,7 @@ npm run dev
 |------|-------------|-------------|
 | 存储格式 | 简单 JSON 文件 | JSON + proper-lockfile 文件锁 |
 | ID 生成 | 自增计数器 | 单调递增 + high water mark 防重用 |
-| 依赖图 | blocks/blockedBy 双向边 | 同 + 拓扑排序验证无环 |
+| 依赖图 | blocks/blockedBy 双向边 | 同 + <abbr data-tip="将有向无环图的节点排成线性序列，保证每条边的起点排在终点之前，用于确定任务执行顺序">拓扑排序</abbr>验证无环 |
 | 并发安全 | 无 | proper-lockfile（多 Agent 同时操作） |
 | 工具集 | create/update/list/get | 同 + TaskOutput（报告子任务结果） |
 | 与 TodoWrite 关系 | 共存 | `isEnabled()` 互斥开关 |
@@ -179,5 +196,61 @@ npm run dev
 ## 练习
 
 1. 实现环检测：创建任务时验证不会形成循环依赖
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+环检测算法（DFS + 灰度标记法）：
+
+```typescript
+export function detectCycle(
+  tasks: Map<string, Task>,
+  startId: string,
+): boolean {
+  const WHITE = 0, GRAY = 1, BLACK = 2;
+  const color = new Map<string, number>();
+
+  function dfs(id: string): boolean {
+    color.set(id, GRAY); // 正在访问
+    const task = tasks.get(id);
+    if (task) {
+      for (const blockedId of task.blocks) {
+        const c = color.get(blockedId) ?? WHITE;
+        if (c === GRAY) return true;  // 遇到灰节点 = 环
+        if (c === WHITE && dfs(blockedId)) return true;
+      }
+    }
+    color.set(id, BLACK); // 访问完成
+    return false;
+  }
+
+  return dfs(startId);
+}
+
+// 在 createTask 中使用
+const cycleDetected = detectCycle(allTasks, newTask.id);
+if (cycleDetected) throw new Error("检测到循环依赖");
+```
+
+**原理**：DFS 遍历时，如果遇到"正在访问"（GRAY）的节点，说明存在环。已完全访问（BLACK）的节点可以跳过。
+
+</details>
+
 2. 添加 proper-lockfile：防止多个 Agent 同时修改同一个任务文件
 3. 实现 TaskOutputTool：子 Agent 完成任务后报告结果给父 Agent
+
+## Phase 7 总结
+
+恭喜！完成 s27-s31，你的 Agent 已经有了**完整的智能能力**：
+
+- ✅ TodoWrite：任务规划与状态追踪，Agent 学会先规划再执行（s27）
+- ✅ Subagent 基础：上下文隔离，子 Agent 获得干净的工作空间（s28）
+- ✅ Subagent 进阶：工具过滤、递归深度控制、生命周期清理（s29）
+- ✅ Skill 系统：按需加载知识，SKILL.md + 延迟工具 + tool_search（s30）
+- ✅ Task System：磁盘持久化任务、依赖图、多 Agent 协作（s31）
+
+下一个 Phase 将解决 Agent 最重要的安全问题——**权限控制**。Agent 能执行 bash 命令、修改文件，如何防止误操作？**s32 权限规则引擎** 开始。
+
+## 下一课预告
+
+Agent 拥有 bash 和文件写入工具，但毫无权限控制等于给了 AI 无限制的 root 权限。下一课 **s32 权限规则引擎** 将实现 allow / deny / ask 三种权限行为和多层决策流水线。

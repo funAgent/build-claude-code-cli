@@ -1,5 +1,22 @@
 # s24 — 自动压缩：让 Agent 能进行无限长度的对话
 
+> **Context is finite; memory need not be.**
+
+`[ Phase 6: 上下文管理 ]` · 工具数: 9 · 代码量: ~350 行
+
+---
+
+## 前置知识
+
+- 需要完成: s23 [启动性能优化]
+
+## 你将学到
+
+- Context window 阈值检测与 <abbr data-tip="通过字符数除以 4 粗略计算 token 数的方法，比加载完整 tokenizer 更快但有 ±20% 误差">token 估算</abbr>
+- 摘要压缩（compact）的完整流水线：阈值检查 → 生成摘要 → 重建消息数组
+- Compact Boundary 消息的设计原理
+- <abbr data-tip="当系统连续失败达到阈值时自动停止尝试的保护模式，源自微服务架构的 Circuit Breaker 设计">熔断机制</abbr>防止压缩失败循环
+
 ## 问题场景
 
 用户和 Agent 已经对话了 30 轮。每轮都有工具调用和结果，messages 数组已经膨胀到 ~180K tokens：
@@ -20,7 +37,7 @@ Context Window 使用情况：
 
 下一轮 API 调用将失败：`prompt is too long: 185632 tokens > 183616 max`。
 
-**Context window 是有限的。** 对话越长，积累的消息越多，最终一定会撞到上限。
+**<abbr data-tip="模型单次请求能处理的最大 token 数量，由模型决定，如 Claude 的 200K tokens">Context window</abbr> 是有限的。** 对话越长，积累的消息越多，最终一定会撞到上限。
 
 ## 设计决策
 
@@ -268,5 +285,33 @@ autoCompactIfNeeded(messages, model, state)
 ## 练习
 
 1. 修改 `COMPACT_THRESHOLD` 为一个较小的值（如 5000），然后进行几轮对话观察压缩行为
+
+<details>
+<summary>练习 1 参考实现</summary>
+
+修改阈值并测试压缩：
+
+```typescript
+// 在 compact.ts 中修改阈值
+const COMPACT_THRESHOLD = 5_000; // 从 171K 改为 5K（测试用）
+
+// 在 agent.ts 的 maybeCompact 中添加日志
+private async maybeCompact(onOutput) {
+  const { shouldCompact, tokenCount } = shouldAutoCompact(
+    this.messages, this.compactState
+  );
+  console.log(`[debug] tokenCount: ${tokenCount}, threshold: ${COMPACT_THRESHOLD}`);
+  if (!shouldCompact) return;
+  // ...
+}
+```
+
+**预期行为**：设置低阈值后，几轮简单对话就会触发自动压缩。观察压缩前后 `tokenCount` 的变化，以及压缩后 messages 数组长度的缩减。
+
+</details>
 2. 改进 `getCompactPrompt()`：让摘要按"文件修改"、"决策记录"、"待办事项"分类
 3. 实现"选择性保留"：保留最近 3 轮对话而非 1 轮，比较压缩后模型的表现
+
+## 下一课预告
+
+s24 的自动压缩解决了一部分问题，但工具结果占用的空间仍然很大，且 prompt-too-long 错误没有兜底。下一课 **s25 多层压缩策略** 将实现微压缩（零成本清理旧工具结果）和响应式压缩（紧急兜底），构建三层递进的压缩体系。

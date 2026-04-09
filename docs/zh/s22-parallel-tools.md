@@ -1,6 +1,21 @@
 # s22 — 工具并行执行：安全工具并行，危险工具串行
 
-## 问题场景
+> **Read in parallel, write in series**
+
+`[ Phase 5: 流式与性能 ]` · 工具数: 9 · 代码量: ~400 行
+
+---
+
+## 前置知识
+
+- 需要完成: s21 [Streaming 进阶]
+
+## 你将学到
+
+- `isConcurrencySafe` 标记的设计
+- 安全工具 Promise.all 并行 + 危险工具串行执行
+- 工具执行结果按 tool_use_id 关联回原顺序
+- Claude Code 的 StreamingToolExecutor 架构
 
 Claude 经常在一次回复中调用多个工具：
 
@@ -210,3 +225,82 @@ cd agents/s22-parallel-tools && npm run dev
 1. 给 bash 工具实现动态的 `isConcurrencySafe`：如果命令以 `cat`、`ls`、`echo` 开头则安全
 2. 实现 sibling abort：如果一个工具执行报错，取消其他正在执行的工具
 3. 添加并发上限（如最多 5 个工具并行），超出的排队等待
+
+<details><summary>练习 1 参考实现</summary>
+
+```typescript
+/** 根据工具名与输入判断是否可与其它「安全」工具并行（bash 按命令前缀动态判断） */
+function isConcurrencySafeForCall(
+  tool: Tool | undefined,
+  input: Record<string, unknown>,
+): boolean {
+  if (!tool) return false;
+  if (tool.name === "bash") {
+    const cmd = String((input as { command?: string }).command ?? "").trim();
+    const first = cmd.split(/\s+/)[0] ?? "";
+    return ["cat", "ls", "echo"].includes(first);
+  }
+  return tool.isConcurrencySafe ?? false;
+}
+
+// addTool 内：isSafe = isConcurrencySafeForCall(tool, call.input)
+```
+
+要点：把「是否安全」从静态 flag 换成「工具名 + 本次 input」的函数；bash 只认第一个 token，避免把 `echo rm` 之类误判为安全（若需更严可解析 shell 或维护白名单）。
+
+</details>
+
+<details><summary>练习 2 参考实现</summary>
+
+```typescript
+// 并行批内共用一个 AbortController；任一工具返回 isError 或抛错则 abort，其它进行中的调用应尊重 signal
+private async executeBatchWithSiblingAbort(batch: TrackedTool[]): Promise<void> {
+  const controller = new AbortController();
+  const { signal } = controller;
+
+  const runOne = async (tracked: TrackedTool) => {
+    if (signal.aborted) {
+      tracked.result = { output: "Aborted (sibling failed)", isError: true };
+      return;
+    }
+    tracked.result = await this.executeSingle(tracked, signal);
+    if (tracked.result.isError) controller.abort();
+  };
+
+  await Promise.all(batch.map((t) => runOne(t)));
+}
+
+// executeSingle 内：若 signal.aborted 则不再启动子进程；已启动的需在 spawn 上保存 ChildProcess，abort 时 kill
+```
+
+要点：失败「取消兄弟」= 共享 AbortController + 在 execute 路径上检查 `signal`；与子进程集成时要在 abort 时 `kill` 子进程，避免僵尸或继续占用资源。
+
+</details>
+
+<details><summary>练习 3 参考实现</summary>
+
+```typescript
+const MAX_PARALLEL = 5;
+
+/** 将 batch 按槽位分批：每批最多 MAX_PARALLEL 个，批内 Promise.all，批间顺序执行 → 全局最多同时 MAX_PARALLEL 个 */
+private async runLimitedParallel<T>(
+  items: T[],
+  fn: (item: T) => Promise<void>,
+): Promise<void> {
+  for (let i = 0; i < items.length; i += MAX_PARALLEL) {
+    const chunk = items.slice(i, i + MAX_PARALLEL);
+    await Promise.all(chunk.map((item) => fn(item)));
+  }
+}
+
+// 原: await Promise.all(batch.map((t) => runOne(t)));
+// 改: await this.runLimitedParallel(batch, (t) => runOne(t));
+```
+
+要点：在「同一批安全工具」内部加窗口上限，避免 20 个 glob 同时打盘；批间仍保持文档中的顺序语义，只是同一批内最多 N 个并发、其余排队到下一窗口。
+
+</details>
+
+## 下一课预告
+
+Agent 的功能越来越完善，但启动时间也在变慢——`mycli --version` 要等 3 秒。下一课 **s23 启动性能优化** 将通过懒加载、并行预加载和快速路径把启动时间降到 300ms。
