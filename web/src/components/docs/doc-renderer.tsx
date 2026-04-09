@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useLocale } from "@/lib/i18n";
 import docsData from "@/data/generated/docs.json";
+import { TermTip } from "./term-tip";
 import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkGfm from "remark-gfm";
@@ -82,10 +83,12 @@ export function DocRenderer({ version }: DocRendererProps) {
 
   return (
     <div>
-      <div
-        className="prose-custom"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <TermTip>
+        <div
+          className="prose-custom"
+          dangerouslySetInnerHTML={{ __html: html }}
+        />
+      </TermTip>
     </div>
   );
 }

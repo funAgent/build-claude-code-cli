@@ -51,7 +51,7 @@ delay = min(baseDelay × 2^attempt + random_jitter, maxDelay)
 | 第 2 次 | 2-3 秒 |
 | 第 3 次 | 4-5 秒 |
 
-加随机 jitter 避免多个客户端同时重试导致"雷群效应"。
+加随机 jitter 避免多个客户端同时重试导致<abbr data-tip="当大量客户端在同一时刻同时重试请求，瞬间压垮服务器，就像雷群同时奔跑引发踩踏。加随机 jitter 就是让每个客户端错开一点时间，避免这种同步冲击。">雷群效应</abbr>。
 
 ## 动手实现
 
