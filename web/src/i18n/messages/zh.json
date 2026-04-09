@@ -6,8 +6,8 @@
   "nav": {
     "home": "首页",
     "timeline": "学习路径",
-    "compare": "版本对比",
-    "architecture": "架构",
+    "guide": "架构全景",
+    "architecture": "架构图",
     "github": "GitHub"
   },
   "home": {
@@ -67,17 +67,14 @@
     "title": "架构层级",
     "subtitle": "12 个阶段覆盖 Agent 产品的完整工程关注点"
   },
-  "compare": {
-    "title": "版本对比",
-    "subtitle": "对比任意两课之间的变更",
-    "select_a": "版本 A",
-    "select_b": "版本 B",
-    "loc_delta": "代码量变化",
-    "lines": "行",
-    "empty_hint": "选择上方两个版本进行对比"
+  "guide": {
+    "title": "架构全景",
+    "subtitle": "从一个 while 循环到生产级 Agent CLI — 七层架构与设计哲学",
+    "toc": "目录",
+    "coming_soon": "指南即将上线"
   },
   "architecture": {
-    "title": "架构",
+    "title": "架构图",
     "subtitle": "Agent CLI 的完整模块组成与分层结构",
     "tab_map": "架构全景",
     "tab_layers": "架构层级"

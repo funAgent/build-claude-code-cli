@@ -6,7 +6,7 @@
   "nav": {
     "home": "Home",
     "timeline": "Learning Path",
-    "compare": "Compare",
+    "guide": "Guide",
     "architecture": "Architecture",
     "github": "GitHub"
   },
@@ -67,14 +67,11 @@
     "title": "Architectural Layers",
     "subtitle": "12 phases covering every engineering concern of an Agent product"
   },
-  "compare": {
-    "title": "Compare Versions",
-    "subtitle": "See what changed between any two lessons",
-    "select_a": "Version A",
-    "select_b": "Version B",
-    "loc_delta": "LOC Delta",
-    "lines": "lines",
-    "empty_hint": "Select two versions above to compare them."
+  "guide": {
+    "title": "Architecture Guide",
+    "subtitle": "From a single while loop to a production-grade Agent CLI — 7 layers of architecture and design philosophy",
+    "toc": "Contents",
+    "coming_soon": "Guide coming soon"
   },
   "architecture": {
     "title": "Architecture",

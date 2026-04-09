@@ -83,6 +83,7 @@ pre, code, kbd, samp, .font-mono {
   letter-spacing: -0.01em;
   color: #09090b;
   border-bottom: 1px solid #e4e4e7;
+  scroll-margin-top: 5rem;
 }
 
 .dark .prose-custom h2 {
@@ -97,6 +98,7 @@ pre, code, kbd, samp, .font-mono {
   line-height: 1.5rem;
   font-weight: 600;
   color: #18181b;
+  scroll-margin-top: 5rem;
 }
 
 .dark .prose-custom h3 {
@@ -161,6 +163,45 @@ pre, code, kbd, samp, .font-mono {
 
 .dark .prose-custom blockquote.hero-callout p {
   color: #93c5fd;
+}
+
+.prose-custom blockquote.callout-insight {
+  position: relative;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: none;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #fdf4ff 0%, #faf5ff 50%, #f5f3ff 100%);
+  padding: 1.25rem 1.5rem 1.25rem 1.75rem;
+  font-style: normal;
+  overflow: hidden;
+}
+
+.prose-custom blockquote.callout-insight::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(to bottom, #a855f7, #6366f1);
+  border-radius: 4px 0 0 4px;
+}
+
+.prose-custom blockquote.callout-insight p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  font-weight: 500;
+  color: #6b21a8;
+  margin: 0;
+}
+
+.dark .prose-custom blockquote.callout-insight {
+  background: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
+}
+
+.dark .prose-custom blockquote.callout-insight p {
+  color: #d8b4fe;
 }
 
 .prose-custom blockquote {

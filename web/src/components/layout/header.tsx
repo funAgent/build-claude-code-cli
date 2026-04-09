@@ -10,8 +10,8 @@ import { useTheme } from "@/hooks/useTheme";
 
 const NAV_ITEMS = [
   { key: "timeline", href: "/timeline" },
+  { key: "guide", href: "/guide" },
   { key: "architecture", href: "/architecture" },
-  { key: "compare", href: "/compare" },
 ] as const;
 
 const LOCALES = [

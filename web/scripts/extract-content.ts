@@ -121,7 +121,32 @@ function main() {
     console.log(`  Found ${docs.length} doc files`);
   }
 
-  // 3. Write output
+  // 3. Read guide files
+  interface GuideContent {
+    locale: string;
+    title: string;
+    content: string;
+  }
+
+  const guides: GuideContent[] = [];
+
+  if (fs.existsSync(DOCS_DIR)) {
+    for (const locale of ["zh", "en"]) {
+      const localeDir = path.join(DOCS_DIR, locale);
+      if (!fs.existsSync(localeDir)) continue;
+
+      const guidePath = path.join(localeDir, "guide.md");
+      if (fs.existsSync(guidePath)) {
+        const content = fs.readFileSync(guidePath, "utf-8");
+        const titleMatch = content.match(/^#\s+(.+)$/m);
+        const title = titleMatch ? titleMatch[1] : "Guide";
+        guides.push({ locale, title, content });
+      }
+    }
+    console.log(`  Found ${guides.length} guide files`);
+  }
+
+  // 4. Write output
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
   const versionsPath = path.join(OUT_DIR, "versions.json");
@@ -132,9 +157,14 @@ function main() {
   fs.writeFileSync(docsPath, JSON.stringify(docs, null, 2));
   console.log(`  Wrote ${docsPath}`);
 
+  const guidesPath = path.join(OUT_DIR, "guides.json");
+  fs.writeFileSync(guidesPath, JSON.stringify(guides, null, 2));
+  console.log(`  Wrote ${guidesPath}`);
+
   console.log("\nExtraction complete:");
   console.log(`  ${versions.length} versions`);
   console.log(`  ${docs.length} docs`);
+  console.log(`  ${guides.length} guides`);
   for (const v of versions) {
     console.log(`    ${v.id}: ${v.loc} LOC, ${v.sourceFiles.length} files`);
   }
