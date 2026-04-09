@@ -20,11 +20,24 @@ function writeProgress(set: Set<string>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify([...set]));
 }
 
+// Custom event so same-tab components sync instantly
+function dispatchChange() {
+  window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
+}
+
 export function useProgress() {
   const [completed, setCompleted] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setCompleted(readProgress());
+
+    // Listen for changes from other hook instances (same tab via custom
+    // dispatch, or cross-tab via the native storage event).
+    function sync() {
+      setCompleted(readProgress());
+    }
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
   }, []);
 
   const toggle = useCallback((sessionId: string) => {
@@ -38,6 +51,8 @@ export function useProgress() {
       writeProgress(next);
       return next;
     });
+    // Notify other useProgress instances
+    dispatchChange();
   }, []);
 
   const isCompleted = useCallback(
