@@ -41,17 +41,19 @@ export function useProgress() {
   }, []);
 
   const toggle = useCallback((sessionId: string) => {
-    setCompleted((prev) => {
-      const next = new Set(prev);
-      if (next.has(sessionId)) {
-        next.delete(sessionId);
-      } else {
-        next.add(sessionId);
-      }
-      writeProgress(next);
-      return next;
-    });
-    // Notify other useProgress instances
+    // Read-modify-write localStorage synchronously BEFORE dispatching the
+    // change event, so that other hook instances (triggered by sync()) read
+    // the up-to-date value.  Previously writeProgress lived inside the
+    // setCompleted functional updater which is deferred until render — causing
+    // sync() to read stale data on the first click.
+    const next = new Set(readProgress());
+    if (next.has(sessionId)) {
+      next.delete(sessionId);
+    } else {
+      next.add(sessionId);
+    }
+    writeProgress(next);
+    setCompleted(next);
     dispatchChange();
   }, []);
 
