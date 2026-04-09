@@ -148,6 +148,25 @@ function createMcpToolProxy(serverName, mcpTool, child): Tool {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s35-mcp-client
+npm run dev
+
+# 1. 启动后观察 MCP 服务器连接日志
+#    → [mcp] Connecting to github-mcp via stdio...
+#    → [mcp] Connected. Discovered 12 tools.
+
+# 2. 让 Agent 调用 MCP 工具
+#    > 帮我查一下 GitHub 上的 open issues
+#    → Agent 调用 mcp__github__list_issues
+#    → 工具名前缀 mcp__<server>__<tool> 表示代理调用
+
+# 3. 观察 JSON-RPC 通信
+#    → initialize → tools/list → tools/call 完整流程
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s35) | Claude Code |

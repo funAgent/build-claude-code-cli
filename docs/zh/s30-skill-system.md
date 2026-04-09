@@ -144,7 +144,7 @@ export const toolSearchTool = buildTool({
 });
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s30-skill-system

@@ -60,6 +60,34 @@
 - 问题列表：错误码、修复建议链接
 - 敏感信息：API Key **脱敏**（只显示前后缀）
 
+## 运行验证
+
+```bash
+cd agents/s48-telemetry-diagnostics
+
+# 1. 启用性能剖析启动
+PROFILE=1 npm run dev
+# → [perf] prefetch_start: 0ms
+# → [perf] prefetch_done: 182ms
+# → [perf] first_render: 245ms
+# → 各阶段耗时一目了然
+
+# 2. 运行诊断命令
+npm run dev -- doctor
+# → 检测 Node 版本、API Key、Git、rg 等
+# → ✓ Node v20.11.0 (>=18 required)
+# → ✓ API Key configured (sk-ant-...***...xyz)
+# → ✗ ripgrep not found (using fallback)
+
+# 3. 验证敏感信息脱敏
+#    → API Key 只显示前后缀：sk-ant-***xyz
+#    → 路径中的用户名不暴露
+
+# 4. 验证采样遥测
+#    → 遥测事件按采样率发送（非全量）
+#    → 离线时静默跳过，不影响使用
+```
+
 ## 对照 Claude Code 表格
 
 | 概念 | Claude Code 中的位置 | 说明 |

@@ -204,7 +204,7 @@ private async maybeCompact(onOutput): Promise<void> {
 
 关键点：`this.messages` 是跨 `run()` 调用持久化的。压缩后直接替换引用。
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s24-auto-compact

@@ -163,7 +163,7 @@ export const todoWriteTool = buildTool({
 });
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s27-todo-write

@@ -93,6 +93,27 @@ export function getMergedMcpConfig(cwd): Record<string, McpServerConfig> {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s36-mcp-server
+
+# 1. 以 MCP 服务端模式启动
+npm run dev -- mcp serve
+
+# 2. 在另一个终端发送 JSON-RPC 请求
+echo '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"capabilities":{}}}' | npm run dev -- mcp serve
+# → 返回 serverInfo + capabilities
+
+# 3. 测试工具发现
+echo '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | ...
+# → 返回内置工具列表（bash, file_read, file_write 等）
+
+# 4. 测试多作用域配置
+npm run dev -- mcp list
+# → 显示 user / project / local 三级 MCP 配置
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s36) | Claude Code |

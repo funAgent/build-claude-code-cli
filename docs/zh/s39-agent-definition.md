@@ -83,6 +83,34 @@ export function parseAgentFromMarkdown(content, source): AgentDefinition | null 
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s39-agent-definition
+
+# 1. 创建一个自定义 Agent 定义
+mkdir -p .agents
+cat > .agents/reviewer.md << 'EOF'
+---
+name: reviewer
+model: claude-sonnet
+tools:
+  - file_read
+  - grep
+  - glob
+---
+你是一个代码审查专家。只做审查，不修改代码。
+EOF
+
+# 2. 启动并加载自定义 Agent
+npm run dev
+# → [agent-def] Loaded reviewer from .agents/reviewer.md
+# → Agent 使用 reviewer 定义的 system prompt 和工具集
+
+# 3. 验证来源优先级
+#    project 定义覆盖 built-in 同名定义
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s39) | Claude Code |

@@ -134,7 +134,7 @@ async call(input, context) {
 }
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s29-subagent-advanced

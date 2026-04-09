@@ -175,7 +175,7 @@ function ThinkingMessage({ content, streaming }) {
 }
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s21-advanced-streaming && npm run dev

@@ -52,6 +52,31 @@
 3. **安全**：`findExecutable` 后对 **用户显式要求 system rg** 仍只用 `rg` 名字执行，避免 cwd 下的恶意同名文件（见实现内注释）。
 4. **EAGAIN 等**：Docker/CI 线程不足时 stderr 可能提示资源暂不可用，应重试或限并发。
 
+## 运行验证
+
+```bash
+cd agents/s47-native-capabilities
+npm run dev
+
+# 1. 观察能力检测结果
+#    → [capabilities] git: ✓ (system)
+#    → [capabilities] rg: ✓ (system) / ✗ (fallback to builtin grep)
+#    → [capabilities] clipboard: ✓ (pbcopy) / ✗
+
+# 2. 验证 ripgrep 三档降级
+#    有系统 rg → 使用 system rg
+#    无系统 rg → 使用 vendor/ripgrep 或内置 fallback
+which rg && echo "system rg available"
+
+# 3. 测试搜索功能
+#    > 搜索项目中所有 TODO 注释
+#    → Agent 调用 ripgrep（或 fallback）执行搜索
+#    → 结果正确返回，不因工具缺失而崩溃
+
+# 4. 验证降级可观测
+#    → 日志记录当前使用的搜索策略档位
+```
+
 ## 对照 Claude Code 表格
 
 | 概念 | Claude Code 中的位置 | 说明 |

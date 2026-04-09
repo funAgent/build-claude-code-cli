@@ -173,7 +173,7 @@ try {
 await this.maybeAutoCompact(onOutput);
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s25-multi-compact

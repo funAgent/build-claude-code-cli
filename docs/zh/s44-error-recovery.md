@@ -80,6 +80,31 @@ function getRetryDelay(attempt: number, retryAfterHeader?: string | null, maxDel
 - 打开（OPEN）后：**快速失败**，可选「半开」试探一次。
 - 与重试结合：熔断打开时**不再**调用 `withRetry` 内部循环，直接走降级路径。
 
+## 运行验证
+
+```bash
+cd agents/s44-error-recovery
+npm run dev
+
+# 1. 观察正常请求流程
+#    > 你好
+#    → 正常响应，无重试
+
+# 2. 模拟限流（设置无效 key 或触发 429）
+ANTHROPIC_API_KEY=sk-ant-invalid npm run dev
+# → [error] classifyAPIError → auth
+# → [retry] 不重试 auth 类错误，直接提示用户
+
+# 3. 观察退避日志（如遇到限流）
+#    → [retry] Attempt 1 failed: rate_limit
+#    → [retry] Waiting 500ms (base) + 125ms (jitter)...
+#    → [retry] Attempt 2...
+
+# 4. 验证熔断器
+#    → 连续 5 次失败后：[circuit] OPEN — 快速拒绝 30s
+#    → 30s 后：[circuit] HALF-OPEN — 允许一次探测
+```
+
 ## 对照 Claude Code 表格
 
 | 概念 | Claude Code 中的位置 | 说明 |

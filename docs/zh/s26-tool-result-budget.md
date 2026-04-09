@@ -169,7 +169,7 @@ const processed = processToolResult(
 this.applyBudget(onOutput);  // 确保不超预算
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s26-tool-result-budget

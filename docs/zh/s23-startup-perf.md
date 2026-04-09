@@ -221,7 +221,7 @@ export function startPrefetch(cwd: string) {
   - 预热 API 连接
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s23-startup-perf

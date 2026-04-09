@@ -156,7 +156,7 @@ export class PermissionManager {
 
 关键：`Promise` 将异步的 UI 交互转为同步的等待——Agent Loop 在用户做出选择前不会继续执行。
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s33-permission-ui

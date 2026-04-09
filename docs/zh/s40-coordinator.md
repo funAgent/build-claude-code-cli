@@ -87,6 +87,26 @@ export function filterWorkerTools(allTools) {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s40-coordinator
+npm run dev
+
+# 1. 提交一个需要并行处理的任务
+#    > 帮我同时重构 auth.ts、db.ts 和 api.ts
+
+# 2. 观察 Coordinator 分配任务
+#    → [coordinator] Dispatching 3 workers...
+#    → Worker-1: 处理 auth.ts
+#    → Worker-2: 处理 db.ts
+#    → Worker-3: 处理 api.ts
+
+# 3. 验证工具池隔离
+#    → Coordinator 只有 agent、send_message 等编排工具
+#    → Worker 有 file_read、file_write 等执行工具，但无 agent 工具
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s40) | Claude Code |

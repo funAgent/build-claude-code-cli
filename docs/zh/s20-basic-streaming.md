@@ -137,7 +137,7 @@ function StreamingMessage({ content }: { content: string }) {
 )}
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s20-basic-streaming && npm run dev

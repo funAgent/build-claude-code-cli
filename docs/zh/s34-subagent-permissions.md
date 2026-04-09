@@ -140,7 +140,7 @@ function resolveSubagentMode(
 }
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s34-subagent-permissions

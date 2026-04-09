@@ -113,6 +113,30 @@ export function withAgentWorktree(agentId, cwd, fn) {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s43-worktree-isolation
+npm run dev
+
+# 1. 让 Agent 创建子 Agent 执行任务
+#    > 帮我在隔离环境中重构 auth.ts
+
+# 2. 观察 Worktree 创建
+#    → [worktree] Created .claude/worktrees/agent-abc12345/
+#    → [worktree] Branch: worktree-agent-abc12345
+#    → Agent 在隔离目录中工作，主目录不受影响
+
+# 3. 验证隔离性
+ls .claude/worktrees/
+# → 每个 Agent 有独立目录和分支
+
+# 4. 观察清理行为
+#    → 无更改的 worktree 自动清理
+#    → 有更改的保留供用户审查
+git worktree list
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s43) | Claude Code |

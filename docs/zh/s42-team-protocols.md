@@ -118,6 +118,25 @@ export function pollForPermissionResponse(teamName, workerName, requestId) {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s42-team-protocols
+npm run dev
+
+# 1. 让 Worker 执行需要权限的操作
+#    > 帮我删除所有临时文件
+
+# 2. 观察协议消息流
+#    → Worker → Leader: PermissionRequest { toolName: "bash", command: "rm ..." }
+#    → Leader 审批: PermissionResponse { approved: true, requestId: "xxx" }
+#    → Worker 收到响应后继续执行
+
+# 3. 验证协议消息与普通消息分离
+#    → isProtocolMessage() 正确识别结构化协议 JSON
+#    → requestId 匹配：响应精确关联到对应请求
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s42) | Claude Code |

@@ -119,6 +119,26 @@ export function resumeSession(sessionId, cwd) {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s37-session-persistence
+npm run dev
+
+# 1. 进行几轮对话，建立上下文
+#    > 帮我分析 src/agent.ts 的结构
+#    > 继续优化错误处理部分
+
+# 2. Ctrl+C 退出，检查持久化文件
+ls ~/.agent-cli/projects/*/sessions/
+# → 看到 <sessionId>.jsonl 文件
+
+# 3. 用 --resume 恢复会话
+npm run dev -- --resume
+# → 列出可恢复的会话（时间、消息数、最后发言）
+# → 选择后 Agent 恢复上下文，继续之前的任务
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s37) | Claude Code |

@@ -174,7 +174,7 @@ if (safeCount > 1) {
 const toolResults = await executor.executeAll();
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s22-parallel-tools && npm run dev

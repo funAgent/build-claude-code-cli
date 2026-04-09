@@ -96,6 +96,26 @@ export function readUnreadMessages(teamName, memberName): TeammateMessage[] {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s41-team-mailbox
+npm run dev
+
+# 1. 创建 Team 并观察邮箱初始化
+#    → [team] Created team: my-team
+#    → [mailbox] Initialized inbox for leader, worker-1, worker-2
+
+# 2. 触发跨成员通信
+#    > 让 worker-1 分析代码，结果发给 worker-2
+#    → worker-1 → writeToMailbox("worker-2", result)
+#    → worker-2 → readUnreadMessages() 获取结果
+
+# 3. 检查邮箱文件
+ls ~/.agent-cli/teams/my-team/inboxes/
+# → leader.json  worker-1.json  worker-2.json
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s41) | Claude Code |

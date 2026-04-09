@@ -131,6 +131,32 @@ export function getPluginMcpServers() {
 }
 ```
 
+## 运行验证
+
+```bash
+cd agents/s38-plugin-system
+
+# 1. 创建一个测试插件
+mkdir -p .plugins/hello-plugin
+cat > .plugins/hello-plugin/plugin.json << 'EOF'
+{
+  "name": "hello-plugin",
+  "version": "1.0.0",
+  "description": "测试插件",
+  "permissions": ["file_read"]
+}
+EOF
+
+# 2. 启动 Agent，观察插件加载
+npm run dev
+# → [plugin] Loaded hello-plugin@1.0.0
+# → [plugin] Validated manifest: permissions OK
+
+# 3. 验证插件注册与启用/禁用
+#    > 列出已加载的插件
+#    → 显示 hello-plugin 及其状态
+```
+
 ## 对照 Claude Code
 
 | 维度 | 教学版 (s38) | Claude Code |

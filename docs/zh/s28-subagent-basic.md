@@ -125,7 +125,7 @@ export const agentTool = buildTool({
 
 关键点：子 Agent 运行完整的 Agent Loop（while + tool_use），但有自己独立的 messages 数组。
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s28-subagent-basic

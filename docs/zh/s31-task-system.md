@@ -147,7 +147,7 @@ task_list({ status: "pending" })
 task_get({ id: "1" })
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s31-task-system

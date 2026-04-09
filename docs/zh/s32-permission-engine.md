@@ -168,7 +168,7 @@ function checkBashPermissions(input): PermissionDecision {
 }
 ```
 
-## 验证
+## 运行验证
 
 ```bash
 cd agents/s32-permission-engine
